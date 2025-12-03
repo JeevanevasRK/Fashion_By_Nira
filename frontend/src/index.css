@@ -1,0 +1,213 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: #646cff;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* --- PRODUCT DETAIL STYLES (Moved to Global) --- */
+
+.detail-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  /* White card */
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Back Button */
+.back-btn {
+  margin-bottom: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  color: #555;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+  color: #000;
+}
+
+/* --- THE SPLIT LAYOUT --- */
+.detail-content {
+  display: flex;
+  flex-wrap: wrap;
+  /* Allows stacking on mobile */
+  gap: 50px;
+  /* Space between image and text */
+  justify-content: center;
+}
+
+/* IMAGE SIDE */
+.detail-image-box {
+  flex: 1 1 400px;
+  /* Grow to fill space, but at least 400px wide */
+  max-width: 600px;
+  background: #f9f9f9;
+  border-radius: 15px;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #eee;
+}
+
+.detail-img {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+  /* Show full image */
+}
+
+/* TEXT SIDE */
+.detail-info {
+  flex: 1 1 400px;
+  /* Grow to fill space, but at least 400px wide */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Center text vertically */
+}
+
+.detail-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+  line-height: 1.2;
+  color: #222;
+}
+
+.detail-price {
+  font-size: 2rem;
+  color: #512da8;
+  /* Purple Brand Color */
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+.detail-desc-label {
+  font-size: 0.9rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.detail-desc {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 40px;
+}
+
+/* BUTTON */
+.buy-btn {
+  background: black;
+  color: white;
+  padding: 18px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+  width: fit-content;
+  /* Only take necessary width */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.buy-btn:hover {
+  background: #512da8;
+  transform: translateY(-3px);
+}
+
+/* MOBILE FIX: On small screens, make button full width */
+@media (max-width: 768px) {
+
+  .detail-image-box,
+  .detail-info {
+    flex: 1 1 100%;
+    /* Take full width */
+  }
+
+  .buy-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
