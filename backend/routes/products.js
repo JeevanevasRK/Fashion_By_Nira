@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Product = require('../Models/product');
+const Product = require('../models/product');
 const jwt = require('jsonwebtoken');
 
 // Middleware to check if user is Admin
