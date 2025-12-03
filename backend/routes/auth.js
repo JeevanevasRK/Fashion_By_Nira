@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const User = require('../models_temp/User');
+const User = require('../models/User');
 
 // 1. REGISTER: REQUEST OTP
 router.post('/register-otp', async (req, res) => {
