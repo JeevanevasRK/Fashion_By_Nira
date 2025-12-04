@@ -20,22 +20,19 @@ function Auth({ onLoginSuccess, closeAuth }) {
 
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="animate" style={{ background: 'white', padding: '40px', width: '360px', borderRadius: '24px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-
-                <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                    <h2 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>Admin Access</h2>
-                    <p style={{ color: '#888', fontSize: '13px', marginTop: '5px' }}>Secure Gateway</p>
-                </div>
+            <div className="card animate" style={{ width: '360px', padding: '40px', textAlign: 'center' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '30px' }}>Admin Access</h2>
 
                 <form onSubmit={handleLogin} style={{ display: 'grid', gap: '15px' }}>
-                    <input className="input" placeholder="Phone Number" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required style={{ background: '#f9f9f9', borderColor: '#eee' }} />
-                    <input className="input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required style={{ background: '#f9f9f9', borderColor: '#eee' }} />
+                    <input className="input" placeholder="Phone Number" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required />
+                    <input className="input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+
                     <button className="btn btn-primary" style={{ width: '100%', padding: '15px', marginTop: '10px' }} disabled={loading}>
                         {loading ? "Authenticating..." : "Login to Dashboard"}
                     </button>
                 </form>
 
-                <button onClick={closeAuth} style={{ marginTop: '25px', width: '100%', background: 'none', border: 'none', color: '#666', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}>
+                <button onClick={closeAuth} style={{ marginTop: '25px', width: '100%', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}>
                     Cancel and Return
                 </button>
             </div>

@@ -1,36 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap');
 
-/* --- GLOBAL VARIABLES (Light Mode Default) --- */
-:root {
-  --bg-body: #f4f6f8;
-  --bg-card: #ffffff;
-  --bg-input: #ffffff;
-  --text-main: #1a1a1a;
-  --text-muted: #666666;
-  --border: #e0e0e0;
-  --accent: #000000;
-  --accent-text: #ffffff;
-  --success: #27ae60;
-  --danger: #ef4444;
-  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-}
-
-/* --- DARK MODE OVERRIDES (Auto-Detect) --- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-body: #0a0a0a;
-    --bg-card: #161616;
-    --bg-input: #1f1f1f;
-    --text-main: #ffffff;
-    --text-muted: #a0a0a0;
-    --border: #333333;
-    --accent: #ffffff;
-    --accent-text: #000000;
-    --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  }
-}
-
-/* --- RESET & LAYOUT --- */
+/* --- GLOBAL RESET --- */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -50,11 +20,45 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* FULL WIDTH CONTAINER */
+/* --- VARIABLES --- */
+:root {
+  /* Light Mode */
+  --bg-body: #f4f6f8;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --text-main: #1a1a1a;
+  --text-muted: #666666;
+  --border: #e0e0e0;
+  --accent: #000000;
+  /* Black Button */
+  --accent-text: #ffffff;
+  /* White Text */
+  --success: #27ae60;
+  --danger: #ef4444;
+  --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark Mode */
+    --bg-body: #0a0a0a;
+    --bg-card: #161616;
+    --bg-input: #1f1f1f;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --border: #333333;
+    --accent: #ffffff;
+    /* White Button */
+    --accent-text: #000000;
+    /* Black Text */
+    --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* --- UTILITIES --- */
 .wrapper {
   width: 100%;
   max-width: 1600px;
-  /* Use full screen on large monitors */
   margin: 0 auto;
   padding: 20px;
 }
@@ -65,7 +69,7 @@ body {
   }
 }
 
-/* --- COMPONENTS --- */
+/* --- BUTTONS --- */
 .btn {
   padding: 12px 24px;
   border-radius: 12px;
@@ -88,6 +92,7 @@ body {
 .btn-primary:hover {
   opacity: 0.9;
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-outline {
@@ -111,6 +116,7 @@ body {
   color: white;
 }
 
+/* --- INPUTS --- */
 .input {
   width: 100%;
   padding: 14px;
@@ -119,6 +125,7 @@ body {
   background: var(--bg-input);
   color: var(--text-main);
   font-size: 14px;
+  font-family: inherit;
   transition: 0.2s;
 }
 
@@ -126,20 +133,25 @@ body {
   border-color: var(--accent);
 }
 
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+/* --- CARDS --- */
 .card {
   background: var(--bg-card);
   border-radius: 16px;
   padding: 20px;
   box-shadow: var(--shadow);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(0, 0, 0, 0.02);
   margin-bottom: 20px;
 }
 
 /* --- ANIMATIONS --- */
-@keyframes fadeIn {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px);
   }
 
   to {
@@ -149,5 +161,5 @@ body {
 }
 
 .animate {
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
