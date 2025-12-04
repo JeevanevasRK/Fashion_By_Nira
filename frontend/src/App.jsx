@@ -5,8 +5,10 @@ import AdminPanel from './components/AdminPanel';
 import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
 
+// API BASE URL
 const API = "https://fashion-by-nira.onrender.com/api";
 
+// --- MODERN MODALS ---
 const OrderSuccessModal = () => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div className="card animate" style={{ textAlign: 'center', width: '350px', padding: '40px' }}>
@@ -17,7 +19,21 @@ const OrderSuccessModal = () => (
   </div>
 );
 
-// --- SIDE MENU COMPONENT ---
+const ConfirmModal = ({ message, onConfirm, onCancel }) => (
+  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="card animate" style={{ width: '320px', padding: '30px', textAlign: 'center' }}>
+      <div style={{ fontSize: '40px', marginBottom: '15px' }}>⚠️</div>
+      <h3 style={{ marginBottom: '10px' }}>Are you sure?</h3>
+      <p style={{ color: '#666', marginBottom: '25px', fontSize: '14px' }}>{message}</p>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1 }}>Cancel</button>
+        <button onClick={onConfirm} className="btn btn-danger" style={{ flex: 1 }}>Yes, Remove</button>
+      </div>
+    </div>
+  </div>
+);
+
+// --- SIDE MENU ---
 const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, onLogout }) => (
   <>
     {isOpen && <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1900 }}></div>}
@@ -64,7 +80,9 @@ function App() {
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
 
+  // Cart & Delete Modal State
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
+  const [itemToDelete, setItemToDelete] = useState(null); // Stores ID of item to delete
 
   useEffect(() => { localStorage.setItem('myShopCart', JSON.stringify(cart)); }, [cart]);
 
@@ -86,21 +104,24 @@ function App() {
     }));
   };
 
-  const decreaseQty = (id) => {
-    const item = cart.find(x => x._id === id);
-    if (item.quantity === 1) {
-      // POPUP CONFIRMATION (New Requirement)
-      if (window.confirm("Remove this item from your cart?")) {
-        setCart(cart.filter(x => x._id !== id));
-      }
-    } else {
-      setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
+  // Trigger Delete Modal
+  const requestDelete = (id) => setItemToDelete(id);
+
+  // Confirm Delete Action
+  const confirmDelete = () => {
+    if (itemToDelete) {
+      setCart(cart.filter(x => x._id !== itemToDelete));
+      setItemToDelete(null);
     }
   };
 
-  const removeFromCart = (id) => {
-    if (window.confirm("Are you sure you want to remove this item?")) {
-      setCart(cart.filter(x => x._id !== id));
+  // Handle Qty Decrease logic with popup
+  const decreaseQty = (id) => {
+    const item = cart.find(x => x._id === id);
+    if (item.quantity === 1) {
+      requestDelete(id); // Show popup if qty is 1
+    } else {
+      setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
     }
   };
 
@@ -143,14 +164,24 @@ function App() {
         </div>
       )}
 
-      {/* COMPONENTS */}
+      {/* COMPONENTS & MODALS */}
       <SideMenu isOpen={menuOpen} close={() => setMenuOpen(false)} view={view} setView={setView} cartCount={cart.reduce((a, c) => a + c.quantity, 0)} isAdmin={token && role === 'admin'} onLogin={() => setShowLogin(true)} onLogout={() => { setToken(null); setRole(null); setView('shop') }} />
 
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
       {orderSuccess && <OrderSuccessModal />}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {itemToDelete && (
+        <ConfirmModal
+          message="Do you want to remove this item from your shopping bag?"
+          onConfirm={confirmDelete}
+          onCancel={() => setItemToDelete(null)}
+        />
+      )}
+
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
-      {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} />}
+      {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
 
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
@@ -173,7 +204,7 @@ function App() {
                       <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
                       <button onClick={() => updateQty(item._id, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>+</button>
                     </div>
-                    <button onClick={() => removeFromCart(item._id)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
+                    <button onClick={() => requestDelete(item._id)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
                   </div>
                 ))}
               </div>
