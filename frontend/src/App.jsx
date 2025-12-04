@@ -5,7 +5,6 @@ import AdminPanel from './components/AdminPanel';
 import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
 
-// --- YOUR NEW API LINK ---
 const API = "https://fashion-by-nira.onrender.com/api";
 
 const OrderSuccessModal = () => (
@@ -18,14 +17,49 @@ const OrderSuccessModal = () => (
   </div>
 );
 
+// --- SIDE MENU COMPONENT ---
+const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, onLogout }) => (
+  <>
+    {isOpen && <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1900 }}></div>}
+    <div style={{
+      position: 'fixed', top: 0, right: isOpen ? 0 : '-300px', width: '280px', height: '100%',
+      background: 'var(--bg-card)', zIndex: 2000, padding: '30px', transition: '0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
+      boxShadow: '-10px 0 40px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '20px'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{ fontWeight: 800, margin: 0, fontSize: '20px' }}>MENU</h3>
+        <button onClick={close} style={{ background: 'none', border: 'none', fontSize: '28px', cursor: 'pointer', lineHeight: 1 }}>×</button>
+      </div>
+
+      <button onClick={() => { setView('shop'); close() }} className={`btn ${view === 'shop' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Shop Collection</button>
+      <button onClick={() => { setView('track'); close() }} className={`btn ${view === 'track' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Track Order</button>
+      <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
+
+      <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+        {isAdmin ? (
+          <>
+            <button onClick={() => { setView('admin'); close() }} className="btn btn-primary" style={{ width: '100%', marginBottom: '10px' }}>Admin Dashboard</button>
+            <button onClick={() => { onLogout(); close() }} className="btn btn-danger" style={{ width: '100%' }}>Logout</button>
+          </>
+        ) : (
+          <button onClick={() => { onLogin(); close() }} className="btn btn-outline" style={{ width: '100%' }}>Admin Login</button>
+        )}
+      </div>
+    </div>
+  </>
+);
+
 function App() {
   const [token, setToken] = useState(null);
   const [role, setRole] = useState(null);
   const [view, setView] = useState('shop');
   const [showLogin, setShowLogin] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
+
+  // Search & Track
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
@@ -36,6 +70,7 @@ function App() {
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
 
+  // --- CART LOGIC ---
   const addToCart = (p) => {
     const exist = cart.find(x => x._id === p._id);
     if (exist) setCart(cart.map(x => x._id === p._id ? { ...x, quantity: x.quantity + 1 } : x));
@@ -45,14 +80,29 @@ function App() {
   const updateQty = (id, delta) => {
     setCart(cart.map(item => {
       if (item._id === id) {
-        const newQty = item.quantity + delta;
-        return newQty > 0 ? { ...item, quantity: newQty } : item;
+        return { ...item, quantity: Math.max(1, item.quantity + delta) };
       }
       return item;
     }));
   };
 
-  const removeFromCart = (id) => setCart(cart.filter(x => x._id !== id));
+  const decreaseQty = (id) => {
+    const item = cart.find(x => x._id === id);
+    if (item.quantity === 1) {
+      // POPUP CONFIRMATION (New Requirement)
+      if (window.confirm("Remove this item from your cart?")) {
+        setCart(cart.filter(x => x._id !== id));
+      }
+    } else {
+      setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
+    }
+  };
+
+  const removeFromCart = (id) => {
+    if (window.confirm("Are you sure you want to remove this item?")) {
+      setCart(cart.filter(x => x._id !== id));
+    }
+  };
 
   const handleCheckout = async (e) => {
     e.preventDefault();
@@ -80,18 +130,9 @@ function App() {
     <div className="wrapper">
 
       {/* HEADER */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', flexWrap: 'wrap', gap: '15px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>FASHION BY NIRA</h1>
-
-        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto' }}>
-          <button onClick={() => setView('shop')} className={`btn ${view === 'shop' ? 'btn-primary' : 'btn-outline'}`}>Shop</button>
-          <button onClick={() => setView('track')} className={`btn ${view === 'track' ? 'btn-primary' : 'btn-outline'}`}>Track</button>
-          <button onClick={() => setView('cart')} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`}>Cart ({cart.reduce((a, c) => a + c.quantity, 0)})</button>
-          {token && role === 'admin' ?
-            <button onClick={() => setView('admin')} className="btn btn-primary">Admin</button> :
-            <button onClick={() => setShowLogin(true)} className="btn btn-outline">Admin Login</button>
-          }
-        </div>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
+        <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer' }}>☰</button>
       </header>
 
       {/* SEARCH BAR (Shop Only) */}
@@ -102,27 +143,23 @@ function App() {
         </div>
       )}
 
-      {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} apiUrl={API} />}
-      {orderSuccess && <OrderSuccessModal />}
-      {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} apiUrl={API} />}
+      {/* COMPONENTS */}
+      <SideMenu isOpen={menuOpen} close={() => setMenuOpen(false)} view={view} setView={setView} cartCount={cart.reduce((a, c) => a + c.quantity, 0)} isAdmin={token && role === 'admin'} onLogin={() => setShowLogin(true)} onLogout={() => { setToken(null); setRole(null); setView('shop') }} />
 
-      {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
+      {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
+      {orderSuccess && <OrderSuccessModal />}
+      {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
+
+      {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} />}
 
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
-      {/* CART VIEW */}
+      {/* CART */}
       {view === 'cart' && (
         <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <h2 style={{ marginBottom: '20px' }}>Your Cart</h2>
-          {cart.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: '60px' }}>
-              <h3 style={{ color: 'var(--text-muted)' }}>Your cart is empty</h3>
-              <button onClick={() => setView('shop')} className="btn btn-primary" style={{ marginTop: '20px' }}>Start Shopping</button>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
-
-              {/* CART ITEMS */}
+          <h2 style={{ marginBottom: '20px' }}>Shopping Bag</h2>
+          {cart.length === 0 ? <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '50px' }}>Your bag is empty.</p> : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 {cart.map(item => (
                   <div key={item._id} className="card" style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '15px' }}>
@@ -131,21 +168,15 @@ function App() {
                       <h4 style={{ fontSize: '16px' }}>{item.title}</h4>
                       <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>₹{item.price}</p>
                     </div>
-
-                    {/* QTY & DELETE */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-body)', borderRadius: '20px', padding: '5px 10px' }}>
-                        <button onClick={() => updateQty(item._id, -1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>-</button>
-                        <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
-                        <button onClick={() => updateQty(item._id, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
-                      </div>
-                      <button onClick={() => removeFromCart(item._id)} className="btn btn-danger" style={{ padding: '5px 10px', fontSize: '12px' }}>Delete</button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-body)', borderRadius: '20px', padding: '5px 10px' }}>
+                      <button onClick={() => decreaseQty(item._id)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>-</button>
+                      <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
+                      <button onClick={() => updateQty(item._id, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>+</button>
                     </div>
+                    <button onClick={() => removeFromCart(item._id)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
                   </div>
                 ))}
               </div>
-
-              {/* CHECKOUT */}
               <div className="card" style={{ height: 'fit-content' }}>
                 <h3>Total: ₹{cart.reduce((a, c) => a + (c.price * c.quantity), 0)}</h3>
                 <form onSubmit={handleCheckout} style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
@@ -160,7 +191,7 @@ function App() {
         </div>
       )}
 
-      {/* TRACK ORDER VIEW */}
+      {/* TRACKING WITH IMAGES */}
       {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
@@ -174,7 +205,12 @@ function App() {
                 <strong>#{o._id.slice(-6).toUpperCase()}</strong>
                 <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>{o.status}</span>
               </div>
-              {o.products.map((p, i) => <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{p.productId?.title || 'Item'} x{p.quantity}</div>)}
+              {o.products.map((p, i) => (
+                <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                  <img src={p.productId?.image || 'https://via.placeholder.com/40'} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '5px' }} />
+                  <span>{p.productId?.title || 'Item'} x{p.quantity}</span>
+                </div>
+              ))}
             </div>
           ))}
         </div>
