@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import Auth from './components/Auth';
 import AdminPanel from './components/AdminPanel';
 import ProductList from './components/ProductList';
@@ -7,7 +9,7 @@ import ProductDetail from './components/ProductDetail';
 
 const API = "https://fashion-by-nira.onrender.com/api";
 
-// Helper for consistent colors across app
+// --- HELPERS ---
 const getStatusColor = (status) => {
   switch (status) {
     case 'Pending': return '#ff9800';
@@ -16,6 +18,66 @@ const getStatusColor = (status) => {
     case 'Dispatched': return '#00bcd4';
     case 'Delivered': return '#27ae60';
     default: return '#888';
+  }
+};
+
+// --- INVOICE GENERATOR ---
+const downloadInvoice = async (order, type) => {
+  const element = document.createElement('div');
+  element.innerHTML = `
+    <div style="padding: 40px; font-family: sans-serif; background: white; width: 600px; color: #333;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">FASHION BY NIRA</h1>
+        <div style="text-align: right;">
+          <p style="margin: 0; font-size: 12px; color: #666;">INVOICE</p>
+          <p style="margin: 5px 0 0; font-weight: bold;">#${order._id.slice(-6).toUpperCase()}</p>
+        </div>
+      </div>
+      <div style="margin-bottom: 30px;">
+        <p><strong>Billed To:</strong><br>${order.customerName}<br>${order.customerPhone}<br>${order.shippingAddress}</p>
+      </div>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="background: #f4f4f4; text-align: left;">
+            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Item</th>
+            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Qty</th>
+            <th style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${order.products.map(p => `
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.quantity}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">
+        <h3 style="margin: 0;">Total: ₹${order.totalAmount}</h3>
+      </div>
+      <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
+    </div>
+  `;
+  document.body.appendChild(element);
+
+  const canvas = await html2canvas(element);
+  const data = canvas.toDataURL('image/png');
+  document.body.removeChild(element);
+
+  if (type === 'pdf') {
+    const pdf = new jsPDF();
+    const imgProps = pdf.getImageProperties(data);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(data, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
+  } else {
+    const link = document.createElement('a');
+    link.href = data;
+    link.download = `Invoice_${order._id.slice(-6)}.jpg`;
+    link.click();
   }
 };
 
@@ -67,6 +129,8 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
+
+  // Search & Track
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
@@ -77,6 +141,7 @@ function App() {
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
 
+  // --- CART LOGIC ---
   const addToCart = (p) => {
     const exist = cart.find(x => x._id === p._id);
     if (exist) setCart(cart.map(x => x._id === p._id ? { ...x, quantity: x.quantity + 1 } : x));
@@ -134,7 +199,7 @@ function App() {
         <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
       </header>
 
-      {/* SEARCH BAR */}
+      {/* SEARCH BAR (Shop Only) */}
       {view === 'shop' && (
         <div style={{ maxWidth: '500px', margin: '0 auto 40px', position: 'relative' }}>
           <input className="input" placeholder="Search products..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ paddingLeft: '45px', borderRadius: '50px' }} />
@@ -142,6 +207,7 @@ function App() {
         </div>
       )}
 
+      {/* COMPONENTS */}
       <SideMenu isOpen={menuOpen} close={() => setMenuOpen(false)} view={view} setView={setView} cartCount={cart.reduce((a, c) => a + c.quantity, 0)} isAdmin={token && role === 'admin'} onLogin={() => setShowLogin(true)} onLogout={() => { setToken(null); setRole(null); setView('shop') }} />
 
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
@@ -149,8 +215,10 @@ function App() {
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
       {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
+
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
+      {/* CART */}
       {view === 'cart' && (
         <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <h2 style={{ marginBottom: '20px' }}>Shopping Bag</h2>
@@ -187,6 +255,7 @@ function App() {
         </div>
       )}
 
+      {/* TRACKING WITH IMAGES & INVOICE */}
       {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
@@ -196,17 +265,25 @@ function App() {
           </form>
           {trackedOrders && trackedOrders.map(o => (
             <div key={o._id} className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>
-                <strong>#{o._id.slice(-6).toUpperCase()}</strong>
-                <span style={{
-                  color: getStatusColor(o.status),
-                  fontWeight: 'bold',
-                  padding: '3px 10px',
-                  background: `${getStatusColor(o.status)}20`,
-                  borderRadius: '10px'
-                }}>
-                  {o.status}
-                </span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>
+                <div>
+                  <strong>#{o._id.slice(-6).toUpperCase()}</strong>
+                  <br />
+                  <span style={{
+                    color: getStatusColor(o.status),
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    padding: '2px 8px',
+                    background: `${getStatusColor(o.status)}20`,
+                    borderRadius: '10px'
+                  }}>
+                    {o.status}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  <button onClick={() => downloadInvoice(o, 'jpg')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>JPG</button>
+                  <button onClick={() => downloadInvoice(o, 'pdf')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>PDF</button>
+                </div>
               </div>
               {o.products.map((p, i) => (
                 <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
