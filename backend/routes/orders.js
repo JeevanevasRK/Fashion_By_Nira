@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Order = require('../models/Order');
+const Order = require('../models/order');
 const jwt = require('jsonwebtoken');
 
 // Middleware for Admin Checks
