@@ -253,13 +253,24 @@ function AdminPanel({ token, setIsAdmin }) {
         }
     };
 
+    // --- NAVIGATION BUTTON STYLE FIX (DARK MODE SUPPORT) ---
     const sidebarBtnStyle = (tabName) => ({
-        width: '100%', padding: '14px 20px', textAlign: 'left',
+        width: '100%',
+        padding: '14px 20px',
+        textAlign: 'left',
+        // Logic: If active, use Black bg & White text. If inactive, use text color variable (Auto White in Dark Mode).
         background: activeTab === tabName ? 'var(--accent)' : 'transparent',
-        color: activeTab === tabName ? 'white' : 'var(--text-main)',
-        border: 'none', borderRadius: '12px', marginBottom: '8px',
-        cursor: 'pointer', fontSize: '14px', fontWeight: '600',
-        display: 'flex', alignItems: 'center', gap: '12px',
+        // Use CSS variable for text color so it adapts to light/dark mode automatically
+        color: activeTab === tabName ? 'var(--accent-text)' : 'var(--text-main)',
+        border: 'none',
+        borderRadius: '12px',
+        marginBottom: '8px',
+        cursor: 'pointer',
+        fontSize: '14px',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
         transition: 'all 0.2s ease'
     });
 
