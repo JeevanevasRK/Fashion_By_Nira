@@ -10,49 +10,35 @@ const orderRoutes = require('./routes/orders');
 
 const app = express();
 
-// ==============================================
-// 1. ROBUST CORS CONFIGURATION (THE FIX)
-// ==============================================
-// This tells the server exactly who is allowed to connect
+// --- 1. CORS: ALLOW EVERYONE (To fix the block) ---
 app.use(cors({
-    origin: [
-        "https://fashion-by-nira.vercel.app", // Your Live Vercel Site
-        "http://localhost:5173"               // Your Laptop (for testing)
-    ],
+    origin: '*',
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }));
 
-// ==============================================
-// 2. MIDDLEWARE
-// ==============================================
 app.use(express.json());
 
-// ==============================================
-// 3. DATABASE CONNECTION
-// ==============================================
+// --- 2. DB CONNECTION (Non-Blocking) ---
+// We don't wait for this to start the server. 
+// If it fails, it logs the error but keeps the server alive.
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ Connected to MongoDB"))
-    .catch((err) => console.error("❌ Connection failed:", err));
+    .catch((err) => console.error("❌ MONGODB ERROR:", err.message));
 
-// ==============================================
-// 4. ROUTES
-// ==============================================
+// --- 3. ROUTES ---
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 
-// BASIC TEST ROUTE
+// Health Check
 app.get('/', (req, res) => {
-    res.send("Backend is running!");
+    res.send("Backend is Online! (Check logs for DB status)");
 });
 
-// ==============================================
-// 5. START SERVER
-// ==============================================
+// --- 4. START SERVER (IMMEDIATELY) ---
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
