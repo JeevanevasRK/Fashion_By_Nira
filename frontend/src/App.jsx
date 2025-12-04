@@ -61,7 +61,6 @@ const downloadInvoice = async (order, type) => {
     </div>
   `;
   document.body.appendChild(element);
-
   const canvas = await html2canvas(element);
   const data = canvas.toDataURL('image/png');
   document.body.removeChild(element);
@@ -81,12 +80,27 @@ const downloadInvoice = async (order, type) => {
   }
 };
 
+// --- MODALS ---
 const OrderSuccessModal = () => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div className="card animate" style={{ textAlign: 'center', width: '350px', padding: '40px' }}>
       <div style={{ fontSize: '50px', marginBottom: '10px' }}>🎉</div>
       <h2 style={{ marginBottom: '5px' }}>Order Placed!</h2>
       <p style={{ color: 'var(--text-muted)' }}>We'll contact you shortly.</p>
+    </div>
+  </div>
+);
+
+const DeleteConfirmModal = ({ onConfirm, onCancel }) => (
+  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="card animate" style={{ width: '320px', textAlign: 'center', padding: '30px' }}>
+      <div style={{ fontSize: '40px', marginBottom: '15px' }}>🗑️</div>
+      <h3 style={{ marginBottom: '10px' }}>Remove Item?</h3>
+      <p style={{ color: 'var(--text-muted)', marginBottom: '25px', fontSize: '14px' }}>Are you sure you want to remove this from your bag?</p>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1 }}>Cancel</button>
+        <button onClick={onConfirm} className="btn btn-danger" style={{ flex: 1 }}>Yes, Remove</button>
+      </div>
     </div>
   </div>
 );
@@ -137,6 +151,9 @@ function App() {
 
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
 
+  // Delete Modal State
+  const [deleteId, setDeleteId] = useState(null);
+
   useEffect(() => { localStorage.setItem('myShopCart', JSON.stringify(cart)); }, [cart]);
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
@@ -157,16 +174,29 @@ function App() {
     }));
   };
 
+  // Decrease with Popup Logic
   const decreaseQty = (id) => {
     const item = cart.find(x => x._id === id);
     if (item.quantity === 1) {
-      if (window.confirm("Remove this item?")) setCart(cart.filter(x => x._id !== id));
+      setDeleteId(id); // Trigger Popup
     } else {
       setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
     }
   };
 
-  const removeFromCart = (id) => setCart(cart.filter(x => x._id !== id));
+  const removeFromCart = (id) => setDeleteId(id); // Trigger Popup
+
+  // Confirm Delete & Auto Redirect
+  const confirmDelete = () => {
+    const newCart = cart.filter(x => x._id !== deleteId);
+    setCart(newCart);
+    setDeleteId(null);
+
+    // AUTO REDIRECT IF EMPTY
+    if (newCart.length === 0) {
+      setView('shop');
+    }
+  };
 
   const handleCheckout = async (e) => {
     e.preventDefault();
@@ -199,7 +229,7 @@ function App() {
         <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
       </header>
 
-      {/* SEARCH BAR (Shop Only) */}
+      {/* SEARCH BAR */}
       {view === 'shop' && (
         <div style={{ maxWidth: '500px', margin: '0 auto 40px', position: 'relative' }}>
           <input className="input" placeholder="Search products..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ paddingLeft: '45px', borderRadius: '50px' }} />
@@ -212,6 +242,15 @@ function App() {
 
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
       {orderSuccess && <OrderSuccessModal />}
+
+      {/* MODERN DELETE POPUP */}
+      {deleteId && (
+        <DeleteConfirmModal
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteId(null)}
+        />
+      )}
+
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
       {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
@@ -255,7 +294,7 @@ function App() {
         </div>
       )}
 
-      {/* TRACKING WITH IMAGES & INVOICE */}
+      {/* TRACKING (Images + Invoice) */}
       {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
