@@ -5,7 +5,7 @@ import jsPDF from 'jspdf';
 
 const API = "https://fashion-by-nira.onrender.com/api";
 
-// --- 1. STATUS COLORS ---
+// --- STATUS COLORS HELPER ---
 const getStatusStyles = (status) => {
     switch (status) {
         case 'Pending': return { bg: '#fff3e0', text: '#ef6c00', border: '#ffe0b2' };
@@ -17,37 +17,7 @@ const getStatusStyles = (status) => {
     }
 };
 
-// --- 2. MODERN DELETE MODAL ---
-const DeleteModal = ({ onConfirm, onCancel, type }) => (
-    <div style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        animation: 'fadeIn 0.2s ease-out'
-    }}>
-        <div style={{
-            background: 'white', padding: '30px', borderRadius: '20px',
-            width: '320px', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
-            animation: 'scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-        }}>
-            <div style={{ fontSize: '40px', marginBottom: '15px' }}>🗑️</div>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '20px' }}>Delete {type}?</h3>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '25px', lineHeight: '1.5' }}>
-                This action cannot be undone. <br />Are you sure you want to remove this?
-            </p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1, borderColor: '#ddd', color: '#555' }}>Cancel</button>
-                <button onClick={onConfirm} className="btn" style={{ flex: 1, background: '#ff4d4d', color: 'white', border: 'none' }}>Delete</button>
-            </div>
-        </div>
-        <style>{`
-      @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    `}</style>
-    </div>
-);
-
-// --- 3. INVOICE GENERATOR ---
+// --- INVOICE GENERATOR ---
 const downloadInvoice = async (order, type) => {
     const element = document.createElement('div');
     element.innerHTML = `
@@ -106,7 +76,7 @@ const downloadInvoice = async (order, type) => {
     }
 };
 
-// --- 4. STATUS DROPDOWN ---
+// --- STATUS DROPDOWN ---
 const StatusDropdown = ({ currentStatus, onUpdate }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -172,9 +142,6 @@ function AdminPanel({ token, setIsAdmin }) {
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
 
-    // Modal State
-    const [deleteItem, setDeleteItem] = useState(null); // { id: '...', type: 'Order' | 'Product' | 'Admin' }
-
     useEffect(() => { fetchData(); }, []);
 
     const fetchData = async () => {
@@ -198,6 +165,13 @@ function AdminPanel({ token, setIsAdmin }) {
         if (editingId) setActiveTab('inventory');
     };
 
+    const deleteProduct = async (id) => {
+        if (confirm("Delete Product?")) {
+            await axios.delete(`${API}/products/${id}`, { headers: { Authorization: token } });
+            fetchData();
+        }
+    };
+
     const updateStatus = async (id, newStatus) => {
         const updatedOrders = orders.map(o => o._id === id ? { ...o, status: newStatus } : o);
         setOrders(updatedOrders);
@@ -205,6 +179,13 @@ function AdminPanel({ token, setIsAdmin }) {
             await axios.put(`${API}/orders/${id}/status`, { status: newStatus }, { headers: { Authorization: token } });
             fetchData();
         } catch (err) { alert("Status update failed"); fetchData(); }
+    };
+
+    const deleteOrder = async (id) => {
+        if (confirm("Permanently Delete Order?")) {
+            await axios.delete(`${API}/orders/${id}`, { headers: { Authorization: token } });
+            fetchData();
+        }
     };
 
     const handleUserSubmit = async (e) => {
@@ -221,44 +202,35 @@ function AdminPanel({ token, setIsAdmin }) {
         } catch (err) { alert("Error saving user"); }
     };
 
-    // --- UNIVERSAL DELETE HANDLER ---
-    const confirmDelete = async () => {
-        if (!deleteItem) return;
-        try {
-            if (deleteItem.type === 'Product') {
-                await axios.delete(`${API}/products/${deleteItem.id}`, { headers: { Authorization: token } });
-            } else if (deleteItem.type === 'Order') {
-                await axios.delete(`${API}/orders/${deleteItem.id}`, { headers: { Authorization: token } });
-            } else if (deleteItem.type === 'Admin') {
-                await axios.delete(`${API}/auth/admins/${deleteItem.id}`, { headers: { Authorization: token } });
-            }
+    const deleteUser = async (id) => {
+        if (confirm("Delete Admin?")) {
+            await axios.delete(`${API}/auth/admins/${id}`, { headers: { Authorization: token } });
             fetchData();
-            setDeleteItem(null);
-        } catch (err) { alert("Delete failed"); }
+        }
     };
 
+    // --- NAVIGATION BUTTON STYLE FIX (DARK MODE SUPPORT) ---
     const sidebarBtnStyle = (tabName) => ({
-        width: '100%', padding: '12px 15px', textAlign: 'left',
+        width: '100%',
+        padding: '14px 20px',
+        textAlign: 'left',
+        // Logic: If active, use Black bg & White text. If inactive, use text color variable (Auto White in Dark Mode).
         background: activeTab === tabName ? 'var(--accent)' : 'transparent',
-        color: activeTab === tabName ? 'white' : 'var(--text-main)',
-        border: 'none', borderRadius: '10px', marginBottom: '5px',
-        cursor: 'pointer', fontSize: '14px', fontWeight: '600',
-        display: 'flex', alignItems: 'center', gap: '10px'
+        color: activeTab === tabName ? 'var(--accent-text)' : 'var(--text-main)',
+        border: 'none',
+        borderRadius: '12px',
+        marginBottom: '8px',
+        cursor: 'pointer',
+        fontSize: '14px',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        transition: 'all 0.2s ease'
     });
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-body)', color: 'var(--text-main)', display: 'flex', flexDirection: 'column' }}>
-
-            {/* DELETE MODAL */}
-            {deleteItem && (
-                <DeleteModal
-                    type={deleteItem.type}
-                    onConfirm={confirmDelete}
-                    onCancel={() => setDeleteItem(null)}
-                />
-            )}
-
-            {/* TOP BAR */}
             <div style={{ background: 'var(--bg-card)', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
@@ -277,7 +249,7 @@ function AdminPanel({ token, setIsAdmin }) {
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', fontWeight: 'bold' }}>Navigation</p>
                     <button style={sidebarBtnStyle('inventory')} onClick={() => { setActiveTab('inventory'); setMenuOpen(false) }}>📦 Inventory</button>
                     <button style={sidebarBtnStyle('products')} onClick={() => { setActiveTab('products'); setEditingId(null); setProduct({ title: '', price: '', description: '', image: '' }); setMenuOpen(false) }}>✨ Add Product</button>
-                    <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}>🚚 Orders <span style={{ background: 'var(--accent)', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto' }}>{orders.length}</span></button>
+                    <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}>🚚 Orders <span style={{ background: 'var(--accent)', color: 'var(--accent-text)', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto' }}>{orders.length}</span></button>
                     <button style={sidebarBtnStyle('users')} onClick={() => { setActiveTab('users'); setMenuOpen(false) }}>👥 Admins</button>
                 </div>
 
@@ -288,13 +260,13 @@ function AdminPanel({ token, setIsAdmin }) {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                                 {products.map(p => (
                                     <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                        <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: '#f9f9f9' }} />
+                                        <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }} />
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
                                             <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
                                         </div>
                                         <button onClick={() => { setEditingId(p._id); setProduct(p); setActiveTab('products') }} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
-                                        <button onClick={() => setDeleteItem({ id: p._id, type: 'Product' })} style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
+                                        <button onClick={() => deleteProduct(p._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
                                     </div>
                                 ))}
                             </div>
@@ -338,14 +310,12 @@ function AdminPanel({ token, setIsAdmin }) {
                                                 ))}
                                             </div>
                                             <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '15px' }}>📍 {o.shippingAddress}</p>
-
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                                                 <StatusDropdown currentStatus={o.status} onUpdate={(newStatus) => updateStatus(o._id, newStatus)} />
-
                                                 <div style={{ display: 'flex', gap: '5px' }}>
                                                     <button onClick={() => downloadInvoice(o, 'jpg')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>JPG</button>
                                                     <button onClick={() => downloadInvoice(o, 'pdf')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>PDF</button>
-                                                    <button onClick={() => setDeleteItem({ id: o._id, type: 'Order' })} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '18px', marginLeft: '10px' }}>🗑️</button>
+                                                    <button onClick={() => deleteOrder(o._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '18px', marginLeft: '10px' }}>🗑️</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -374,7 +344,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                     <div><strong>{u.phoneNumber}</strong> <span style={{ fontSize: '12px', color: 'gray', marginLeft: '5px' }}>(Admin)</span></div>
                                     <div>
                                         <button onClick={() => { setEditUser(u); setNewAdmin({ phoneNumber: u.phoneNumber, password: '' }) }} style={{ marginRight: '15px', border: 'none', background: 'none', cursor: 'pointer' }}>✏️</button>
-                                        <button onClick={() => setDeleteItem({ id: u._id, type: 'Admin' })} style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer' }}>🗑️</button>
+                                        <button onClick={() => deleteUser(u._id)} style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer' }}>🗑️</button>
                                     </div>
                                 </div>
                             ))}
