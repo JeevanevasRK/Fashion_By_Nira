@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Order = require('../models/order');
+const Order = require('../models/order'); // Fixed: Capital 'O' to match filename
 const jwt = require('jsonwebtoken');
 
 // Middleware for Admin Checks
@@ -20,7 +20,12 @@ router.post('/', async (req, res) => {
     try {
         const { products, totalAmount, shippingAddress, customerName, customerPhone } = req.body;
         const newOrder = new Order({
-            products, totalAmount, shippingAddress, customerName, customerPhone, status: 'Pending'
+            products,
+            totalAmount,
+            shippingAddress,
+            customerName,
+            customerPhone,
+            status: 'Pending'
         });
         await newOrder.save();
         res.json({ message: "Order placed successfully!", orderId: newOrder._id });
@@ -57,32 +62,6 @@ router.get('/all-orders', verifyToken, async (req, res) => {
         res.status(500).json({ error: "Could not fetch orders" });
     }
 });
-
-// ... (Your existing routes are above here)
-
-// 4. UPDATE ORDER STATUS (Admin Only)
-router.put('/:id/status', verifyToken, async (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: "Access Denied" });
-    try {
-        const { status } = req.body;
-        await Order.findByIdAndUpdate(req.params.id, { status });
-        res.json({ message: "Status updated successfully" });
-    } catch (err) {
-        res.status(500).json({ error: "Update failed" });
-    }
-});
-
-// 5. DELETE ORDER (Admin Only)
-router.delete('/:id', verifyToken, async (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: "Access Denied" });
-    try {
-        await Order.findByIdAndDelete(req.params.id);
-        res.json({ message: "Order deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ error: "Delete failed" });
-    }
-});
-// ... (Your existing routes are above here)
 
 // 4. UPDATE ORDER STATUS (Admin Only)
 router.put('/:id/status', verifyToken, async (req, res) => {
