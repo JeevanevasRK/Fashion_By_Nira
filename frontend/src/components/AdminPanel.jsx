@@ -5,7 +5,7 @@ import jsPDF from 'jspdf';
 
 const API = "https://fashion-by-nira.onrender.com/api";
 
-// --- STATUS COLORS HELPER ---
+// --- 1. STATUS COLORS HELPER ---
 const getStatusStyles = (status) => {
     switch (status) {
         case 'Pending': return { bg: '#fff3e0', text: '#ef6c00', border: '#ffe0b2' };
@@ -17,7 +17,36 @@ const getStatusStyles = (status) => {
     }
 };
 
-// --- INVOICE GENERATOR ---
+// --- 2. MODERN DELETE MODAL (NEW) ---
+const DeleteModal = ({ onConfirm, onCancel }) => (
+    <div style={{
+        position: 'fixed', inset: 0, zIndex: 10000,
+        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        animation: 'fadeIn 0.2s ease-out'
+    }}>
+        <div className="card" style={{
+            width: '320px', textAlign: 'center', padding: '30px',
+            background: 'white', animation: 'scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+        }}>
+            <div style={{ fontSize: '40px', marginBottom: '15px' }}>🗑️</div>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '20px' }}>Delete Order?</h3>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '25px' }}>
+                This action is permanent and cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1, borderColor: '#ddd', color: '#555' }}>Cancel</button>
+                <button onClick={onConfirm} className="btn" style={{ flex: 1, background: '#ff4d4d', color: 'white', border: 'none' }}>Yes, Delete</button>
+            </div>
+        </div>
+        <style>{`
+      @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    `}</style>
+    </div>
+);
+
+// --- 3. INVOICE GENERATOR ---
 const downloadInvoice = async (order, type) => {
     const element = document.createElement('div');
     element.innerHTML = `
@@ -76,7 +105,7 @@ const downloadInvoice = async (order, type) => {
     }
 };
 
-// --- STATUS DROPDOWN ---
+// --- 4. STATUS DROPDOWN ---
 const StatusDropdown = ({ currentStatus, onUpdate }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -134,13 +163,18 @@ const StatusDropdown = ({ currentStatus, onUpdate }) => {
 function AdminPanel({ token, setIsAdmin }) {
     const [activeTab, setActiveTab] = useState('inventory');
     const [menuOpen, setMenuOpen] = useState(false);
+
+    // Data
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
+
+    // State
     const [product, setProduct] = useState({ title: '', price: '', description: '', image: '' });
     const [editingId, setEditingId] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
+    const [orderToDelete, setOrderToDelete] = useState(null); // NEW: Track order to delete
 
     useEffect(() => { fetchData(); }, []);
 
@@ -181,10 +215,20 @@ function AdminPanel({ token, setIsAdmin }) {
         } catch (err) { alert("Status update failed"); fetchData(); }
     };
 
-    const deleteOrder = async (id) => {
-        if (confirm("Permanently Delete Order?")) {
-            await axios.delete(`${API}/orders/${id}`, { headers: { Authorization: token } });
+    // --- DELETE ORDER LOGIC ---
+    const requestDeleteOrder = (id) => {
+        setOrderToDelete(id);
+    };
+
+    const confirmDeleteOrder = async () => {
+        if (!orderToDelete) return;
+        try {
+            await axios.delete(`${API}/orders/${orderToDelete}`, { headers: { Authorization: token } });
             fetchData();
+            setOrderToDelete(null);
+        } catch (err) {
+            alert("Delete failed");
+            setOrderToDelete(null);
         }
     };
 
@@ -209,28 +253,28 @@ function AdminPanel({ token, setIsAdmin }) {
         }
     };
 
-    // --- NAVIGATION BUTTON STYLE FIX (DARK MODE SUPPORT) ---
     const sidebarBtnStyle = (tabName) => ({
-        width: '100%',
-        padding: '14px 20px',
-        textAlign: 'left',
-        // Logic: If active, use Black bg & White text. If inactive, use text color variable (Auto White in Dark Mode).
+        width: '100%', padding: '14px 20px', textAlign: 'left',
         background: activeTab === tabName ? 'var(--accent)' : 'transparent',
-        color: activeTab === tabName ? 'var(--accent-text)' : 'var(--text-main)',
-        border: 'none',
-        borderRadius: '12px',
-        marginBottom: '8px',
-        cursor: 'pointer',
-        fontSize: '14px',
-        fontWeight: '600',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
+        color: activeTab === tabName ? 'white' : 'var(--text-main)',
+        border: 'none', borderRadius: '12px', marginBottom: '8px',
+        cursor: 'pointer', fontSize: '14px', fontWeight: '600',
+        display: 'flex', alignItems: 'center', gap: '12px',
         transition: 'all 0.2s ease'
     });
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-body)', color: 'var(--text-main)', display: 'flex', flexDirection: 'column' }}>
+
+            {/* DELETE MODAL (NEW) */}
+            {orderToDelete && (
+                <DeleteModal
+                    onConfirm={confirmDeleteOrder}
+                    onCancel={() => setOrderToDelete(null)}
+                />
+            )}
+
+            {/* TOP BAR */}
             <div style={{ background: 'var(--bg-card)', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
@@ -249,7 +293,7 @@ function AdminPanel({ token, setIsAdmin }) {
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', fontWeight: 'bold' }}>Navigation</p>
                     <button style={sidebarBtnStyle('inventory')} onClick={() => { setActiveTab('inventory'); setMenuOpen(false) }}>📦 Inventory</button>
                     <button style={sidebarBtnStyle('products')} onClick={() => { setActiveTab('products'); setEditingId(null); setProduct({ title: '', price: '', description: '', image: '' }); setMenuOpen(false) }}>✨ Add Product</button>
-                    <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}>🚚 Orders <span style={{ background: 'var(--accent)', color: 'var(--accent-text)', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto' }}>{orders.length}</span></button>
+                    <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}>🚚 Orders <span style={{ background: 'var(--accent)', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto' }}>{orders.length}</span></button>
                     <button style={sidebarBtnStyle('users')} onClick={() => { setActiveTab('users'); setMenuOpen(false) }}>👥 Admins</button>
                 </div>
 
@@ -260,7 +304,7 @@ function AdminPanel({ token, setIsAdmin }) {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                                 {products.map(p => (
                                     <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                        <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }} />
+                                        <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: '#f9f9f9' }} />
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
                                             <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
@@ -315,7 +359,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                                 <div style={{ display: 'flex', gap: '5px' }}>
                                                     <button onClick={() => downloadInvoice(o, 'jpg')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>JPG</button>
                                                     <button onClick={() => downloadInvoice(o, 'pdf')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>PDF</button>
-                                                    <button onClick={() => deleteOrder(o._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '18px', marginLeft: '10px' }}>🗑️</button>
+                                                    <button onClick={() => requestDeleteOrder(o._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '18px', marginLeft: '10px' }}>🗑️</button>
                                                 </div>
                                             </div>
                                         </div>
