@@ -5,30 +5,26 @@ import AdminPanel from './components/AdminPanel';
 import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
 
-// API BASE URL
 const API = "https://fashion-by-nira.onrender.com/api";
 
-// --- MODERN MODALS ---
+// Helper for consistent colors across app
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'Pending': return '#ff9800';
+    case 'Order Accepted': return '#2196f3';
+    case 'Packed': return '#9c27b0';
+    case 'Dispatched': return '#00bcd4';
+    case 'Delivered': return '#27ae60';
+    default: return '#888';
+  }
+};
+
 const OrderSuccessModal = () => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div className="card animate" style={{ textAlign: 'center', width: '350px', padding: '40px' }}>
       <div style={{ fontSize: '50px', marginBottom: '10px' }}>🎉</div>
       <h2 style={{ marginBottom: '5px' }}>Order Placed!</h2>
       <p style={{ color: 'var(--text-muted)' }}>We'll contact you shortly.</p>
-    </div>
-  </div>
-);
-
-const ConfirmModal = ({ message, onConfirm, onCancel }) => (
-  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div className="card animate" style={{ width: '320px', padding: '30px', textAlign: 'center' }}>
-      <div style={{ fontSize: '40px', marginBottom: '15px' }}>⚠️</div>
-      <h3 style={{ marginBottom: '10px' }}>Are you sure?</h3>
-      <p style={{ color: '#666', marginBottom: '25px', fontSize: '14px' }}>{message}</p>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1 }}>Cancel</button>
-        <button onClick={onConfirm} className="btn btn-danger" style={{ flex: 1 }}>Yes, Remove</button>
-      </div>
     </div>
   </div>
 );
@@ -53,10 +49,7 @@ const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, o
 
       <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
         {isAdmin ? (
-          <>
-            <button onClick={() => { setView('admin'); close() }} className="btn btn-primary" style={{ width: '100%', marginBottom: '10px' }}>Admin Dashboard</button>
-            <button onClick={() => { onLogout(); close() }} className="btn btn-danger" style={{ width: '100%' }}>Logout</button>
-          </>
+          <button onClick={() => { setView('admin'); close() }} className="btn btn-primary" style={{ width: '100%' }}>Admin Dashboard</button>
         ) : (
           <button onClick={() => { onLogin(); close() }} className="btn btn-outline" style={{ width: '100%' }}>Admin Login</button>
         )}
@@ -74,21 +67,16 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
-
-  // Search & Track
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
 
-  // Cart & Delete Modal State
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
-  const [itemToDelete, setItemToDelete] = useState(null); // Stores ID of item to delete
 
   useEffect(() => { localStorage.setItem('myShopCart', JSON.stringify(cart)); }, [cart]);
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
 
-  // --- CART LOGIC ---
   const addToCart = (p) => {
     const exist = cart.find(x => x._id === p._id);
     if (exist) setCart(cart.map(x => x._id === p._id ? { ...x, quantity: x.quantity + 1 } : x));
@@ -104,26 +92,16 @@ function App() {
     }));
   };
 
-  // Trigger Delete Modal
-  const requestDelete = (id) => setItemToDelete(id);
-
-  // Confirm Delete Action
-  const confirmDelete = () => {
-    if (itemToDelete) {
-      setCart(cart.filter(x => x._id !== itemToDelete));
-      setItemToDelete(null);
-    }
-  };
-
-  // Handle Qty Decrease logic with popup
   const decreaseQty = (id) => {
     const item = cart.find(x => x._id === id);
     if (item.quantity === 1) {
-      requestDelete(id); // Show popup if qty is 1
+      if (window.confirm("Remove this item?")) setCart(cart.filter(x => x._id !== id));
     } else {
       setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
     }
   };
+
+  const removeFromCart = (id) => setCart(cart.filter(x => x._id !== id));
 
   const handleCheckout = async (e) => {
     e.preventDefault();
@@ -153,10 +131,10 @@ function App() {
       {/* HEADER */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
-        <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer' }}>☰</button>
+        <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
       </header>
 
-      {/* SEARCH BAR (Shop Only) */}
+      {/* SEARCH BAR */}
       {view === 'shop' && (
         <div style={{ maxWidth: '500px', margin: '0 auto 40px', position: 'relative' }}>
           <input className="input" placeholder="Search products..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ paddingLeft: '45px', borderRadius: '50px' }} />
@@ -164,28 +142,15 @@ function App() {
         </div>
       )}
 
-      {/* COMPONENTS & MODALS */}
       <SideMenu isOpen={menuOpen} close={() => setMenuOpen(false)} view={view} setView={setView} cartCount={cart.reduce((a, c) => a + c.quantity, 0)} isAdmin={token && role === 'admin'} onLogin={() => setShowLogin(true)} onLogout={() => { setToken(null); setRole(null); setView('shop') }} />
 
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
       {orderSuccess && <OrderSuccessModal />}
-
-      {/* DELETE CONFIRMATION MODAL */}
-      {itemToDelete && (
-        <ConfirmModal
-          message="Do you want to remove this item from your shopping bag?"
-          onConfirm={confirmDelete}
-          onCancel={() => setItemToDelete(null)}
-        />
-      )}
-
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
       {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
-
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
-      {/* CART */}
       {view === 'cart' && (
         <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <h2 style={{ marginBottom: '20px' }}>Shopping Bag</h2>
@@ -200,11 +165,11 @@ function App() {
                       <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>₹{item.price}</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-body)', borderRadius: '20px', padding: '5px 10px' }}>
-                      <button onClick={() => decreaseQty(item._id)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>-</button>
+                      <button onClick={() => decreaseQty(item._id)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>-</button>
                       <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
-                      <button onClick={() => updateQty(item._id, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>+</button>
+                      <button onClick={() => updateQty(item._id, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
                     </div>
-                    <button onClick={() => requestDelete(item._id)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
+                    <button onClick={() => removeFromCart(item._id)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
                   </div>
                 ))}
               </div>
@@ -222,7 +187,6 @@ function App() {
         </div>
       )}
 
-      {/* TRACKING WITH IMAGES */}
       {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
@@ -232,9 +196,17 @@ function App() {
           </form>
           {trackedOrders && trackedOrders.map(o => (
             <div key={o._id} className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>
                 <strong>#{o._id.slice(-6).toUpperCase()}</strong>
-                <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>{o.status}</span>
+                <span style={{
+                  color: getStatusColor(o.status),
+                  fontWeight: 'bold',
+                  padding: '3px 10px',
+                  background: `${getStatusColor(o.status)}20`,
+                  borderRadius: '10px'
+                }}>
+                  {o.status}
+                </span>
               </div>
               {o.products.map((p, i) => (
                 <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
