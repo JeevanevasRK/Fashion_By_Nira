@@ -46,124 +46,69 @@ const DeleteModal = ({ onConfirm, onCancel, title = "Delete?", desc = "This acti
     </div>
 );
 
-// --- 3.  GENERATOR ---
-// --- INVOICE GENERATOR (JPG ONLY) ---
-const downloadInvoice = async (order) => {
+// --- 3. INVOICE GENERATOR ---
+const downloadInvoice = async (order, type) => {
     const element = document.createElement('div');
-
-    // CONFIGURATION: Force A4 dimensions
-    const A4_WIDTH_PX = 794;
-    const A4_HEIGHT_PX = 1123;
-
-    // FIX: Position it AT (0,0) but BEHIND everything else.
-    Object.assign(element.style, {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: `${A4_WIDTH_PX}px`,
-        minHeight: `${A4_HEIGHT_PX}px`,
-        zIndex: '-9999',
-        backgroundColor: '#ffffff',
-        color: '#333',
-        padding: '40px',
-        fontFamily: 'Arial, sans-serif',
-        boxSizing: 'border-box'
-    });
+    // FIX: Force A4 Width (794px) and hide off-screen so it renders fully
+    element.style.width = '794px';
+    element.style.position = 'absolute';
+    element.style.top = '-9999px';
+    element.style.left = '-9999px';
 
     element.innerHTML = `
-    <div style="width: 100%; height: 100%; background: white;">
-      <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
-        <div>
-          <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase;">FASHION BY NIRA</h1>
-          <p style="margin: 5px 0 0; font-size: 12px; color: #666;">Premium Fashion & Accessories</p>
-        </div>
+    <div style="padding: 40px; font-family: sans-serif; background: white; width: 100%; min-height: 1123px; color: #333; box-sizing: border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">FASHION BY NIRA</h1>
         <div style="text-align: right;">
-          <h2 style="margin: 0; color: #512da8;">INVOICE</h2>
-          <p style="font-weight: bold; margin: 5px 0;">#${order._id.slice(-6).toUpperCase()}</p>
-          <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date().toLocaleDateString()}</p>
+          <p style="margin: 0; font-size: 12px; color: #666;">INVOICE</p>
+          <p style="margin: 5px 0 0; font-weight: bold;">#${order._id.slice(-6).toUpperCase()}</p>
         </div>
       </div>
-
-      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
-        <div style="width: 45%;">
-          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed By</h4>
-          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
-            <strong>Fashion By Nira</strong><br>
-            123, Fashion Street, Adyar<br>
-            Chennai, Tamil Nadu - 600020<br>
-            +91 9876543210
-          </p>
-        </div>
-        <div style="width: 45%;">
-          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed To</h4>
-          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
-            <strong>${order.customerName}</strong><br>
-            ${order.shippingAddress}<br>
-            ${order.customerPhone}
-          </p>
-        </div>
+      <div style="margin-bottom: 30px;">
+        <p><strong>Billed To:</strong><br>${order.customerName}<br>${order.customerPhone}<br>${order.shippingAddress}</p>
       </div>
-
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <thead>
-          <tr style="background: #f4f4f4;">
-            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Item</th>
-            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
-            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
-            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
+          <tr style="background: #f4f4f4; text-align: left;">
+            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Item</th>
+            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Qty</th>
+            <th style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">Price</th>
           </tr>
         </thead>
         <tbody>
           ${order.products.map(p => `
             <tr>
-              <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${p.productId?.price * p.quantity}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.quantity}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
-
-      <div style="display: flex; justify-content: flex-end;">
-        <div style="width: 250px; border-top: 2px solid #000; padding-top: 10px;">
-          <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold;">
-            <span>Total:</span>
-            <span>₹${order.totalAmount}</span>
-          </div>
-        </div>
+      <div style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">
+        <h3 style="margin: 0;">Total: ₹${order.totalAmount}</h3>
       </div>
-
-      <div style="margin-top: 60px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 20px;">
-        <p>Thank you for your business! | support@fashionbynira.com</p>
-      </div>
+      <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
     </div>
   `;
-
     document.body.appendChild(element);
 
-    // Wait for browser to paint
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const data = canvas.toDataURL('image/png');
+    document.body.removeChild(element);
 
-    try {
-        const canvas = await html2canvas(element, {
-            scale: 2, // High resolution
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            windowWidth: 1200
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    if (type === 'pdf') {
+        const pdf = new jsPDF();
+        const imgProps = pdf.getImageProperties(data);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(data, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
+    } else {
         const link = document.createElement('a');
-        link.href = imgData;
+        link.href = data;
         link.download = `Invoice_${order._id.slice(-6)}.jpg`;
         link.click();
-
-    } catch (err) {
-        alert("Error creating invoice");
-        console.error(err);
-    } finally {
-        document.body.removeChild(element);
     }
 };
 
@@ -232,14 +177,15 @@ function AdminPanel({ token, setIsAdmin }) {
     const [users, setUsers] = useState([]);
 
     // State
-    const [product, setProduct] = useState({ title: '', price: '', description: '', image: '' });
+    // UPDATED: Initial state includes inStock
+    const [product, setProduct] = useState({ title: '', price: '', description: '', image: '', inStock: true });
     const [editingId, setEditingId] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
 
     // MODAL STATES
     const [orderToDelete, setOrderToDelete] = useState(null);
-    const [productToDelete, setProductToDelete] = useState(null); // NEW: For Product
+    const [productToDelete, setProductToDelete] = useState(null);
 
     useEffect(() => { fetchData(); }, []);
 
@@ -260,12 +206,24 @@ function AdminPanel({ token, setIsAdmin }) {
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
         const method = editingId ? 'put' : 'post';
         await axios[method](url, product, { headers: { Authorization: token } });
-        setProduct({ title: '', price: '', description: '', image: '' }); setEditingId(null);
+        setProduct({ title: '', price: '', description: '', image: '', inStock: true }); setEditingId(null);
         fetchData();
         if (editingId) setActiveTab('inventory');
     };
 
-    // (MODIFIED) New Delete Logic with Modal
+    // NEW: Handle Edit Click (Populate form including stock status)
+    const handleEdit = (p) => {
+        setProduct({
+            title: p.title,
+            price: p.price,
+            description: p.description,
+            image: p.image,
+            inStock: p.inStock !== undefined ? p.inStock : true
+        });
+        setEditingId(p._id);
+        setActiveTab('products');
+    };
+
     const requestDeleteProduct = (id) => {
         setProductToDelete(id);
     };
@@ -359,7 +317,7 @@ function AdminPanel({ token, setIsAdmin }) {
                 />
             )}
 
-            {/* DELETE MODAL (PRODUCTS) - NEW */}
+            {/* DELETE MODAL (PRODUCTS) */}
             {productToDelete && (
                 <DeleteModal
                     onConfirm={confirmDeleteProduct}
@@ -387,7 +345,7 @@ function AdminPanel({ token, setIsAdmin }) {
                 }}>
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', fontWeight: 'bold' }}>Navigation</p>
                     <button style={sidebarBtnStyle('inventory')} onClick={() => { setActiveTab('inventory'); setMenuOpen(false) }}>📦 Inventory</button>
-                    <button style={sidebarBtnStyle('products')} onClick={() => { setActiveTab('products'); setEditingId(null); setProduct({ title: '', price: '', description: '', image: '' }); setMenuOpen(false) }}>✨ Add Product</button>
+                    <button style={sidebarBtnStyle('products')} onClick={() => { setActiveTab('products'); setEditingId(null); setProduct({ title: '', price: '', description: '', image: '', inStock: true }); setMenuOpen(false) }}>✨ Add Product</button>
                     <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}> <span>🚚</span> Orders <span style={{ background: 'var(--accent)', color: 'var(--accent-text)', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto', fontWeight: 'bold' }}> {orders.length} </span> </button>
                     <button style={sidebarBtnStyle('users')} onClick={() => { setActiveTab('users'); setMenuOpen(false) }}>👥 Admins</button>
                 </div>
@@ -400,14 +358,14 @@ function AdminPanel({ token, setIsAdmin }) {
                             <h2 style={{ marginBottom: '20px' }}>Inventory</h2>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                                 {products.map(p => (
-                                    <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px', opacity: p.inStock ? 1 : 0.6 }}>
                                         <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }} />
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
                                             <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
+                                            {!p.inStock && <div style={{ color: 'red', fontSize: '12px', fontWeight: 'bold' }}>OUT OF STOCK</div>}
                                         </div>
-                                        <button onClick={() => { setEditingId(p._id); setProduct(p); setActiveTab('products') }} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
-                                        {/* UPDATED DELETE BUTTON */}
+                                        <button onClick={() => handleEdit(p)} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
                                         <button onClick={() => requestDeleteProduct(p._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
                                     </div>
                                 ))}
@@ -415,6 +373,7 @@ function AdminPanel({ token, setIsAdmin }) {
                         </div>
                     )}
 
+                    {/* ADD/EDIT PRODUCT TAB */}
                     {activeTab === 'products' && (
                         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                             <h2 style={{ marginBottom: '20px' }}>{editingId ? 'Edit Product' : 'Add New Product'}</h2>
@@ -423,11 +382,24 @@ function AdminPanel({ token, setIsAdmin }) {
                                 <input className="input" placeholder="Price" type="number" value={product.price} onChange={e => setProduct({ ...product, price: e.target.value })} required />
                                 <input className="input" placeholder="Image URL" value={product.image} onChange={e => setProduct({ ...product, image: e.target.value })} />
                                 <textarea className="input" placeholder="Description" value={product.description} onChange={e => setProduct({ ...product, description: e.target.value })} style={{ height: '100px' }} />
+
+                                {/* UPDATED: STOCK CHECKBOX */}
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={product.inStock}
+                                        onChange={e => setProduct({ ...product, inStock: e.target.checked })}
+                                        style={{ width: '18px', height: '18px' }}
+                                    />
+                                    Available in Stock
+                                </label>
+
                                 <button className="btn btn-primary">{editingId ? 'Update Item' : 'Add to Inventory'}</button>
                             </form>
                         </div>
                     )}
 
+                    {/* ORDERS TAB */}
                     {activeTab === 'orders' && (
                         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
                             <h2 style={{ marginBottom: '20px' }}>Order Management</h2>
@@ -455,7 +427,8 @@ function AdminPanel({ token, setIsAdmin }) {
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                                                 <StatusDropdown currentStatus={o.status} onUpdate={(newStatus) => updateStatus(o._id, newStatus)} />
                                                 <div style={{ display: 'flex', gap: '5px' }}>
-                                                    <button onClick={() => downloadInvoice(o)} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>Download Invoice</button>
+                                                    <button onClick={() => downloadInvoice(o, 'jpg')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>JPG</button>
+                                                    <button onClick={() => downloadInvoice(o, 'pdf')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>PDF</button>
                                                     <button onClick={() => requestDeleteOrder(o._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '18px', marginLeft: '10px' }}>🗑️</button>
                                                 </div>
                                             </div>
@@ -466,6 +439,7 @@ function AdminPanel({ token, setIsAdmin }) {
                         </div>
                     )}
 
+                    {/* USERS TAB */}
                     {activeTab === 'users' && (
                         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                             <h2 style={{ marginBottom: '20px' }}>Admin Users</h2>
