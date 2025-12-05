@@ -17,8 +17,8 @@ const getStatusStyles = (status) => {
     }
 };
 
-// --- MODERN DELETE MODAL (DYNAMIC) ---
-const DeleteModal = ({ onConfirm, onCancel, title = "Delete Item?", desc = "This action cannot be undone." }) => (
+// --- 2. MODERN DELETE MODAL ---
+const DeleteModal = ({ onConfirm, onCancel, title = "Delete?", desc = "This action cannot be undone." }) => (
     <div style={{
         position: 'fixed', inset: 0, zIndex: 10000,
         background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
@@ -174,8 +174,10 @@ function AdminPanel({ token, setIsAdmin }) {
     const [editingId, setEditingId] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
-    const [orderToDelete, setOrderToDelete] = useState(null); // NEW: Track order to delete
-    const [productToDelete, setProductToDelete] = useState(null); // New State for Inventory
+
+    // MODAL STATES
+    const [orderToDelete, setOrderToDelete] = useState(null);
+    const [productToDelete, setProductToDelete] = useState(null); // NEW: For Product
 
     useEffect(() => { fetchData(); }, []);
 
@@ -190,6 +192,7 @@ function AdminPanel({ token, setIsAdmin }) {
         } catch (e) { console.error(e); }
     };
 
+    // --- INVENTORY LOGIC ---
     const handleProductSubmit = async (e) => {
         e.preventDefault();
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
@@ -200,9 +203,9 @@ function AdminPanel({ token, setIsAdmin }) {
         if (editingId) setActiveTab('inventory');
     };
 
-    // --- REPLACEMENT DELETE LOGIC ---
+    // (MODIFIED) New Delete Logic with Modal
     const requestDeleteProduct = (id) => {
-        setProductToDelete(id); // Triggers the modern popup
+        setProductToDelete(id);
     };
 
     const confirmDeleteProduct = async () => {
@@ -226,7 +229,6 @@ function AdminPanel({ token, setIsAdmin }) {
         } catch (err) { alert("Status update failed"); fetchData(); }
     };
 
-    // --- DELETE ORDER LOGIC ---
     const requestDeleteOrder = (id) => {
         setOrderToDelete(id);
     };
@@ -264,14 +266,11 @@ function AdminPanel({ token, setIsAdmin }) {
         }
     };
 
-    // --- NAVIGATION BUTTON STYLE FIX (DARK MODE SUPPORT) ---
     const sidebarBtnStyle = (tabName) => ({
         width: '100%',
         padding: '14px 20px',
         textAlign: 'left',
-        // Logic: If active, use Black bg & White text. If inactive, use text color variable (Auto White in Dark Mode).
         background: activeTab === tabName ? 'var(--accent)' : 'transparent',
-        // Use CSS variable for text color so it adapts to light/dark mode automatically
         color: activeTab === tabName ? 'var(--accent-text)' : 'var(--text-main)',
         border: 'none',
         borderRadius: '12px',
@@ -288,11 +287,23 @@ function AdminPanel({ token, setIsAdmin }) {
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-body)', color: 'var(--text-main)', display: 'flex', flexDirection: 'column' }}>
 
-            {/* DELETE MODAL (NEW) */}
+            {/* DELETE MODAL (ORDERS) */}
             {orderToDelete && (
                 <DeleteModal
                     onConfirm={confirmDeleteOrder}
                     onCancel={() => setOrderToDelete(null)}
+                    title="Delete Order?"
+                    desc="This will permanently remove this order record."
+                />
+            )}
+
+            {/* DELETE MODAL (PRODUCTS) - NEW */}
+            {productToDelete && (
+                <DeleteModal
+                    onConfirm={confirmDeleteProduct}
+                    onCancel={() => setProductToDelete(null)}
+                    title="Delete Product?"
+                    desc="This item will be removed from your shop inventory."
                 />
             )}
 
@@ -315,23 +326,26 @@ function AdminPanel({ token, setIsAdmin }) {
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', fontWeight: 'bold' }}>Navigation</p>
                     <button style={sidebarBtnStyle('inventory')} onClick={() => { setActiveTab('inventory'); setMenuOpen(false) }}>📦 Inventory</button>
                     <button style={sidebarBtnStyle('products')} onClick={() => { setActiveTab('products'); setEditingId(null); setProduct({ title: '', price: '', description: '', image: '' }); setMenuOpen(false) }}>✨ Add Product</button>
-                    <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}> <span>🚚</span> Orders <span style={{ background: 'var(--accent)', color: 'var(--accent-text)', /* <--- THIS FIXES THE INVISIBLE NUMBER */fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto', fontWeight: 'bold' }}> {orders.length} </span> </button>
+                    <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}> <span>🚚</span> Orders <span style={{ background: 'var(--accent)', color: 'var(--accent-text)', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto', fontWeight: 'bold' }}> {orders.length} </span> </button>
                     <button style={sidebarBtnStyle('users')} onClick={() => { setActiveTab('users'); setMenuOpen(false) }}>👥 Admins</button>
                 </div>
 
                 <div style={{ flex: 1, padding: '20px', marginLeft: menuOpen ? '0' : '0', overflowY: 'auto', width: '100%' }}>
+
+                    {/* INVENTORY TAB */}
                     {activeTab === 'inventory' && (
                         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
                             <h2 style={{ marginBottom: '20px' }}>Inventory</h2>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                                 {products.map(p => (
                                     <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                        <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: '#f9f9f9' }} />
+                                        <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }} />
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
                                             <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
                                         </div>
                                         <button onClick={() => { setEditingId(p._id); setProduct(p); setActiveTab('products') }} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
+                                        {/* UPDATED DELETE BUTTON */}
                                         <button onClick={() => requestDeleteProduct(p._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
                                     </div>
                                 ))}
@@ -398,7 +412,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                 <h4 style={{ marginTop: 0, marginBottom: '15px' }}>{editUser ? 'Edit User' : 'Create New Admin'}</h4>
                                 <form onSubmit={handleUserSubmit} style={{ display: 'grid', gap: '10px', marginTop: '15px' }}>
                                     <input className="input" placeholder="Admin Phone" value={newAdmin.phoneNumber} onChange={e => setNewAdmin({ ...newAdmin, phoneNumber: e.target.value })} required />
-                                    <input className="input" placeholder={editUser ? "New Password (Optional)" : "Password"} value={newAdmin.password} onChange={e => setNewAdmin({ ...newAdmin, password: e.target.value })} required={!editUser} />
+                                    <input className="input" placeholder="Password" value={newAdmin.password} onChange={e => setNewAdmin({ ...newAdmin, password: e.target.value })} required={!editUser} />
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button className="btn btn-primary" style={{ flex: 1 }}>{editUser ? 'Update' : 'Create'}</button>
                                         {editUser && <button type="button" onClick={() => { setEditUser(null); setNewAdmin({ phoneNumber: '', password: '' }) }} className="btn btn-outline">Cancel</button>}
