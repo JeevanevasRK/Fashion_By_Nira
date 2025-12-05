@@ -24,8 +24,6 @@ const getStatusColor = (status) => {
 // --- INVOICE GENERATOR ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
-
-  // Define Invoice HTML
   element.innerHTML = `
     <div style="padding: 50px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: white; width: 700px; color: #333; position: relative;">
       
@@ -191,10 +189,15 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
+
+  // Search & Track
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
+
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
+
+  // Delete Modal State
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => { localStorage.setItem('myShopCart', JSON.stringify(cart)); }, [cart]);
@@ -258,6 +261,7 @@ function App() {
 
   return (
     <div className="wrapper">
+
       {/* HEADER */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
@@ -277,10 +281,18 @@ function App() {
 
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
       {orderSuccess && <OrderSuccessModal />}
-      {deleteId && <DeleteConfirmModal onConfirm={confirmDelete} onCancel={() => setDeleteId(null)} />}
+
+      {deleteId && (
+        <DeleteConfirmModal
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteId(null)}
+        />
+      )}
+
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
       {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
+
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
       {view === 'cart' && (
@@ -355,6 +367,7 @@ function App() {
         </div>
       )}
 
+      {/* CONTACT US VIEW */}
       {view === 'contact' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
