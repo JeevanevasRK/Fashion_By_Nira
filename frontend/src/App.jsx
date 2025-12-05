@@ -21,7 +21,7 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR (PROFESSIONAL DESIGN) ---
+// --- INVOICE GENERATOR ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
   element.innerHTML = `
@@ -102,9 +102,9 @@ const downloadInvoice = async (order, type) => {
         <p>Thank you for your business!</p>
         <p>For any queries, please contact support@fashionbynira.com</p>
       </div>
-
     </div>
   `;
+
   document.body.appendChild(element);
   const canvas = await html2canvas(element);
   const data = canvas.toDataURL('image/png');
