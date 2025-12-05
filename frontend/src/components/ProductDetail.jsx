@@ -62,6 +62,24 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
           >
             {!product.inStock ? "Out of Stock" : (isAdded ? "✓ Added to Bag" : "Add to Cart")}
           </button>
+
+          {/* NEW: BACK TO LISTING OPTION */}
+          <button
+            onClick={onBack}
+            style={{
+              marginTop: '15px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontSize: '14px',
+              width: '100%'
+            }}
+          >
+            Back to Listing
+          </button>
+
         </div>
 
       </div>
