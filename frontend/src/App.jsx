@@ -24,6 +24,8 @@ const getStatusColor = (status) => {
 // --- INVOICE GENERATOR ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
+
+  // Define Invoice HTML
   element.innerHTML = `
     <div style="padding: 50px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: white; width: 700px; color: #333; position: relative;">
       
@@ -166,10 +168,7 @@ const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, o
 
       <button onClick={() => { setView('shop'); close() }} className={`btn ${view === 'shop' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Shop Collection</button>
       <button onClick={() => { setView('track'); close() }} className={`btn ${view === 'track' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Track Order</button>
-
-      {/* CONTACT US BUTTON */}
       <button onClick={() => { setView('contact'); close() }} className={`btn ${view === 'contact' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Contact Us</button>
-
       <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
 
       <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
@@ -192,22 +191,16 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
-
-  // Search & Track
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
-
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
-
-  // Delete Modal State
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => { localStorage.setItem('myShopCart', JSON.stringify(cart)); }, [cart]);
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
 
-  // --- CART LOGIC ---
   const addToCart = (p) => {
     const exist = cart.find(x => x._id === p._id);
     if (exist) setCart(cart.map(x => x._id === p._id ? { ...x, quantity: x.quantity + 1 } : x));
@@ -238,10 +231,7 @@ function App() {
     const newCart = cart.filter(x => x._id !== deleteId);
     setCart(newCart);
     setDeleteId(null);
-
-    if (newCart.length === 0) {
-      setView('shop');
-    }
+    if (newCart.length === 0) setView('shop');
   };
 
   const handleCheckout = async (e) => {
@@ -268,7 +258,6 @@ function App() {
 
   return (
     <div className="wrapper">
-
       {/* HEADER */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
@@ -288,18 +277,10 @@ function App() {
 
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
       {orderSuccess && <OrderSuccessModal />}
-
-      {deleteId && (
-        <DeleteConfirmModal
-          onConfirm={confirmDelete}
-          onCancel={() => setDeleteId(null)}
-        />
-      )}
-
+      {deleteId && <DeleteConfirmModal onConfirm={confirmDelete} onCancel={() => setDeleteId(null)} />}
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
       {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
-
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
       {view === 'cart' && (
@@ -338,7 +319,6 @@ function App() {
         </div>
       )}
 
-      {/* TRACKING */}
       {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
@@ -375,7 +355,6 @@ function App() {
         </div>
       )}
 
-      {/* CONTACT US VIEW (NEW) */}
       {view === 'contact' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
