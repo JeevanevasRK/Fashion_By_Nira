@@ -20,7 +20,7 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR (JPG ONLY) ---
+// --- INVOICE GENERATOR (INVISIBLE TO USER) ---
 const downloadInvoice = async (order) => {
   const element = document.createElement('div');
 
@@ -28,14 +28,14 @@ const downloadInvoice = async (order) => {
   const A4_WIDTH_PX = 794;
   const A4_HEIGHT_PX = 1123;
 
-  // FIX: Position it AT (0,0) but BEHIND everything else.
+  // FIX: Position it off-screen so the user doesn't see the "glitch" at the bottom
   Object.assign(element.style, {
-    position: 'fixed',
+    position: 'fixed',        // Take it out of the normal document flow
+    left: '-10000px',         // Move it far off to the left
     top: '0',
-    left: '0',
     width: `${A4_WIDTH_PX}px`,
     minHeight: `${A4_HEIGHT_PX}px`,
-    zIndex: '-9999',
+    zIndex: '-1000',          // Put it behind everything
     backgroundColor: '#ffffff',
     color: '#333',
     padding: '40px',
@@ -115,7 +115,7 @@ const downloadInvoice = async (order) => {
 
   document.body.appendChild(element);
 
-  // Wait for browser to paint
+  // Wait for browser to paint (while hidden)
   await new Promise(resolve => setTimeout(resolve, 500));
 
   try {
@@ -136,6 +136,7 @@ const downloadInvoice = async (order) => {
     alert("Error creating invoice");
     console.error(err);
   } finally {
+    // Clean up the hidden element
     document.body.removeChild(element);
   }
 };
