@@ -21,43 +21,88 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR ---
+// --- INVOICE GENERATOR (PROFESSIONAL DESIGN) ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
   element.innerHTML = `
-    <div style="padding: 40px; font-family: sans-serif; background: white; width: 600px; color: #333;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
-        <h1 style="margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">FASHION BY NIRA</h1>
+    <div style="padding: 50px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: white; width: 700px; color: #333; position: relative;">
+      
+      <div style="display: flex; justify-content: space-between; border-bottom: 4px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+        <div>
+          <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase;">FASHION BY NIRA</h1>
+          <p style="margin: 5px 0 0; font-size: 12px; color: #666;">Premium Fashion & Accessories</p>
+        </div>
         <div style="text-align: right;">
-          <p style="margin: 0; font-size: 12px; color: #666;">INVOICE</p>
-          <p style="margin: 5px 0 0; font-weight: bold;">#${order._id.slice(-6).toUpperCase()}</p>
+          <h2 style="margin: 0; color: #512da8; font-size: 24px;">INVOICE</h2>
+          <p style="margin: 5px 0 0; font-weight: bold;">#INV-${order._id.slice(-6).toUpperCase()}</p>
+          <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date().toLocaleDateString()}</p>
         </div>
       </div>
-      <div style="margin-bottom: 30px;">
-        <p><strong>Billed To:</strong><br>${order.customerName}<br>${order.customerPhone}<br>${order.shippingAddress}</p>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+        <div style="width: 45%;">
+          <h4 style="margin: 0 0 10px 0; color: #512da8; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Billed By</h4>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6;">
+            <strong>Fashion By Nira</strong><br>
+            123, Fashion Street, Adyar<br>
+            Chennai, Tamil Nadu - 600020<br>
+            Phone: +91 9876543210<br>
+            Email: support@fashionbynira.com
+          </p>
+        </div>
+        <div style="width: 45%;">
+          <h4 style="margin: 0 0 10px 0; color: #512da8; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Billed To</h4>
+          <p style="margin: 0; font-size: 13px; line-height: 1.6;">
+            <strong>${order.customerName}</strong><br>
+            ${order.shippingAddress}<br>
+            Phone: ${order.customerPhone}
+          </p>
+        </div>
       </div>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
         <thead>
-          <tr style="background: #f4f4f4; text-align: left;">
-            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Item</th>
-            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Qty</th>
-            <th style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">Price</th>
+          <tr style="background: #000; color: white; text-align: left;">
+            <th style="padding: 12px; font-size: 12px; text-transform: uppercase;">Item Description</th>
+            <th style="padding: 12px; font-size: 12px; text-transform: uppercase; text-align: center;">Qty</th>
+            <th style="padding: 12px; font-size: 12px; text-transform: uppercase; text-align: right;">Price</th>
+            <th style="padding: 12px; font-size: 12px; text-transform: uppercase; text-align: right;">Total</th>
           </tr>
         </thead>
         <tbody>
           ${order.products.map(p => `
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.quantity}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px; font-size: 13px;"><strong>${p.productId?.title || 'Item'}</strong></td>
+              <td style="padding: 12px; font-size: 13px; text-align: center;">${p.quantity}</td>
+              <td style="padding: 12px; font-size: 13px; text-align: right;">₹${p.productId?.price}</td>
+              <td style="padding: 12px; font-size: 13px; text-align: right; font-weight: bold;">₹${p.productId?.price * p.quantity}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
-      <div style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">
-        <h3 style="margin: 0;">Total: ₹${order.totalAmount}</h3>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <div style="width: 200px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px;">
+            <span>Subtotal:</span>
+            <span>₹${order.totalAmount}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: green;">
+            <span>Shipping:</span>
+            <span>Free</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 10px; font-size: 18px; font-weight: bold;">
+            <span>Total:</span>
+            <span>₹${order.totalAmount}</span>
+          </div>
+        </div>
       </div>
-      <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
+
+      <div style="margin-top: 50px; border-top: 1px solid #ddd; padding-top: 20px; text-align: center; font-size: 12px; color: #888;">
+        <p>Thank you for your business!</p>
+        <p>For any queries, please contact support@fashionbynira.com</p>
+      </div>
+
     </div>
   `;
   document.body.appendChild(element);
@@ -66,7 +111,7 @@ const downloadInvoice = async (order, type) => {
   document.body.removeChild(element);
 
   if (type === 'pdf') {
-    const pdf = new jsPDF();
+    const pdf = new jsPDF('p', 'mm', 'a4');
     const imgProps = pdf.getImageProperties(data);
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
@@ -121,9 +166,11 @@ const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, o
 
       <button onClick={() => { setView('shop'); close() }} className={`btn ${view === 'shop' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Shop Collection</button>
       <button onClick={() => { setView('track'); close() }} className={`btn ${view === 'track' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Track Order</button>
-      <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
-      {/* NEW CONTACT BUTTON */}
+
+      {/* CONTACT US BUTTON */}
       <button onClick={() => { setView('contact'); close() }} className={`btn ${view === 'contact' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Contact Us</button>
+
+      <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
 
       <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
         {isAdmin ? (
@@ -291,6 +338,7 @@ function App() {
         </div>
       )}
 
+      {/* TRACKING */}
       {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
@@ -327,22 +375,22 @@ function App() {
         </div>
       )}
 
-      {/* CONTACT US VIEW */}
+      {/* CONTACT US VIEW (NEW) */}
       {view === 'contact' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
           <div className="card" style={{ padding: '30px' }}>
-            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9585026838</p>
+            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9876543210</p>
             <p style={{ marginBottom: '15px' }}><strong>📧 Email:</strong> support@fashionbynira.com</p>
-            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> Tiruchengode, Namakkal, India</p>
+            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> 123, Fashion Street, Chennai, India</p>
 
             <div style={{ display: 'grid', gap: '10px' }}>
-              <a href="https://instagram.com/fashionby_nira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://instagram.com/fashionbynira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-outline" style={{ width: '100%', borderColor: '#E1306C', color: '#E1306C' }}>
                   📸 Visit Instagram
                 </button>
               </a>
-              <a href="https://wa.me/919585026838?text=Hi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://wa.me/919876543210?text=Hi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-primary" style={{ width: '100%', background: '#25D366', border: 'none' }}>
                   💬 Chat on WhatsApp
                 </button>
