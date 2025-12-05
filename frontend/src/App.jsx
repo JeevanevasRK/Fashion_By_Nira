@@ -21,89 +21,117 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR (FIXED: BLANK PDF SOLVED) ---
+// --- INVOICE GENERATOR (FIXED: VISIBILITY FORCED) ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
 
-  // FIX: Positioning strategy to force browser rendering
-  element.style.width = '794px';
-  element.style.minHeight = '1123px';
-  element.style.padding = '40px';
-  element.style.backgroundColor = '#ffffff'; // Explicit white background
-  element.style.color = '#333';
-  element.style.fontFamily = 'sans-serif';
+  // CONFIGURATION: Force A4 dimensions
+  const A4_WIDTH_PX = 794;
+  const A4_HEIGHT_PX = 1123;
 
-  // Force it onto the screen but transparently/off-axis so it renders
-  element.style.position = 'fixed';
-  element.style.top = '0';
-  element.style.left = '-10000px'; // Move far left instead of top
-  element.style.zIndex = '-1000';
+  // FIX: Position it AT (0,0) but BEHIND everything else.
+  // This forces the browser to paint the pixels.
+  Object.assign(element.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: `${A4_WIDTH_PX}px`,
+    minHeight: `${A4_HEIGHT_PX}px`,
+    zIndex: '-9999', // Hides it behind the app
+    backgroundColor: '#ffffff', // Ensure white background
+    color: '#333',
+    padding: '40px',
+    fontFamily: 'Arial, sans-serif',
+    boxSizing: 'border-box'
+  });
 
   element.innerHTML = `
-    <div style="background: white; width: 100%; height: 100%;">
-      <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
+    <div style="width: 100%; height: 100%; background: white;">
+      <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
         <div>
-          <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">FASHION BY NIRA</h1>
+          <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase;">FASHION BY NIRA</h1>
           <p style="margin: 5px 0 0; font-size: 12px; color: #666;">Premium Fashion & Accessories</p>
         </div>
         <div style="text-align: right;">
           <h2 style="margin: 0; color: #512da8;">INVOICE</h2>
-          <p style="font-weight: bold;">#${order._id.slice(-6).toUpperCase()}</p>
-          <p style="font-size: 12px; color: #888;">${new Date().toLocaleDateString()}</p>
+          <p style="font-weight: bold; margin: 5px 0;">#${order._id.slice(-6).toUpperCase()}</p>
+          <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date().toLocaleDateString()}</p>
         </div>
       </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
         <div style="width: 45%;">
-          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">Billed By</h4>
-          <p style="font-size: 13px;">
+          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed By</h4>
+          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
             <strong>Fashion By Nira</strong><br>
-            123, Fashion Street<br>Chennai, India<br>+91 9876543210
+            123, Fashion Street, Adyar<br>
+            Chennai, Tamil Nadu - 600020<br>
+            +91 9876543210
           </p>
         </div>
         <div style="width: 45%;">
-          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">Billed To</h4>
-          <p style="font-size: 13px;">
+          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed To</h4>
+          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
             <strong>${order.customerName}</strong><br>
-            ${order.shippingAddress}<br>${order.customerPhone}
+            ${order.shippingAddress}<br>
+            ${order.customerPhone}
           </p>
         </div>
       </div>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <tr style="background: #f4f4f4;">
-          <th style="padding: 10px; text-align: left;">Item</th>
-          <th style="padding: 10px; text-align: center;">Qty</th>
-          <th style="padding: 10px; text-align: right;">Price</th>
-        </tr>
-        ${order.products.map(p => `
-          <tr style="border-bottom: 1px solid #eee;">
-            <td style="padding: 10px;">${p.productId?.title || 'Item'}</td>
-            <td style="padding: 10px; text-align: center;">${p.quantity}</td>
-            <td style="padding: 10px; text-align: right;">₹${p.productId?.price}</td>
+
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+        <thead>
+          <tr style="background: #f4f4f4;">
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Item</th>
+            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
+            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
+            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
           </tr>
-        `).join('')}
+        </thead>
+        <tbody>
+          ${order.products.map(p => `
+            <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${p.productId?.price * p.quantity}</td>
+            </tr>
+          `).join('')}
+        </tbody>
       </table>
-      <h3 style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">Total: ₹${order.totalAmount}</h3>
-      <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <div style="width: 250px; border-top: 2px solid #000; padding-top: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold;">
+            <span>Total:</span>
+            <span>₹${order.totalAmount}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 60px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 20px;">
+        <p>Thank you for your business! | support@fashionbynira.com</p>
+      </div>
     </div>
   `;
 
   document.body.appendChild(element);
 
-  // FIX: Small delay to ensure DOM is painted before capture
-  await new Promise(resolve => setTimeout(resolve, 300));
+  // Wait for browser to paint
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 2, // High resolution
       useCORS: true,
-      width: 794, // Force capture width
-      windowWidth: 1200 // Simulate desktop viewport
+      backgroundColor: '#ffffff', // Force white background on canvas
+      windowWidth: 1200 // Simulate desktop to prevent wrapping
     });
 
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
     if (type === 'pdf') {
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdf = new jsPDF('p', 'pt', 'a4'); // Use points (pt) for precise sizing
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
@@ -116,8 +144,8 @@ const downloadInvoice = async (order, type) => {
       link.click();
     }
   } catch (err) {
-    console.error("Invoice Error:", err);
-    alert("Could not generate invoice.");
+    alert("Error creating invoice");
+    console.error(err);
   } finally {
     document.body.removeChild(element);
   }
