@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import Auth from './components/Auth';
 import AdminPanel from './components/AdminPanel';
 import ProductList from './components/ProductList';
@@ -21,8 +20,8 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR (FIXED: VISIBILITY FORCED) ---
-const downloadInvoice = async (order, type) => {
+// --- INVOICE GENERATOR (JPG ONLY) ---
+const downloadInvoice = async (order) => {
   const element = document.createElement('div');
 
   // CONFIGURATION: Force A4 dimensions
@@ -30,15 +29,14 @@ const downloadInvoice = async (order, type) => {
   const A4_HEIGHT_PX = 1123;
 
   // FIX: Position it AT (0,0) but BEHIND everything else.
-  // This forces the browser to paint the pixels.
   Object.assign(element.style, {
     position: 'fixed',
     top: '0',
     left: '0',
     width: `${A4_WIDTH_PX}px`,
     minHeight: `${A4_HEIGHT_PX}px`,
-    zIndex: '-9999', // Hides it behind the app
-    backgroundColor: '#ffffff', // Ensure white background
+    zIndex: '-9999',
+    backgroundColor: '#ffffff',
     color: '#333',
     padding: '40px',
     fontFamily: 'Arial, sans-serif',
@@ -124,25 +122,16 @@ const downloadInvoice = async (order, type) => {
     const canvas = await html2canvas(element, {
       scale: 2, // High resolution
       useCORS: true,
-      backgroundColor: '#ffffff', // Force white background on canvas
-      windowWidth: 1200 // Simulate desktop to prevent wrapping
+      backgroundColor: '#ffffff',
+      windowWidth: 1200
     });
 
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const link = document.createElement('a');
+    link.href = imgData;
+    link.download = `Invoice_${order._id.slice(-6)}.jpg`;
+    link.click();
 
-    if (type === 'pdf') {
-      const pdf = new jsPDF('p', 'pt', 'a4'); // Use points (pt) for precise sizing
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
-    } else {
-      const link = document.createElement('a');
-      link.href = imgData;
-      link.download = `Invoice_${order._id.slice(-6)}.jpg`;
-      link.click();
-    }
   } catch (err) {
     alert("Error creating invoice");
     console.error(err);
@@ -193,7 +182,6 @@ const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, o
       <button onClick={() => { setView('shop'); close() }} className={`btn ${view === 'shop' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Shop Collection</button>
       <button onClick={() => { setView('track'); close() }} className={`btn ${view === 'track' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Track Order</button>
       <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
-      {/* NEW CONTACT BUTTON */}
       <button onClick={() => { setView('contact'); close() }} className={`btn ${view === 'contact' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Contact Us</button>
 
       <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
@@ -217,21 +205,17 @@ function App() {
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  // Search & Track
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
 
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
-
-  // Delete Modal State
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => { localStorage.setItem('myShopCart', JSON.stringify(cart)); }, [cart]);
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
 
-  // --- CART LOGIC ---
   const addToCart = (p) => {
     const exist = cart.find(x => x._id === p._id);
     if (exist) setCart(cart.map(x => x._id === p._id ? { ...x, quantity: x.quantity + 1 } : x));
@@ -262,10 +246,7 @@ function App() {
     const newCart = cart.filter(x => x._id !== deleteId);
     setCart(newCart);
     setDeleteId(null);
-
-    if (newCart.length === 0) {
-      setView('shop');
-    }
+    if (newCart.length === 0) setView('shop');
   };
 
   const handleCheckout = async (e) => {
@@ -382,10 +363,7 @@ function App() {
                     {o.status}
                   </span>
                 </div>
-                <div style={{ display: 'flex', gap: '5px' }}>
-                  <button onClick={() => downloadInvoice(o, 'jpg')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>JPG</button>
-                  <button onClick={() => downloadInvoice(o, 'pdf')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>PDF</button>
-                </div>
+                <button onClick={() => downloadInvoice(o)} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>Download Invoice</button>
               </div>
               {o.products.map((p, i) => (
                 <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
@@ -398,14 +376,13 @@ function App() {
         </div>
       )}
 
-      {/* CONTACT US VIEW */}
       {view === 'contact' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
           <div className="card" style={{ padding: '30px' }}>
-            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9585026838</p>
+            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9876543210</p>
             <p style={{ marginBottom: '15px' }}><strong>📧 Email:</strong> support@fashionbynira.com</p>
-            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> Tiruchengode, Namakkal, India</p>
+            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> 123, Fashion Street, Chennai, India</p>
 
             <div style={{ display: 'grid', gap: '10px' }}>
               <a href="https://instagram.com/fashionby_nira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
