@@ -17,8 +17,8 @@ const getStatusStyles = (status) => {
     }
 };
 
-// --- 2. MODERN DELETE MODAL (NEW) ---
-const DeleteModal = ({ onConfirm, onCancel }) => (
+// --- MODERN DELETE MODAL (DYNAMIC) ---
+const DeleteModal = ({ onConfirm, onCancel, title = "Delete Item?", desc = "This action cannot be undone." }) => (
     <div style={{
         position: 'fixed', inset: 0, zIndex: 10000,
         background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
@@ -30,9 +30,9 @@ const DeleteModal = ({ onConfirm, onCancel }) => (
             background: 'white', animation: 'scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
         }}>
             <div style={{ fontSize: '40px', marginBottom: '15px' }}>🗑️</div>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '20px' }}>Delete Order?</h3>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '20px' }}>{title}</h3>
             <p style={{ color: '#666', fontSize: '14px', marginBottom: '25px' }}>
-                This action is permanent and cannot be undone.
+                {desc}
             </p>
             <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1, borderColor: '#ddd', color: '#555' }}>Cancel</button>
@@ -175,6 +175,7 @@ function AdminPanel({ token, setIsAdmin }) {
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
     const [orderToDelete, setOrderToDelete] = useState(null); // NEW: Track order to delete
+    const [productToDelete, setProductToDelete] = useState(null); // New State for Inventory
 
     useEffect(() => { fetchData(); }, []);
 
@@ -199,10 +200,20 @@ function AdminPanel({ token, setIsAdmin }) {
         if (editingId) setActiveTab('inventory');
     };
 
-    const deleteProduct = async (id) => {
-        if (confirm("Delete Product?")) {
-            await axios.delete(`${API}/products/${id}`, { headers: { Authorization: token } });
+    // --- REPLACEMENT DELETE LOGIC ---
+    const requestDeleteProduct = (id) => {
+        setProductToDelete(id); // Triggers the modern popup
+    };
+
+    const confirmDeleteProduct = async () => {
+        if (!productToDelete) return;
+        try {
+            await axios.delete(`${API}/products/${productToDelete}`, { headers: { Authorization: token } });
             fetchData();
+            setProductToDelete(null);
+        } catch (err) {
+            alert("Delete failed");
+            setProductToDelete(null);
         }
     };
 
@@ -321,7 +332,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                             <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
                                         </div>
                                         <button onClick={() => { setEditingId(p._id); setProduct(p); setActiveTab('products') }} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
-                                        <button onClick={() => deleteProduct(p._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
+                                        <button onClick={() => requestDeleteProduct(p._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
                                     </div>
                                 ))}
                             </div>
