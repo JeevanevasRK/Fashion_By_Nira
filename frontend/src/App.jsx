@@ -22,18 +22,21 @@ const getStatusColor = (status) => {
 };
 
 // --- INVOICE GENERATOR (FIXED PDF) ---
+// --- INVOICE GENERATOR (FIXED PDF & VISIBILITY) ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
 
-  // A4 Size: 210mm x 297mm (approx 794px x 1123px at 96dpi)
+  // FIX: Use 'fixed' and 'zIndex' instead of 'top: -9999px'
+  // This ensures the browser actually renders the pixels, avoiding the white screen issue.
   element.style.width = '794px';
   element.style.padding = '40px';
   element.style.backgroundColor = 'white';
   element.style.color = '#333';
   element.style.fontFamily = 'sans-serif';
-  element.style.position = 'absolute';
-  element.style.top = '-9999px'; // Hide from view
-  element.style.left = '-9999px';
+  element.style.position = 'fixed';
+  element.style.top = '0';
+  element.style.left = '0';
+  element.style.zIndex = '-1000'; // Hide behind everything else
 
   element.innerHTML = `
     <div>
@@ -79,22 +82,23 @@ const downloadInvoice = async (order, type) => {
         `).join('')}
       </table>
       <h3 style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">Total: ₹${order.totalAmount}</h3>
+      <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
     </div>
   `;
 
   document.body.appendChild(element);
 
   try {
-    // Use scale 2 for better quality
+    // Use scale 2 for sharp text
     const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-    const imgData = canvas.toDataURL('image/jpeg', 1.0); // JPEG is safer for PDF
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
     if (type === 'pdf') {
-      // A4 Dimensions
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
+      // FIX: Using 'imgData' consistently here
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
     } else {
@@ -104,8 +108,8 @@ const downloadInvoice = async (order, type) => {
       link.click();
     }
   } catch (err) {
-    alert("Error generating invoice. Please try again.");
-    console.error(err);
+    console.error("Invoice Error:", err);
+    alert("Could not generate invoice.");
   } finally {
     document.body.removeChild(element);
   }
