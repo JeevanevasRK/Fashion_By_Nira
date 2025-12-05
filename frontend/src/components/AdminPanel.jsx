@@ -88,11 +88,12 @@ const downloadInvoice = async (order) => {
           <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed By</h4>
           <p style="font-size: 13px; line-height: 1.6; margin: 0;">
             <strong>Fashion By Nira</strong><br>
-            123, Fashion Street, Adyar<br>
-            Chennai, Tamil Nadu - 600020<br>
-            +91 9876543210
+            Tiruchengode Namakkal,<br>
+            Tamil Nadu - 637211<br>
+            +91 9585026838
           </p>
         </div>
+        
         <div style="width: 45%;">
           <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed To</h4>
           <p style="font-size: 13px; line-height: 1.6; margin: 0;">

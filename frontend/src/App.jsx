@@ -62,9 +62,9 @@ const downloadInvoice = async (order) => {
           <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed By</h4>
           <p style="font-size: 13px; line-height: 1.6; margin: 0;">
             <strong>Fashion By Nira</strong><br>
-            123, Fashion Street, Adyar<br>
-            Chennai, Tamil Nadu - 600020<br>
-            +91 9876543210
+            Tiruchengode Namakkal,<br>
+            Tamil Nadu - 637211<br>
+            +91 9585026838
           </p>
         </div>
         <div style="width: 45%;">
@@ -381,9 +381,9 @@ function App() {
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
           <div className="card" style={{ padding: '30px' }}>
-            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9876543210</p>
+            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9585026838</p>
             <p style={{ marginBottom: '15px' }}><strong>📧 Email:</strong> support@fashionbynira.com</p>
-            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> 123, Fashion Street, Chennai, India</p>
+            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> Tiruchengode, Namakkal, Tamil Nadu - 637211</p>
 
             <div style={{ display: 'grid', gap: '10px' }}>
               <a href="https://instagram.com/fashionby_nira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
