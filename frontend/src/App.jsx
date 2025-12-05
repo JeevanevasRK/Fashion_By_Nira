@@ -21,73 +21,93 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR ---
-// --- INVOICE GENERATOR (FIXED SIZE) ---
+// --- INVOICE GENERATOR (FIXED PDF) ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
 
-  // FIX: Force A4 Width (794px) and hide off-screen so it renders fully
+  // A4 Size: 210mm x 297mm (approx 794px x 1123px at 96dpi)
   element.style.width = '794px';
+  element.style.padding = '40px';
+  element.style.backgroundColor = 'white';
+  element.style.color = '#333';
+  element.style.fontFamily = 'sans-serif';
   element.style.position = 'absolute';
-  element.style.top = '-9999px';
+  element.style.top = '-9999px'; // Hide from view
   element.style.left = '-9999px';
 
   element.innerHTML = `
-    <div style="padding: 40px; font-family: sans-serif; background: white; width: 100%; min-height: 1123px; color: #333; box-sizing: border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
-        <h1 style="margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">FASHION BY NIRA</h1>
+    <div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
+        <div>
+          <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">FASHION BY NIRA</h1>
+          <p style="margin: 5px 0 0; font-size: 12px; color: #666;">Premium Fashion & Accessories</p>
+        </div>
         <div style="text-align: right;">
-          <p style="margin: 0; font-size: 12px; color: #666;">INVOICE</p>
-          <p style="margin: 5px 0 0; font-weight: bold;">#${order._id.slice(-6).toUpperCase()}</p>
+          <h2 style="margin: 0; color: #512da8;">INVOICE</h2>
+          <p style="font-weight: bold;">#${order._id.slice(-6).toUpperCase()}</p>
+          <p style="font-size: 12px; color: #888;">${new Date().toLocaleDateString()}</p>
         </div>
       </div>
-      <div style="margin-bottom: 30px;">
-        <p><strong>Billed To:</strong><br>${order.customerName}<br>${order.customerPhone}<br>${order.shippingAddress}</p>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+        <div style="width: 45%;">
+          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">Billed By</h4>
+          <p style="font-size: 13px;">
+            <strong>Fashion By Nira</strong><br>
+            123, Fashion Street<br>Chennai, India<br>+91 9876543210
+          </p>
+        </div>
+        <div style="width: 45%;">
+          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">Billed To</h4>
+          <p style="font-size: 13px;">
+            <strong>${order.customerName}</strong><br>
+            ${order.shippingAddress}<br>${order.customerPhone}
+          </p>
+        </div>
       </div>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <thead>
-          <tr style="background: #f4f4f4; text-align: left;">
-            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Item</th>
-            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Qty</th>
-            <th style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">Price</th>
+        <tr style="background: #f4f4f4;">
+          <th style="padding: 10px; text-align: left;">Item</th>
+          <th style="padding: 10px; text-align: center;">Qty</th>
+          <th style="padding: 10px; text-align: right;">Price</th>
+        </tr>
+        ${order.products.map(p => `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;">${p.productId?.title || 'Item'}</td>
+            <td style="padding: 10px; text-align: center;">${p.quantity}</td>
+            <td style="padding: 10px; text-align: right;">₹${p.productId?.price}</td>
           </tr>
-        </thead>
-        <tbody>
-          ${order.products.map(p => `
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.quantity}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
-            </tr>
-          `).join('')}
-        </tbody>
+        `).join('')}
       </table>
-      <div style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">
-        <h3 style="margin: 0;">Total: ₹${order.totalAmount}</h3>
-      </div>
-      <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
+      <h3 style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">Total: ₹${order.totalAmount}</h3>
     </div>
   `;
 
   document.body.appendChild(element);
 
-  // FIX: Use scale 2 for high quality, useCORS to ensure images load
-  const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-  const data = canvas.toDataURL('image/png');
-  document.body.removeChild(element);
+  try {
+    // Use scale 2 for better quality
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL('image/jpeg', 1.0); // JPEG is safer for PDF
 
-  if (type === 'pdf') {
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgProps = pdf.getImageProperties(data);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(data, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
-  } else {
-    const link = document.createElement('a');
-    link.href = data;
-    link.download = `Invoice_${order._id.slice(-6)}.jpg`;
-    link.click();
+    if (type === 'pdf') {
+      // A4 Dimensions
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
+    } else {
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = `Invoice_${order._id.slice(-6)}.jpg`;
+      link.click();
+    }
+  } catch (err) {
+    alert("Error generating invoice. Please try again.");
+    console.error(err);
+  } finally {
+    document.body.removeChild(element);
   }
 };
 
