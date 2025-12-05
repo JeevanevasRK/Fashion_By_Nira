@@ -391,7 +391,7 @@ function App() {
                   📸 Visit Instagram
                 </button>
               </a>
-              <a href="https://wa.me/919585026838?text=Hi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://wa.me/919585026838?text=Hi Nira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-primary" style={{ width: '100%', background: '#25D366', border: 'none' }}>
                   💬 Chat on WhatsApp
                 </button>
