@@ -46,69 +46,124 @@ const DeleteModal = ({ onConfirm, onCancel, title = "Delete?", desc = "This acti
     </div>
 );
 
-// --- 3. INVOICE GENERATOR ---
-const downloadInvoice = async (order, type) => {
+// --- INVOICE GENERATOR (INVISIBLE TO USER) ---
+const downloadInvoice = async (order) => {
     const element = document.createElement('div');
-    // FIX: Force A4 Width (794px) and hide off-screen so it renders fully
-    element.style.width = '794px';
-    element.style.position = 'absolute';
-    element.style.top = '-9999px';
-    element.style.left = '-9999px';
+
+    // CONFIGURATION: Force A4 dimensions
+    const A4_WIDTH_PX = 794;
+    const A4_HEIGHT_PX = 1123;
+
+    // FIX: Position it off-screen so the user doesn't see the "glitch" at the bottom
+    Object.assign(element.style, {
+        position: 'fixed',        // Take it out of the normal document flow
+        left: '-10000px',         // Move it far off to the left
+        top: '0',
+        width: `${A4_WIDTH_PX}px`,
+        minHeight: `${A4_HEIGHT_PX}px`,
+        zIndex: '-1000',          // Put it behind everything
+        backgroundColor: '#ffffff',
+        color: '#333',
+        padding: '40px',
+        fontFamily: 'Arial, sans-serif',
+        boxSizing: 'border-box'
+    });
 
     element.innerHTML = `
-    <div style="padding: 40px; font-family: sans-serif; background: white; width: 100%; min-height: 1123px; color: #333; box-sizing: border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
-        <h1 style="margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">FASHION BY NIRA</h1>
+    <div style="width: 100%; height: 100%; background: white;">
+      <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
+        <div>
+          <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase;">FASHION BY NIRA</h1>
+          <p style="margin: 5px 0 0; font-size: 12px; color: #666;">Premium Fashion & Accessories</p>
+        </div>
         <div style="text-align: right;">
-          <p style="margin: 0; font-size: 12px; color: #666;">INVOICE</p>
-          <p style="margin: 5px 0 0; font-weight: bold;">#${order._id.slice(-6).toUpperCase()}</p>
+          <h2 style="margin: 0; color: #512da8;">INVOICE</h2>
+          <p style="font-weight: bold; margin: 5px 0;">#${order._id.slice(-6).toUpperCase()}</p>
+          <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date().toLocaleDateString()}</p>
         </div>
       </div>
-      <div style="margin-bottom: 30px;">
-        <p><strong>Billed To:</strong><br>${order.customerName}<br>${order.customerPhone}<br>${order.shippingAddress}</p>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+        <div style="width: 45%;">
+          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed By</h4>
+          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
+            <strong>Fashion By Nira</strong><br>
+            123, Fashion Street, Adyar<br>
+            Chennai, Tamil Nadu - 600020<br>
+            +91 9876543210
+          </p>
+        </div>
+        <div style="width: 45%;">
+          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed To</h4>
+          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
+            <strong>${order.customerName}</strong><br>
+            ${order.shippingAddress}<br>
+            ${order.customerPhone}
+          </p>
+        </div>
       </div>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
         <thead>
-          <tr style="background: #f4f4f4; text-align: left;">
-            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Item</th>
-            <th style="padding: 10px; border-bottom: 1px solid #ddd;">Qty</th>
-            <th style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">Price</th>
+          <tr style="background: #f4f4f4;">
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Item</th>
+            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
+            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
+            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
           </tr>
         </thead>
         <tbody>
           ${order.products.map(p => `
             <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.quantity}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${p.productId?.price * p.quantity}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
-      <div style="text-align: right; border-top: 2px solid #000; padding-top: 10px;">
-        <h3 style="margin: 0;">Total: ₹${order.totalAmount}</h3>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <div style="width: 250px; border-top: 2px solid #000; padding-top: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold;">
+            <span>Total:</span>
+            <span>₹${order.totalAmount}</span>
+          </div>
+        </div>
       </div>
-      <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
+
+      <div style="margin-top: 60px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 20px;">
+        <p>Thank you for your business! | support@fashionbynira.com</p>
+      </div>
     </div>
   `;
+
     document.body.appendChild(element);
 
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-    const data = canvas.toDataURL('image/png');
-    document.body.removeChild(element);
+    // Wait for browser to paint (while hidden)
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (type === 'pdf') {
-        const pdf = new jsPDF();
-        const imgProps = pdf.getImageProperties(data);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        pdf.addImage(data, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
-    } else {
+    try {
+        const canvas = await html2canvas(element, {
+            scale: 2, // High resolution
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            windowWidth: 1200
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
         const link = document.createElement('a');
-        link.href = data;
+        link.href = imgData;
         link.download = `Invoice_${order._id.slice(-6)}.jpg`;
         link.click();
+
+    } catch (err) {
+        alert("Error creating invoice");
+        console.error(err);
+    } finally {
+        // Clean up the hidden element
+        document.body.removeChild(element);
     }
 };
 
@@ -427,8 +482,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                                                 <StatusDropdown currentStatus={o.status} onUpdate={(newStatus) => updateStatus(o._id, newStatus)} />
                                                 <div style={{ display: 'flex', gap: '5px' }}>
-                                                    <button onClick={() => downloadInvoice(o, 'jpg')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>JPG</button>
-                                                    <button onClick={() => downloadInvoice(o, 'pdf')} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '11px' }}>PDF</button>
+                                                    <button onClick={() => downloadInvoice(o)} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>Download Invoice</button>
                                                     <button onClick={() => requestDeleteOrder(o._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '18px', marginLeft: '10px' }}>🗑️</button>
                                                 </div>
                                             </div>
