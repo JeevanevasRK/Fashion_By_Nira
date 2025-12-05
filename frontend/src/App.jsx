@@ -22,10 +22,18 @@ const getStatusColor = (status) => {
 };
 
 // --- INVOICE GENERATOR ---
+// --- INVOICE GENERATOR (FIXED SIZE) ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
+
+  // FIX: Force A4 Width (794px) and hide off-screen so it renders fully
+  element.style.width = '794px';
+  element.style.position = 'absolute';
+  element.style.top = '-9999px';
+  element.style.left = '-9999px';
+
   element.innerHTML = `
-    <div style="padding: 40px; font-family: sans-serif; background: white; width: 600px; color: #333;">
+    <div style="padding: 40px; font-family: sans-serif; background: white; width: 100%; min-height: 1123px; color: #333; box-sizing: border-box;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
         <h1 style="margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">FASHION BY NIRA</h1>
         <div style="text-align: right;">
@@ -60,13 +68,16 @@ const downloadInvoice = async (order, type) => {
       <p style="margin-top: 40px; font-size: 10px; color: #888; text-align: center;">Thank you for shopping with us!</p>
     </div>
   `;
+
   document.body.appendChild(element);
-  const canvas = await html2canvas(element);
+
+  // FIX: Use scale 2 for high quality, useCORS to ensure images load
+  const canvas = await html2canvas(element, { scale: 2, useCORS: true });
   const data = canvas.toDataURL('image/png');
   document.body.removeChild(element);
 
   if (type === 'pdf') {
-    const pdf = new jsPDF();
+    const pdf = new jsPDF('p', 'mm', 'a4');
     const imgProps = pdf.getImageProperties(data);
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
