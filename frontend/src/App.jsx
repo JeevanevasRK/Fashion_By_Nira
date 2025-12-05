@@ -21,25 +21,26 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR (FIXED PDF) ---
-// --- INVOICE GENERATOR (FIXED PDF & VISIBILITY) ---
+// --- INVOICE GENERATOR (FIXED: BLANK PDF SOLVED) ---
 const downloadInvoice = async (order, type) => {
   const element = document.createElement('div');
 
-  // FIX: Use 'fixed' and 'zIndex' instead of 'top: -9999px'
-  // This ensures the browser actually renders the pixels, avoiding the white screen issue.
+  // FIX: Positioning strategy to force browser rendering
   element.style.width = '794px';
+  element.style.minHeight = '1123px';
   element.style.padding = '40px';
-  element.style.backgroundColor = 'white';
+  element.style.backgroundColor = '#ffffff'; // Explicit white background
   element.style.color = '#333';
   element.style.fontFamily = 'sans-serif';
+
+  // Force it onto the screen but transparently/off-axis so it renders
   element.style.position = 'fixed';
   element.style.top = '0';
-  element.style.left = '0';
-  element.style.zIndex = '-1000'; // Hide behind everything else
+  element.style.left = '-10000px'; // Move far left instead of top
+  element.style.zIndex = '-1000';
 
   element.innerHTML = `
-    <div>
+    <div style="background: white; width: 100%; height: 100%;">
       <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
         <div>
           <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px;">FASHION BY NIRA</h1>
@@ -88,9 +89,17 @@ const downloadInvoice = async (order, type) => {
 
   document.body.appendChild(element);
 
+  // FIX: Small delay to ensure DOM is painted before capture
+  await new Promise(resolve => setTimeout(resolve, 300));
+
   try {
-    // Use scale 2 for sharp text
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      width: 794, // Force capture width
+      windowWidth: 1200 // Simulate desktop viewport
+    });
+
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
     if (type === 'pdf') {
@@ -98,7 +107,6 @@ const downloadInvoice = async (order, type) => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      // FIX: Using 'imgData' consistently here
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Invoice_${order._id.slice(-6)}.pdf`);
     } else {
