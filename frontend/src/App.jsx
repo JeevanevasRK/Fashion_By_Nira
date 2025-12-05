@@ -121,11 +121,9 @@ const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, o
 
       <button onClick={() => { setView('shop'); close() }} className={`btn ${view === 'shop' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Shop Collection</button>
       <button onClick={() => { setView('track'); close() }} className={`btn ${view === 'track' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Track Order</button>
-
+      <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
       {/* NEW CONTACT BUTTON */}
       <button onClick={() => { setView('contact'); close() }} className={`btn ${view === 'contact' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Contact Us</button>
-
-      <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
 
       <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
         {isAdmin ? (
@@ -334,17 +332,17 @@ function App() {
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
           <div className="card" style={{ padding: '30px' }}>
-            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9876543210</p>
+            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9585026838</p>
             <p style={{ marginBottom: '15px' }}><strong>📧 Email:</strong> support@fashionbynira.com</p>
-            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> 123, Fashion Street, Chennai, India</p>
+            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> Tiruchengode, Namakkal, India</p>
 
             <div style={{ display: 'grid', gap: '10px' }}>
-              <a href="https://instagram.com/fashionbynira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://instagram.com/fashionby_nira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-outline" style={{ width: '100%', borderColor: '#E1306C', color: '#E1306C' }}>
                   📸 Visit Instagram
                 </button>
               </a>
-              <a href="https://wa.me/919876543210?text=Hi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://wa.me/919585026838?text=Hi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-primary" style={{ width: '100%', background: '#25D366', border: 'none' }}>
                   💬 Chat on WhatsApp
                 </button>
