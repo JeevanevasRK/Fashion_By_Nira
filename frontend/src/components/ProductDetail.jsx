@@ -1,134 +1,72 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function ProductDetail({ product, addToCart, onBack }) {
+const ProductDetail = ({ product, addToCart, onBack }) => {
+  const [isAdded, setIsAdded] = useState(false);
+
   if (!product) return null;
 
+  const handleAddToCart = () => {
+    if (!product.inStock) return; // Prevent action if out of stock
+    addToCart(product);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
+
   return (
-    <>
-      {/* --- STRICT CSS GRID STYLES --- */}
-      <style>{`
-        /* 1. Main Container */
-        .detail-wrapper {
-          width: 95%;
-          max-width: 1400px;
-          margin: 20px auto;
-          background: white;
-          padding: 30px;
-          border-radius: 15px;
-          font-family: 'Montserrat', sans-serif;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
+    <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', marginBottom: '20px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+        ← Back
+      </button>
 
-        .back-btn {
-          margin-bottom: 20px;
-          background: none;
-          border: none;
-          font-size: 16px;
-          cursor: pointer;
-          font-weight: 600;
-          color: #555;
-        }
-        .back-btn:hover { color: black; text-decoration: underline; }
+      <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', padding: '30px' }}>
 
-        /* 2. THE GRID LAYOUT (The Fix) */
-        .detail-grid {
-          display: grid;
-          /* FORCE 2 EQUAL COLUMNS on Laptop */
-          grid-template-columns: 1fr 1fr; 
-          gap: 50px;
-          align-items: start;
-        }
-
-        /* 3. Image Section */
-        .image-section {
-          background: #f4f4f4;
-          border-radius: 15px;
-          padding: 20px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          min-height: 400px; /* Force it to be tall */
-        }
-
-        .detail-img {
-          width: 100%;
-          max-width: 450px;
-          object-fit: contain;
-          mix-blend-mode: multiply;
-        }
-
-        /* 4. Text Section */
-        .text-section {
-          padding: 20px 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        .product-title { font-size: 2.5rem; margin-bottom: 10px; line-height: 1.1; font-weight: 800; }
-        .product-price { font-size: 2rem; color: #512da8; font-weight: bold; margin-bottom: 25px; }
-        .desc-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #888; font-weight: bold; }
-        .product-desc { font-size: 1.1rem; line-height: 1.6; color: #555; margin-bottom: 30px; }
-
-        .add-cart-btn {
-          background: black;
-          color: white;
-          padding: 15px 40px;
-          font-size: 1.2rem;
-          border-radius: 50px;
-          border: none;
-          cursor: pointer;
-          width: fit-content;
-          transition: 0.2s;
-        }
-        .add-cart-btn:hover { background: #512da8; transform: scale(1.05); }
-
-        /* 5. MOBILE OVERRIDE (Stack them on phones) */
-        @media (max-width: 900px) {
-          .detail-grid {
-            grid-template-columns: 1fr; /* Force 1 column */
-            gap: 30px;
-          }
-          .image-section { min-height: 300px; }
-          .add-cart-btn { width: 100%; }
-        }
-      `}</style>
-
-      {/* --- HTML CONTENT --- */}
-      <div className="detail-wrapper">
-        <button onClick={onBack} className="back-btn">← Back to Collection</button>
-
-        <div className="detail-grid">
-
-          {/* Left Column */}
-          <div className="image-section">
-            <img
-              src={product.image || "https://via.placeholder.com/400"}
-              alt={product.title}
-              className="detail-img"
-            />
-          </div>
-
-          {/* Right Column */}
-          <div className="text-section">
-            <h1 className="product-title">{product.title}</h1>
-            <p className="product-price">₹{product.price}</p>
-
-            <p className="desc-label">Product Description</p>
-            <p className="product-desc">
-              {product.description || "Experience premium quality with our latest collection. Designed for comfort and style."}
-            </p>
-
-            <button onClick={() => addToCart(product)} className="add-cart-btn">
-              Add to Cart
-            </button>
-          </div>
-
+        {/* IMAGE */}
+        <div style={{ background: '#f8f8f8', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', position: 'relative' }}>
+          <img
+            src={product.image}
+            alt={product.title}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
+          />
+          {!product.inStock && (
+            <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
+              SOLD OUT
+            </div>
+          )}
         </div>
+
+        {/* INFO */}
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>{product.title}</h1>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)', marginBottom: '20px' }}>₹{product.price}</p>
+
+          <div style={{ marginBottom: '30px' }}>
+            <h4 style={{ marginBottom: '10px', color: 'var(--text-muted)' }}>Description</h4>
+            <p style={{ lineHeight: '1.6', color: 'var(--text-main)' }}>
+              {product.description || "No description available for this premium item."}
+            </p>
+          </div>
+
+          <button
+            onClick={handleAddToCart}
+            disabled={!product.inStock} // Disable button if out of stock
+            className="btn"
+            style={{
+              width: '100%',
+              padding: '18px',
+              fontSize: '16px',
+              background: !product.inStock ? '#ccc' : (isAdded ? 'var(--success)' : 'var(--accent)'),
+              color: !product.inStock ? '#666' : 'var(--accent-text)',
+              cursor: !product.inStock ? 'not-allowed' : 'pointer',
+              border: 'none'
+            }}
+          >
+            {!product.inStock ? "Out of Stock" : (isAdded ? "✓ Added to Bag" : "Add to Cart")}
+          </button>
+        </div>
+
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default ProductDetail;
