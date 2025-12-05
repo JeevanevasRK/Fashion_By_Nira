@@ -121,6 +121,10 @@ const SideMenu = ({ isOpen, close, view, setView, cartCount, isAdmin, onLogin, o
 
       <button onClick={() => { setView('shop'); close() }} className={`btn ${view === 'shop' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Shop Collection</button>
       <button onClick={() => { setView('track'); close() }} className={`btn ${view === 'track' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Track Order</button>
+
+      {/* NEW CONTACT BUTTON */}
+      <button onClick={() => { setView('contact'); close() }} className={`btn ${view === 'contact' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Contact Us</button>
+
       <button onClick={() => { setView('cart'); close() }} className={`btn ${view === 'cart' ? 'btn-primary' : 'btn-outline'}`} style={{ width: '100%', justifyContent: 'flex-start' }}>Cart ({cartCount})</button>
 
       <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
@@ -174,25 +178,22 @@ function App() {
     }));
   };
 
-  // Decrease with Popup Logic
   const decreaseQty = (id) => {
     const item = cart.find(x => x._id === id);
     if (item.quantity === 1) {
-      setDeleteId(id); // Trigger Popup
+      setDeleteId(id);
     } else {
       setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
     }
   };
 
-  const removeFromCart = (id) => setDeleteId(id); // Trigger Popup
+  const removeFromCart = (id) => setDeleteId(id);
 
-  // Confirm Delete & Auto Redirect
   const confirmDelete = () => {
     const newCart = cart.filter(x => x._id !== deleteId);
     setCart(newCart);
     setDeleteId(null);
 
-    // AUTO REDIRECT IF EMPTY
     if (newCart.length === 0) {
       setView('shop');
     }
@@ -243,7 +244,6 @@ function App() {
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
       {orderSuccess && <OrderSuccessModal />}
 
-      {/* MODERN DELETE POPUP */}
       {deleteId && (
         <DeleteConfirmModal
           onConfirm={confirmDelete}
@@ -257,7 +257,6 @@ function App() {
 
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
-      {/* CART */}
       {view === 'cart' && (
         <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <h2 style={{ marginBottom: '20px' }}>Shopping Bag</h2>
@@ -294,7 +293,6 @@ function App() {
         </div>
       )}
 
-      {/* TRACKING (Images + Invoice) */}
       {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
@@ -309,12 +307,8 @@ function App() {
                   <strong>#{o._id.slice(-6).toUpperCase()}</strong>
                   <br />
                   <span style={{
-                    color: getStatusColor(o.status),
-                    fontWeight: 'bold',
-                    fontSize: '12px',
-                    padding: '2px 8px',
-                    background: `${getStatusColor(o.status)}20`,
-                    borderRadius: '10px'
+                    color: getStatusColor(o.status), fontWeight: 'bold', fontSize: '12px',
+                    padding: '2px 8px', background: `${getStatusColor(o.status)}20`, borderRadius: '10px'
                   }}>
                     {o.status}
                   </span>
@@ -334,6 +328,32 @@ function App() {
           ))}
         </div>
       )}
+
+      {/* CONTACT US VIEW */}
+      {view === 'contact' && (
+        <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
+          <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
+          <div className="card" style={{ padding: '30px' }}>
+            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9876543210</p>
+            <p style={{ marginBottom: '15px' }}><strong>📧 Email:</strong> support@fashionbynira.com</p>
+            <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> 123, Fashion Street, Chennai, India</p>
+
+            <div style={{ display: 'grid', gap: '10px' }}>
+              <a href="https://instagram.com/fashionbynira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <button className="btn btn-outline" style={{ width: '100%', borderColor: '#E1306C', color: '#E1306C' }}>
+                  📸 Visit Instagram
+                </button>
+              </a>
+              <a href="https://wa.me/919876543210?text=Hi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <button className="btn btn-primary" style={{ width: '100%', background: '#25D366', border: 'none' }}>
+                  💬 Chat on WhatsApp
+                </button>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
