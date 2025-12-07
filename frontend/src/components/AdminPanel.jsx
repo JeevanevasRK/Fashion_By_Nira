@@ -234,7 +234,8 @@ function AdminPanel({ token, setIsAdmin }) {
 
     // State
     // UPDATED: Initial state includes inStock
-    const [product, setProduct] = useState({ title: '', price: '', description: '', image: '', inStock: true });
+    // Initialize 'images' as an array with one empty string
+    const [product, setProduct] = useState({ title: '', price: '', description: '', images: [''], inStock: true });
     const [editingId, setEditingId] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
@@ -259,9 +260,10 @@ function AdminPanel({ token, setIsAdmin }) {
     // NEW: Handle to add multiple images 
     const handleProductSubmit = async (e) => {
         e.preventDefault();
-        // Convert comma-separated string to array
-        const imageArray = product.image.split(',').map(url => url.trim()).filter(url => url !== "");
+        // Filter out empty inputs
+        const imageArray = product.images.filter(url => url.trim() !== "");
 
+        // Fallback: If no images, use placeholder or empty array
         const payload = { ...product, images: imageArray };
 
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
@@ -269,7 +271,7 @@ function AdminPanel({ token, setIsAdmin }) {
 
         await axios[method](url, payload, { headers: { Authorization: token } });
 
-        setProduct({ title: '', price: '', description: '', image: '', inStock: true });
+        setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
         setEditingId(null);
         fetchData();
         if (editingId) setActiveTab('inventory');
@@ -281,8 +283,8 @@ function AdminPanel({ token, setIsAdmin }) {
             title: p.title,
             price: p.price,
             description: p.description,
-            // Join array back to string for editing
-            image: p.images && p.images.length > 0 ? p.images.join(', ') : (p.image || ''),
+            // Handle legacy single image vs new array images
+            images: p.images && p.images.length > 0 ? p.images : [p.image || ''],
             inStock: p.inStock !== undefined ? p.inStock : true
         });
         setEditingId(p._id);
@@ -451,13 +453,45 @@ function AdminPanel({ token, setIsAdmin }) {
                             <form onSubmit={handleProductSubmit} className="card" style={{ display: 'grid', gap: '15px' }}>
                                 <input className="input" placeholder="Title" value={product.title} onChange={e => setProduct({ ...product, title: e.target.value })} required />
                                 <input className="input" placeholder="Price" type="number" value={product.price} onChange={e => setProduct({ ...product, price: e.target.value })} required />
-                                <textarea
-                                    className="input"
-                                    placeholder="Image URLs (separate multiple links with commas)"
-                                    value={product.image}
-                                    onChange={e => setProduct({ ...product, image: e.target.value })}
-                                    style={{ height: '60px' }}
-                                />
+                                {/* 🟢 PASTE THIS NEW CODE HERE 🟢 */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <label style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Product Images</label>
+                                    {product.images.map((url, index) => (
+                                        <div key={index} style={{ display: 'flex', gap: '10px' }}>
+                                            <input
+                                                className="input"
+                                                placeholder={`Image URL ${index + 1}`}
+                                                value={url}
+                                                onChange={e => {
+                                                    const newImages = [...product.images];
+                                                    newImages[index] = e.target.value;
+                                                    setProduct({ ...product, images: newImages });
+                                                }}
+                                            />
+                                            {product.images.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newImages = product.images.filter((_, i) => i !== index);
+                                                        setProduct({ ...product, images: newImages });
+                                                    }}
+                                                    style={{ background: '#ffebee', color: 'red', border: '1px solid red', borderRadius: '8px', cursor: 'pointer', padding: '0 12px' }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => setProduct({ ...product, images: [...product.images, ''] })}
+                                        className="btn btn-outline"
+                                        style={{ fontSize: '13px', padding: '8px', borderStyle: 'dashed' }}
+                                    >
+                                        + Add Another Image
+                                    </button>
+                                </div>
+                                {/* 🟢 END OF NEW CODE 🟢 */}
                                 <textarea className="input" placeholder="Description" value={product.description} onChange={e => setProduct({ ...product, description: e.target.value })} style={{ height: '100px' }} />
 
                                 {/* UPDATED: STOCK CHECKBOX */}
