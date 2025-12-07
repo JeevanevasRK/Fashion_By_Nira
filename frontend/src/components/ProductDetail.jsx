@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ProductDetail = ({ product, addToCart, onBack }) => {
   const [isAdded, setIsAdded] = useState(false);
+  // Handle new array format or fallback to old string format
+  const images = product.images && product.images.length > 0 ? product.images : [product.image];
+  const [activeImg, setActiveImg] = useState(images[0]);
 
   if (!product) return null;
 
   const handleAddToCart = () => {
-    if (!product.inStock) return; // Prevent action if out of stock
+    if (!product.inStock) return;
     addToCart(product);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -20,21 +23,40 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
 
       <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', padding: '30px' }}>
 
-        {/* IMAGE */}
-        <div style={{ background: '#f8f8f8', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', position: 'relative' }}>
-          <img
-            src={product.image}
-            alt={product.title}
-            style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
-          />
-          {!product.inStock && (
-            <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
-              SOLD OUT
-            </div>
-          )}
+        {/* IMAGE GALLERY SECTION */}
+        <div>
+          {/* Main Image */}
+          <div style={{ background: '#f8f8f8', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', position: 'relative', marginBottom: '15px' }}>
+            <img
+              src={activeImg}
+              alt={product.title}
+              style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
+            />
+            {!product.inStock && (
+              <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
+                SOLD OUT
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnails */}
+          <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
+            {images.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                onClick={() => setActiveImg(img)}
+                style={{
+                  width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer',
+                  border: activeImg === img ? '2px solid var(--accent)' : '1px solid #ddd',
+                  opacity: activeImg === img ? 1 : 0.6
+                }}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* INFO */}
+        {/* INFO SECTION */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>{product.title}</h1>
           <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)', marginBottom: '20px' }}>₹{product.price}</p>
@@ -48,7 +70,7 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
 
           <button
             onClick={handleAddToCart}
-            disabled={!product.inStock} // Disable button if out of stock
+            disabled={!product.inStock}
             className="btn"
             style={{
               width: '100%',
@@ -63,7 +85,6 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
             {!product.inStock ? "Out of Stock" : (isAdded ? "✓ Added to Bag" : "Add to Cart")}
           </button>
 
-          {/* NEW: BACK TO LISTING OPTION */}
           <button
             onClick={onBack}
             style={{
@@ -79,7 +100,6 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
           >
             Back to Listing
           </button>
-
         </div>
 
       </div>

@@ -256,13 +256,21 @@ function AdminPanel({ token, setIsAdmin }) {
         } catch (e) { console.error(e); }
     };
 
-    // --- INVENTORY LOGIC ---
+    // NEW: Handle to add multiple images 
     const handleProductSubmit = async (e) => {
         e.preventDefault();
+        // Convert comma-separated string to array
+        const imageArray = product.image.split(',').map(url => url.trim()).filter(url => url !== "");
+
+        const payload = { ...product, images: imageArray };
+
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
         const method = editingId ? 'put' : 'post';
-        await axios[method](url, product, { headers: { Authorization: token } });
-        setProduct({ title: '', price: '', description: '', image: '', inStock: true }); setEditingId(null);
+
+        await axios[method](url, payload, { headers: { Authorization: token } });
+
+        setProduct({ title: '', price: '', description: '', image: '', inStock: true });
+        setEditingId(null);
         fetchData();
         if (editingId) setActiveTab('inventory');
     };
@@ -273,7 +281,8 @@ function AdminPanel({ token, setIsAdmin }) {
             title: p.title,
             price: p.price,
             description: p.description,
-            image: p.image,
+            // Join array back to string for editing
+            image: p.images && p.images.length > 0 ? p.images.join(', ') : (p.image || ''),
             inStock: p.inStock !== undefined ? p.inStock : true
         });
         setEditingId(p._id);
@@ -415,7 +424,13 @@ function AdminPanel({ token, setIsAdmin }) {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                                 {products.map(p => (
                                     <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px', opacity: p.inStock ? 1 : 0.6 }}>
-                                        <img src={p.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }} />
+                                        <textarea
+                                            className="input"
+                                            placeholder="Image URLs (separate multiple links with commas)"
+                                            value={product.image}
+                                            onChange={e => setProduct({ ...product, image: e.target.value })}
+                                            style={{ height: '60px' }}
+                                        />
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
                                             <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
@@ -436,7 +451,13 @@ function AdminPanel({ token, setIsAdmin }) {
                             <form onSubmit={handleProductSubmit} className="card" style={{ display: 'grid', gap: '15px' }}>
                                 <input className="input" placeholder="Title" value={product.title} onChange={e => setProduct({ ...product, title: e.target.value })} required />
                                 <input className="input" placeholder="Price" type="number" value={product.price} onChange={e => setProduct({ ...product, price: e.target.value })} required />
-                                <input className="input" placeholder="Image URL" value={product.image} onChange={e => setProduct({ ...product, image: e.target.value })} />
+                                <textarea
+                                    className="input"
+                                    placeholder="Image URLs (separate multiple links with commas)"
+                                    value={product.image}
+                                    onChange={e => setProduct({ ...product, image: e.target.value })}
+                                    style={{ height: '60px' }}
+                                />
                                 <textarea className="input" placeholder="Description" value={product.description} onChange={e => setProduct({ ...product, description: e.target.value })} style={{ height: '100px' }} />
 
                                 {/* UPDATED: STOCK CHECKBOX */}

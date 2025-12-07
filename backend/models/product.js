@@ -4,9 +4,9 @@ const productSchema = new mongoose.Schema({
     title: { type: String, required: true },
     price: { type: Number, required: true },
     description: String,
-    image: String,
+    images: [String], // <--- CHANGED TO ARRAY
     category: String,
-    inStock: { type: Boolean, default: true } // <--- NEW FIELD
+    inStock: { type: Boolean, default: true }
 });
 
 module.exports = mongoose.model('Product', productSchema);
