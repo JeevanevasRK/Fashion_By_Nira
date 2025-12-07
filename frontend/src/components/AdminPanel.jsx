@@ -405,6 +405,16 @@ function AdminPanel({ token, setIsAdmin }) {
                 />
             )}
 
+            {/* DELETE MODAL (PRODUCTS) */}
+            {userToDelete && (
+                <DeleteModal
+                    onConfirm={confirmDeleteUser}
+                    onCancel={() => setUserToDelete(null)}
+                    title="Remove Admin?"
+                    desc="This user will no longer have access to the admin panel."
+                />
+            )}
+
             {/* TOP BAR */}
             <div style={{ background: 'var(--bg-card)', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
