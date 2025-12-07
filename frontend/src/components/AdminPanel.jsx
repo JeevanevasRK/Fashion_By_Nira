@@ -243,6 +243,7 @@ function AdminPanel({ token, setIsAdmin }) {
     // MODAL STATES
     const [orderToDelete, setOrderToDelete] = useState(null);
     const [productToDelete, setProductToDelete] = useState(null);
+    const [userToDelete, setUserToDelete] = useState(null); // <--- ADD THIS LINE
 
     useEffect(() => { fetchData(); }, []);
 
@@ -346,10 +347,20 @@ function AdminPanel({ token, setIsAdmin }) {
         } catch (err) { alert("Error saving user"); }
     };
 
-    const deleteUser = async (id) => {
-        if (confirm("Delete Admin?")) {
-            await axios.delete(`${API}/auth/admins/${id}`, { headers: { Authorization: token } });
+    // --- DELETE USER LOGIC ---
+    const requestDeleteUser = (id) => {
+        setUserToDelete(id);
+    };
+
+    const confirmDeleteUser = async () => {
+        if (!userToDelete) return;
+        try {
+            await axios.delete(`${API}/auth/admins/${userToDelete}`, { headers: { Authorization: token } });
             fetchData();
+            setUserToDelete(null);
+        } catch (err) {
+            alert("Delete failed");
+            setUserToDelete(null);
         }
     };
 
