@@ -532,9 +532,9 @@ function AdminPanel({ token, setIsAdmin }) {
                                                 {o.products.map((p, i) => (
                                                     <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                         <img
-                                                            src={p.images && p.images.length > 0 ? p.images[0] : p.image}
-                                                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }}
-                                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
+                                                            src={p.productId?.images && p.productId.images.length > 0 ? p.productId.images[0] : p.productId?.image}
+                                                            style={{ width: '30px', height: '30px', borderRadius: '4px', objectFit: 'cover', background: '#f0f0f0' }}
+                                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/30' }}
                                                         />
                                                         {p.productId?.title} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
                                                     </div>
