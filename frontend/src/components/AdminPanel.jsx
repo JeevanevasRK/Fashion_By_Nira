@@ -405,7 +405,7 @@ function AdminPanel({ token, setIsAdmin }) {
                 />
             )}
 
-            {/* DELETE MODAL (PRODUCTS) */}
+            {/* DELETE MODAL (USERS) */}
             {userToDelete && (
                 <DeleteModal
                     onConfirm={confirmDeleteUser}
@@ -594,7 +594,13 @@ function AdminPanel({ token, setIsAdmin }) {
                                     <div><strong>{u.phoneNumber}</strong> <span style={{ fontSize: '12px', color: 'gray', marginLeft: '5px' }}>(Admin)</span></div>
                                     <div>
                                         <button onClick={() => { setEditUser(u); setNewAdmin({ phoneNumber: u.phoneNumber, password: '' }) }} style={{ marginRight: '15px', border: 'none', background: 'none', cursor: 'pointer' }}>✏️</button>
-                                        <button onClick={() => deleteUser(u._id)} style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer' }}>🗑️</button>
+                                        {/* FIXED DELETE BUTTON */}
+                                        <button
+                                            onClick={() => requestDeleteUser(u._id)}
+                                            style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer', fontSize: '18px' }}
+                                        >
+                                            🗑️
+                                        </button>
                                     </div>
                                 </div>
                             ))}
