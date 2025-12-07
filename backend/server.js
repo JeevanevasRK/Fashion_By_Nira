@@ -45,3 +45,21 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
 });
+
+// --- KEEP ALIVE SCRIPT (Paste at the bottom of backend/index.js) ---
+// This forces the server to ping itself every 14 minutes so Render doesn't put it to sleep.
+
+const https = require('https');
+
+const keepAlive = () => {
+    const url = "https://fashion-by-nira.onrender.com/api/products"; // Your actual API URL
+
+    https.get(url, (resp) => {
+        console.log(`Keep-Alive Ping: Status ${resp.statusCode}`);
+    }).on("error", (err) => {
+        console.error("Keep-Alive Error: " + err.message);
+    });
+};
+
+// Ping every 14 minutes (Render sleeps after 15 minutes)
+setInterval(keepAlive, 14 * 60 * 1000);
