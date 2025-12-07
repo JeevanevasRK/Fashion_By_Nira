@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 
 const ProductDetail = ({ product, addToCart, onBack }) => {
   const [isAdded, setIsAdded] = useState(false);
+  const scrollRef = useRef(null); // Reference for the scroll container
+
   // Handle new array format or fallback to old string format
-  const images = product.images && product.images.length > 0 ? product.images : [product.image];
-  const [activeImg, setActiveImg] = useState(images[0]);
+  const images = product?.images && product.images.length > 0 ? product.images : [product?.image];
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
 
   if (!product) return null;
 
@@ -13,6 +15,18 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
     addToCart(product);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  // Function to scroll to a specific image when thumbnail is clicked
+  const scrollToImage = (index) => {
+    setActiveImgIndex(index);
+    if (scrollRef.current) {
+      const width = scrollRef.current.offsetWidth;
+      scrollRef.current.scrollTo({
+        left: width * index,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (
@@ -25,18 +39,48 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
 
         {/* IMAGE GALLERY SECTION */}
         <div>
-          {/* Main Image */}
-          <div style={{ background: '#f8f8f8', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', position: 'relative', marginBottom: '15px' }}>
-            <img
-              src={activeImg}
-              alt={product.title}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
-            />
-            {!product.inStock && (
-              <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
-                SOLD OUT
+          {/* Main Image Carousel (Scrollable) */}
+          <div
+            ref={scrollRef}
+            style={{
+              display: 'flex',
+              overflowX: 'auto',
+              scrollSnapType: 'x mandatory',
+              background: '#f8f8f8',
+              borderRadius: '15px',
+              height: '400px',
+              position: 'relative',
+              marginBottom: '15px',
+              scrollbarWidth: 'none', // Hide scrollbar Firefox
+              msOverflowStyle: 'none' // Hide scrollbar IE
+            }}
+            className="hide-scrollbar" // Add css class if needed for webkit
+          >
+            {images.map((img, index) => (
+              <div
+                key={index}
+                style={{
+                  minWidth: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  scrollSnapAlign: 'center',
+                  position: 'relative'
+                }}
+              >
+                <img
+                  src={img}
+                  alt={product.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
+                />
+                {!product.inStock && (
+                  <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
+                    SOLD OUT
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
 
           {/* Thumbnails */}
@@ -45,11 +89,11 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
               <img
                 key={index}
                 src={img}
-                onClick={() => setActiveImg(img)}
+                onClick={() => scrollToImage(index)}
                 style={{
                   width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer',
-                  border: activeImg === img ? '2px solid var(--accent)' : '1px solid #ddd',
-                  opacity: activeImg === img ? 1 : 0.6
+                  border: activeImgIndex === index ? '2px solid var(--accent)' : '1px solid #ddd',
+                  opacity: activeImgIndex === index ? 1 : 0.6
                 }}
               />
             ))}
