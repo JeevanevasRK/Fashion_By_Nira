@@ -428,12 +428,10 @@ function AdminPanel({ token, setIsAdmin }) {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                                 {products.map(p => (
                                     <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px', opacity: p.inStock ? 1 : 0.6 }}>
-                                        <textarea
-                                            className="input"
-                                            placeholder="Image URLs (separate multiple links with commas)"
-                                            value={product.image}
-                                            onChange={e => setProduct({ ...product, image: e.target.value })}
-                                            style={{ height: '60px' }}
+                                        <img
+                                            src={p.images && p.images.length > 0 ? p.images[0] : p.image}
+                                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }}
+                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
                                         />
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
