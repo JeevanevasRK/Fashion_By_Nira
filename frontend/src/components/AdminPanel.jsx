@@ -412,7 +412,9 @@ function AdminPanel({ token, setIsAdmin }) {
                 }}>
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', fontWeight: 'bold' }}>Navigation</p>
                     <button style={sidebarBtnStyle('inventory')} onClick={() => { setActiveTab('inventory'); setMenuOpen(false) }}>📦 Inventory</button>
-                    <button style={sidebarBtnStyle('products')} onClick={() => { setActiveTab('products'); setEditingId(null); setProduct({ title: '', price: '', description: '', image: '', inStock: true }); setMenuOpen(false) }}>✨ Add Product</button>
+                    <button style={sidebarBtnStyle('products')} onClick={() => {
+                        setActiveTab('products'); setEditingId(null); /* FIX: Initialize 'images' as an array so the form doesn't crash */ setProduct({ title: '', price: '', description: '', images: [''], inStock: true }); setMenuOpen(false);
+                    }} > ✨ Add Product </button>
                     <button style={sidebarBtnStyle('orders')} onClick={() => { setActiveTab('orders'); setMenuOpen(false) }}> <span>🚚</span> Orders <span style={{ background: 'var(--accent)', color: 'var(--accent-text)', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: 'auto', fontWeight: 'bold' }}> {orders.length} </span> </button>
                     <button style={sidebarBtnStyle('users')} onClick={() => { setActiveTab('users'); setMenuOpen(false) }}>👥 Admins</button>
                 </div>
@@ -529,7 +531,11 @@ function AdminPanel({ token, setIsAdmin }) {
                                             <div style={{ background: 'var(--bg-body)', padding: '10px', borderRadius: '10px', marginBottom: '15px' }}>
                                                 {o.products.map((p, i) => (
                                                     <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        <img src={p.productId?.image} style={{ width: '30px', height: '30px', borderRadius: '4px', objectFit: 'cover' }} />
+                                                        <img
+                                                            src={p.images && p.images.length > 0 ? p.images[0] : p.image}
+                                                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }}
+                                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
+                                                        />
                                                         {p.productId?.title} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
                                                     </div>
                                                 ))}
