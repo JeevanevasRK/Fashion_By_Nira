@@ -606,10 +606,6 @@ function AdminPanel({ token, setIsAdmin }) {
                             ))}
                         </div>
                     )}
-                    {/* 🟢 PASTE THE FOOTER HERE 🟢 */}
-                    <footer style={{ textAlign: 'center', padding: '40px 20px', marginTop: 'auto', borderTop: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', opacity: 0.7 }}>
-                        <p>© {new Date().getFullYear()} Fashion By Nira. All rights reserved.</p>
-                    </footer>
                 </div>
             </div>
         </div>
