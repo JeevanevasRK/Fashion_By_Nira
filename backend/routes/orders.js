@@ -1,6 +1,14 @@
 const router = require('express').Router();
 const Order = require('../models/order'); // Fixed: Capital 'O' to match filename
 const jwt = require('jsonwebtoken');
+// REPLACE THESE WITH YOUR TWILIO CREDENTIALS
+// --- REPLACE THE OLD TWILIO LINES WITH THIS ---
+// --- LOAD KEYS FROM .ENV FILE ---
+require('dotenv').config();
+const accountSid = process.env.TWILIO_ACCOUNT_SID; // No "AC..." string here!
+const authToken = process.env.TWILIO_AUTH_TOKEN;   // No random characters here!
+const client = require('twilio')(accountSid, authToken);
+
 
 // Middleware for Admin Checks
 const verifyToken = (req, res, next) => {
@@ -19,6 +27,7 @@ const verifyToken = (req, res, next) => {
 router.post('/', async (req, res) => {
     try {
         const { products, totalAmount, shippingAddress, customerName, customerPhone } = req.body;
+
         const newOrder = new Order({
             products,
             totalAmount,
@@ -27,9 +36,29 @@ router.post('/', async (req, res) => {
             customerPhone,
             status: 'Pending'
         });
-        await newOrder.save();
-        res.json({ message: "Order placed successfully!", orderId: newOrder._id });
+
+        // Save the order
+        const savedOrder = await newOrder.save();
+
+        // --- START WHATSAPP NOTIFICATION ---
+        try {
+            // Format the date and time cleanly
+            const orderDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+            await client.messages.create({
+                from: 'whatsapp:+14155238886', // Twilio Sandbox Number
+                to: 'whatsapp:+91585026838',   // REPLACE WITH YOUR PHONE NUMBER
+                body: `🔔 *New Order Received!*\n\n👤 *Customer:* ${customerName}\n📞 *Phone:* ${customerPhone}\n💰 *Amount:* ₹${totalAmount}\n📍 *Address:* ${shippingAddress}\n📅 *Date/Time:* ${orderDate}`
+            });
+            console.log("WhatsApp notification sent.");
+        } catch (waError) {
+            console.error("WhatsApp failed:", waError.message);
+        }
+        // --- END WHATSAPP NOTIFICATION ---
+
+        res.json({ message: "Order placed successfully!", orderId: savedOrder._id });
     } catch (err) {
+        console.log(err);
         res.status(500).json({ error: "Could not place order" });
     }
 });
