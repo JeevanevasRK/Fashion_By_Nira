@@ -400,7 +400,10 @@ function App() {
           </div>
         </div>
       )}
-
+      {/* ✅ PASTE THE FOOTER HERE ✅ */}
+      <footer style={{ textAlign: 'center', padding: '30px', marginTop: 'auto', borderTop: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px' }}>
+        <p>© {new Date().getFullYear()} Fashion By Nira. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
