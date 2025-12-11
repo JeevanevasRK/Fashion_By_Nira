@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+// --- HELPER TO FORCE IMAGE REFRESH ---
+const getFreshImage = (url) => {
+  if (!url) return 'https://via.placeholder.com/150';
+  // If url already has '?', use '&', otherwise use '?'
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}t=${new Date().getTime()}`;
+};
+
 
 // --- PREMIUM FASHION LOADER ---
 const FashionLoader = () => (
@@ -121,11 +129,13 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
 
             <div style={{ height: '200px', background: '#f8f8f8', borderRadius: '10px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
               {/* Added ?v= timestamp to force new image load */}
-<img 
-  src={`${p.image}?v=${new Date().getTime()}`} 
-  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
-  onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
-/>
+              <img
+                // Use the helper function here
+                src={getFreshImage(p.image)} 
+                style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
+                onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
+                />
+              
               
 
               {/* STOCK OUT OVERLAY */}
