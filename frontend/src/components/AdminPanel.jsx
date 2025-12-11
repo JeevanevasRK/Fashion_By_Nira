@@ -260,23 +260,42 @@ function AdminPanel({ token, setIsAdmin }) {
 
     // NEW: Handle to add multiple images 
     const handleProductSubmit = async (e) => {
+        const handleProductSubmit = async (e) => {
         e.preventDefault();
-        // Filter out empty inputs
+        
+        // 1. Clean up the images list (remove empty boxes)
         const imageArray = product.images.filter(url => url.trim() !== "");
 
-        // Fallback: If no images, use placeholder or empty array
-        const payload = { ...product, images: imageArray };
+        // 2. THE FIX: We explicitly set 'image' (singular) to the first link in the list.
+        // This ensures the product has a thumbnail immediately after adding.
+        const payload = { 
+            ...product, 
+            images: imageArray,
+            image: imageArray.length > 0 ? imageArray[0] : "" 
+        };
 
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
         const method = editingId ? 'put' : 'post';
 
-        await axios[method](url, payload, { headers: { Authorization: token } });
+        try {
+            await axios[method](url, payload, { headers: { Authorization: token } });
 
-        setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
-        setEditingId(null);
-        fetchData();
-        if (editingId) setActiveTab('inventory');
+            // Reset the form
+            setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
+            setEditingId(null);
+            
+            // Refresh the list immediately so you see the image
+            fetchData();
+            
+            // If editing, go back to inventory list
+            if (editingId) setActiveTab('inventory');
+            
+        } catch (error) {
+            console.error(error);
+            alert("Failed to save product");
+        }
     };
+        
 
     // NEW: Handle Edit Click (Populate form including stock status)
     const handleEdit = (p) => {
