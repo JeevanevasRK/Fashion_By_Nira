@@ -1,4 +1,4 @@
-const express = require('express');
+ const express = require('express');
 const router = express.Router();
 const Product = require('../models/product');
 const jwt = require('jsonwebtoken');
@@ -34,7 +34,11 @@ router.post('/', verifyAdmin, async (req, res) => {
 // 2. GET ALL PRODUCTS (Everyone can see this)
 router.get('/', async (req, res) => {
     try {
-        const products = await Product.find();
+        // Prevent caching so users always see the latest image updates
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        
+        // Fetch products and sort them (optional: .sort({ _id: -1 }) shows newest first)
+        const products = await Product.find().sort({ _id: -1 });
         res.json(products);
     } catch (err) {
         res.status(500).json({ error: "Could not fetch products" });
