@@ -31,9 +31,23 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
 
   return (
     <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <button onClick={onBack} style={{ background: 'none', border: 'none', marginBottom: '20px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-        ← Back
-      </button>
+      <button 
+  onClick={onBack} 
+  style={{ 
+    background: 'none', 
+    border: 'none', 
+    marginBottom: '20px', 
+    cursor: 'pointer', 
+    fontSize: '16px', 
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '5px',
+    color: 'var(--text-main)' /* <--- THIS IS THE FIX */
+  }}
+>
+  ← Back
+</button>
+      
 
       <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', padding: '30px' }}>
 
