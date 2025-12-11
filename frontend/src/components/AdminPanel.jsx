@@ -259,24 +259,43 @@ function AdminPanel({ token, setIsAdmin }) {
     };
 
     // NEW: Handle to add multiple images 
-    const handleProductSubmit = async (e) => {
+        const handleProductSubmit = async (e) => {
         e.preventDefault();
-        // Filter out empty inputs
+        
+        // 1. Get the list of clean links
         const imageArray = product.images.filter(url => url.trim() !== "");
 
-        // Fallback: If no images, use placeholder or empty array
-        const payload = { ...product, images: imageArray };
+        // 2. CRITICAL FIX: 
+        // We set 'image' (Singular) to the first link. 
+        // This ensures the database actually saves it.
+        const payload = { 
+            ...product, 
+            images: imageArray,
+            image: imageArray.length > 0 ? imageArray[0] : "" 
+        };
 
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
         const method = editingId ? 'put' : 'post';
 
-        await axios[method](url, payload, { headers: { Authorization: token } });
+        try {
+            await axios[method](url, payload, { headers: { Authorization: token } });
 
-        setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
-        setEditingId(null);
-        fetchData();
-        if (editingId) setActiveTab('inventory');
+            // Reset form
+            setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
+            setEditingId(null);
+            
+            // Refresh Data
+            fetchData();
+            
+            // Go back to list
+            if (editingId) setActiveTab('inventory');
+
+        } catch (error) {
+            console.error("Save failed:", error);
+            alert("Error saving product");
+        }
     };
+    
 
     // NEW: Handle Edit Click (Populate form including stock status)
     const handleEdit = (p) => {
