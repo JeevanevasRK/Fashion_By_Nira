@@ -91,18 +91,16 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-  // Added headers to prevent caching the product list
-  axios.get(`${API}/products`, {
-    headers: {
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-    }
-  })
-    .then(res => { setProducts(res.data); setLoading(false); })
-    .catch(err => { console.error(err); setLoading(false); });
-}, []);
+    useEffect(() => {
+    // FIX: Removed 'headers' to prevent CORS errors. 
+    // Added ?nocache=timestamp to the URL instead. This forces a fresh load safely.
+    axios.get(`${API}/products?nocache=${new Date().getTime()}`)
+      .then(res => { setProducts(res.data); setLoading(false); })
+      .catch(err => { 
+        console.error("Error fetching products:", err); 
+        setLoading(false); 
+      });
+  }, []);
 
   const filtered = products.filter(p => p.title.toLowerCase().includes((searchQuery || "").toLowerCase()));
 
