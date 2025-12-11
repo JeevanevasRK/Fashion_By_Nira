@@ -92,10 +92,17 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${API}/products`)
-      .then(res => { setProducts(res.data); setLoading(false); })
-      .catch(err => { console.error(err); setLoading(false); });
-  }, []);
+  // Added headers to prevent caching the product list
+  axios.get(`${API}/products`, {
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    }
+  })
+    .then(res => { setProducts(res.data); setLoading(false); })
+    .catch(err => { console.error(err); setLoading(false); });
+}, []);
 
   const filtered = products.filter(p => p.title.toLowerCase().includes((searchQuery || "").toLowerCase()));
 
@@ -115,8 +122,13 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
           <div key={p._id} className="card" onClick={() => onProductClick(p)} style={{ padding: '10px', cursor: 'pointer', opacity: p.inStock ? 1 : 0.7 }}>
 
             <div style={{ height: '200px', background: '#f8f8f8', borderRadius: '10px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-              <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} />
+              {/* Added ?v= timestamp to force new image load */}
+<img 
+  src={`${p.image}?v=${new Date().getTime()}`} 
+  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
+  onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
+/>
+              
 
               {/* STOCK OUT OVERLAY */}
               {!p.inStock && (
