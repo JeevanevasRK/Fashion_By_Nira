@@ -260,42 +260,23 @@ function AdminPanel({ token, setIsAdmin }) {
 
     // NEW: Handle to add multiple images 
     const handleProductSubmit = async (e) => {
-        const handleProductSubmit = async (e) => {
         e.preventDefault();
-        
-        // 1. Clean up the images list (remove empty boxes)
+        // Filter out empty inputs
         const imageArray = product.images.filter(url => url.trim() !== "");
 
-        // 2. THE FIX: We explicitly set 'image' (singular) to the first link in the list.
-        // This ensures the product has a thumbnail immediately after adding.
-        const payload = { 
-            ...product, 
-            images: imageArray,
-            image: imageArray.length > 0 ? imageArray[0] : "" 
-        };
+        // Fallback: If no images, use placeholder or empty array
+        const payload = { ...product, images: imageArray };
 
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
         const method = editingId ? 'put' : 'post';
 
-        try {
-            await axios[method](url, payload, { headers: { Authorization: token } });
+        await axios[method](url, payload, { headers: { Authorization: token } });
 
-            // Reset the form
-            setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
-            setEditingId(null);
-            
-            // Refresh the list immediately so you see the image
-            fetchData();
-            
-            // If editing, go back to inventory list
-            if (editingId) setActiveTab('inventory');
-            
-        } catch (error) {
-            console.error(error);
-            alert("Failed to save product");
-        }
+        setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
+        setEditingId(null);
+        fetchData();
+        if (editingId) setActiveTab('inventory');
     };
-        
 
     // NEW: Handle Edit Click (Populate form including stock status)
     const handleEdit = (p) => {
@@ -462,7 +443,7 @@ function AdminPanel({ token, setIsAdmin }) {
                 <div style={{ flex: 1, padding: '20px', marginLeft: menuOpen ? '0' : '0', overflowY: 'auto', width: '100%' }}>
 
                     {/* INVENTORY TAB */}
-                    {activeTab === 'inventory' && (
+                {activeTab === 'inventory' && (
                         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
                             <h2 style={{ marginBottom: '20px' }}>Inventory</h2>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
