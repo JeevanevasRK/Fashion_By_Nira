@@ -128,16 +128,15 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
           <div key={p._id} className="card" onClick={() => onProductClick(p)} style={{ padding: '10px', cursor: 'pointer', opacity: p.inStock ? 1 : 0.7 }}>
 
             <div style={{ height: '200px', background: '#f8f8f8', borderRadius: '10px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-              {/* Added ?v= timestamp to force new image load */}
-              <img
-                // Use the helper function here
-                src={getFreshImage(p.image)} 
-                style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
-                />
-              
-              
-
+                {/* FIX: added key={p.image} 
+         This tells React: "If the image URL changes, this is a completely different element. destroy the old one."
+      */}
+      <img 
+        key={p.image} 
+        src={`${p.image}?v=${new Date().getTime()}`} 
+        style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
+        onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
+      />
               {/* STOCK OUT OVERLAY */}
               {!p.inStock && (
                 <div style={{
