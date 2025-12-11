@@ -99,16 +99,28 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-    // FIX: Removed 'headers' to prevent CORS errors. 
-    // Added ?nocache=timestamp to the URL instead. This forces a fresh load safely.
-    axios.get(`${API}/products?nocache=${new Date().getTime()}`)
-      .then(res => { setProducts(res.data); setLoading(false); })
-      .catch(err => { 
-        console.error("Error fetching products:", err); 
+      useEffect(() => {
+    // Generate a timestamp once when the page loads
+    const timestamp = new Date().getTime();
+
+    axios.get(`${API}/products`)
+      .then(res => { 
+        // Process the data to force fresh images
+        const freshData = res.data.map(item => {
+          return {
+            ...item,
+            // Add timestamp to the single image
+            image: item.image ? `${item.image}?v=${timestamp}` : '',
+            // Add timestamp to the array of images (if it exists)
+            images: item.images ? item.images.map(img => `${img}?v=${timestamp}`) : []
+          };
+        });
+        setProducts(freshData); 
         setLoading(false); 
-      });
+      })
+      .catch(err => { console.error(err); setLoading(false); });
   }, []);
+  
 
   const filtered = products.filter(p => p.title.toLowerCase().includes((searchQuery || "").toLowerCase()));
 
@@ -131,12 +143,13 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
                 {/* FIX: added key={p.image} 
          This tells React: "If the image URL changes, this is a completely different element. destroy the old one."
       */}
-      <img 
-        key={p.image} 
-        src={`${p.image}?v=${new Date().getTime()}`} 
-        style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
-        onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
-      />
+                  {/* UPDATED IMAGE LOGIC: Checks array first, then falls back to single image */}
+            <img 
+              src={(p.images && p.images.length > 0) ? p.images[0] : p.image} 
+              style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
+              onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
+            />
+              
               {/* STOCK OUT OVERLAY */}
               {!p.inStock && (
                 <div style={{
