@@ -99,23 +99,11 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-      useEffect(() => {
-    // Generate a timestamp once when the page loads
-    const timestamp = new Date().getTime();
-
+        useEffect(() => {
+    // We remove the timestamp logic because the Proxy URL handles updates automatically now
     axios.get(`${API}/products`)
       .then(res => { 
-        // Process the data to force fresh images
-        const freshData = res.data.map(item => {
-          return {
-            ...item,
-            // Add timestamp to the single image
-            image: item.image ? `${item.image}?v=${timestamp}` : '',
-            // Add timestamp to the array of images (if it exists)
-            images: item.images ? item.images.map(img => `${img}?v=${timestamp}`) : []
-          };
-        });
-        setProducts(freshData); 
+        setProducts(res.data); // Just save the raw data
         setLoading(false); 
       })
       .catch(err => { console.error(err); setLoading(false); });
@@ -144,9 +132,18 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
          This tells React: "If the image URL changes, this is a completely different element. destroy the old one."
       */}
                   {/* UPDATED IMAGE LOGIC: Checks array first, then falls back to single image */}
+                        {/* OPTIMIZED IMAGE TAG: Uses wsrv.nl proxy to auto-resize and compress */}
             <img 
-              src={(p.images && p.images.length > 0) ? p.images[0] : p.image} 
-              style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: p.inStock ? 'none' : 'grayscale(100%)' }}
+              src={`https://wsrv.nl/?url=${encodeURIComponent((p.images && p.images.length > 0) ? p.images[0] : p.image)}&w=400&q=80&output=webp`}
+              alt={p.title}
+              loading="lazy" 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'contain', 
+                mixBlendMode: 'multiply', 
+                filter: p.inStock ? 'none' : 'grayscale(100%)' 
+              }}
               onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
             />
               
