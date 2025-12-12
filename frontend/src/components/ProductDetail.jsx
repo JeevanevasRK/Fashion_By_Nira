@@ -31,22 +31,45 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
 
   return (
     <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            {/* PREMIUM BACK BUTTON */}
       <button 
-  onClick={onBack} 
-  style={{ 
-    background: 'none', 
-    border: 'none', 
-    marginBottom: '20px', 
-    cursor: 'pointer', 
-    fontSize: '16px', 
-    display: 'flex', 
-    alignItems: 'center', 
-    gap: '5px',
-    color: 'var(--text-main)' /* <--- THIS IS THE FIX */
-  }}
->
-  ← Back
-</button>
+        onClick={onBack}
+        // Hover Animation Logic
+        onMouseEnter={(e) => { 
+          e.currentTarget.style.transform = 'translateX(-5px)'; 
+          e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+        }}
+        onMouseLeave={(e) => { 
+          e.currentTarget.style.transform = 'translateX(0)'; 
+          e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+        }}
+        style={{
+          background: 'var(--bg-card)',       // Adapts to Dark/Light mode
+          border: '1px solid var(--border)',  // Subtle border
+          borderRadius: '30px',               // Premium Pill Shape
+          padding: '12px 25px',
+          marginBottom: '30px',
+          cursor: 'pointer',
+          fontSize: '13px',
+          fontWeight: '600',
+          letterSpacing: '2px',               // Fashion Brand spacing
+          textTransform: 'uppercase',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          color: 'var(--text-main)',          // Auto-color text
+          boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+          transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)', // Smooth physics
+          width: 'fit-content'
+        }}
+      >
+        {/* Custom SVG Arrow for crisp look */}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Collection
+      </button>
       
 
       <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', padding: '30px' }}>
