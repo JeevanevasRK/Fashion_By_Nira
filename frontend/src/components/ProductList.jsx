@@ -127,25 +127,34 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
         {filtered.map(p => (
           <div key={p._id} className="card" onClick={() => onProductClick(p)} style={{ padding: '10px', cursor: 'pointer', opacity: p.inStock ? 1 : 0.7 }}>
 
-            <div style={{ height: '200px', background: '#f8f8f8', borderRadius: '10px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-                {/* FIX: added key={p.image} 
-         This tells React: "If the image URL changes, this is a completely different element. destroy the old one."
-      */}
-                  {/* UPDATED IMAGE LOGIC: Checks array first, then falls back to single image */}
-                        {/* OPTIMIZED IMAGE TAG: Uses wsrv.nl proxy to auto-resize and compress */}
-            <img 
-              src={`https://wsrv.nl/?url=${encodeURIComponent((p.images && p.images.length > 0) ? p.images[0] : p.image)}&w=400&q=80&output=webp`}
-              alt={p.title}
-              loading="lazy" 
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                objectFit: 'contain', 
-                mixBlendMode: 'multiply', 
-                filter: p.inStock ? 'none' : 'grayscale(100%)' 
-              }}
-              onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }} 
-            />
+                        {/* 3:4 RATIO IMAGE CONTAINER */}
+            <div style={{ 
+              aspectRatio: '3/4',    // <--- 3:4 RATIO APPLIED HERE
+              width: '100%', 
+              background: '#f8f8f8', 
+              borderRadius: '10px', 
+              marginBottom: '10px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              position: 'relative', 
+              overflow: 'hidden' 
+            }}>
+                
+              <img 
+                // NEW: Requests a crop to 3:4 (400x533) aligned to the top
+                src={`https://wsrv.nl/?url=${encodeURIComponent((p.images && p.images.length > 0) ? p.images[0] : p.image)}&w=400&h=533&fit=cover&a=top&output=webp`}
+                alt={p.title}
+                loading="lazy" 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover',     // <--- FILL THE BOX
+                  mixBlendMode: 'normal', // <--- NORMAL MODE FOR CLEAR PHOTOS
+                  filter: p.inStock ? 'none' : 'grayscale(100%)' 
+                }}
+                onError={(e) => { e.target.src = 'https://via.placeholder.com/400x533' }} 
+              />
               
               {/* STOCK OUT OVERLAY */}
               {!p.inStock && (
@@ -162,6 +171,7 @@ function ProductList({ addToCart, onProductClick, searchQuery, apiUrl }) {
                 </div>
               )}
             </div>
+            
 
             <div>
               <h3 style={{ fontSize: '15px', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</h3>
