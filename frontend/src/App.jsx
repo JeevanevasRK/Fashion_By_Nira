@@ -281,13 +281,83 @@ function App() {
         <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
       </header>
 
-      {/* SEARCH BAR */}
+            {/* MODERN SEARCH BAR */}
       {view === 'shop' && (
-        <div style={{ maxWidth: '500px', margin: '0 auto 40px', position: 'relative' }}>
-          <input className="input" placeholder="Search products..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ paddingLeft: '45px', borderRadius: '50px' }} />
-          <span style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)' }}>🔍</span>
+        <div style={{ 
+          position: 'relative', 
+          maxWidth: '500px', 
+          margin: '0 auto 30px auto', // Centered with space below
+          transition: 'all 0.3s ease'
+        }}>
+          
+          {/* SEARCH ICON (Absolute Positioned Left) */}
+          <span style={{
+            position: 'absolute',
+            left: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: '18px',
+            color: 'var(--text-muted)',
+            pointerEvents: 'none', // Clicks pass through to input
+            zIndex: 10
+          }}>
+            🔍
+          </span>
+
+          {/* THE INPUT FIELD */}
+          <input
+            type="text"
+            placeholder="Search Collection..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '16px 50px 16px 55px', // Space for Icon (left) and X button (right)
+              borderRadius: '50px', // Full Pill Shape
+              border: '1px solid rgba(0,0,0,0.1)', // Very subtle border
+              fontSize: '16px',
+              outline: 'none',
+              background: 'rgba(255, 255, 255, 0.8)', // Glass effect
+              backdropFilter: 'blur(10px)', // Blur background behind it
+              boxShadow: '0 4px 20px rgba(0,0,0,0.05)', // Soft floating shadow
+              color: 'var(--text-main)',
+              transition: 'box-shadow 0.3s ease'
+            }}
+            onFocus={(e) => e.target.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'} // Elevate on click
+            onBlur={(e) => e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.05)'}
+          />
+
+          {/* THE "X" CLEAR BUTTON (Animated Fade In) */}
+          <button
+            onClick={() => setSearchQuery('')}
+            style={{
+              position: 'absolute',
+              right: '15px',
+              top: '50%',
+              transform: searchQuery ? 'translateY(-50%) scale(1)' : 'translateY(-50%) scale(0)', // Pop animation
+              opacity: searchQuery ? 1 : 0,
+              transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)', // Bouncy effect
+              background: '#e0e0e0',
+              border: 'none',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#555',
+              fontSize: '14px',
+            }}
+            // Hover effect logic
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#d6d6d6'; e.currentTarget.style.color = 'black'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#e0e0e0'; e.currentTarget.style.color = '#555'; }}
+          >
+            ✕
+          </button>
         </div>
       )}
+      
 
       {/* COMPONENTS */}
       <SideMenu isOpen={menuOpen} close={() => setMenuOpen(false)} view={view} setView={setView} cartCount={cart.reduce((a, c) => a + c.quantity, 0)} isAdmin={token && role === 'admin'} onLogin={() => setShowLogin(true)} onLogout={() => { setToken(null); setRole(null); setView('shop') }} />
