@@ -290,15 +290,24 @@ function App() {
           transition: 'all 0.3s ease'
         }}>
           
-          {/* SEARCH ICON (Absolute Positioned Left) */}
+                {/* MODERN SEARCH BAR (DARK MODE ADAPTIVE) */}
+      {view === 'shop' && (
+        <div style={{ 
+          position: 'relative', 
+          maxWidth: '500px', 
+          margin: '0 auto 30px auto', 
+          transition: 'all 0.3s ease'
+        }}>
+          
+          {/* SEARCH ICON */}
           <span style={{
             position: 'absolute',
             left: '20px',
             top: '50%',
             transform: 'translateY(-50%)',
             fontSize: '18px',
-            color: 'var(--text-muted)',
-            pointerEvents: 'none', // Clicks pass through to input
+            color: 'var(--text-muted)', // Adapted color
+            pointerEvents: 'none',
             zIndex: 10
           }}>
             🔍
@@ -312,33 +321,34 @@ function App() {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              padding: '16px 50px 16px 55px', // Space for Icon (left) and X button (right)
-              borderRadius: '50px', // Full Pill Shape
-              border: '1px solid rgba(0,0,0,0.1)', // Very subtle border
+              padding: '16px 50px 16px 55px',
+              borderRadius: '50px',
+              // CHANGE: Used variables instead of fixed colors
+              border: '1px solid var(--border)', 
+              background: 'var(--bg-card)', 
+              color: 'var(--text-main)', 
               fontSize: '16px',
               outline: 'none',
-              background: 'rgba(255, 255, 255, 0.8)', // Glass effect
-              backdropFilter: 'blur(10px)', // Blur background behind it
-              boxShadow: '0 4px 20px rgba(0,0,0,0.05)', // Soft floating shadow
-              color: 'var(--text-main)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
               transition: 'box-shadow 0.3s ease'
             }}
-            onFocus={(e) => e.target.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'} // Elevate on click
+            onFocus={(e) => e.target.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'}
             onBlur={(e) => e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.05)'}
           />
 
-          {/* THE "X" CLEAR BUTTON (Animated Fade In) */}
+          {/* THE "X" CLEAR BUTTON */}
           <button
             onClick={() => setSearchQuery('')}
             style={{
               position: 'absolute',
               right: '15px',
               top: '50%',
-              transform: searchQuery ? 'translateY(-50%) scale(1)' : 'translateY(-50%) scale(0)', // Pop animation
+              transform: searchQuery ? 'translateY(-50%) scale(1)' : 'translateY(-50%) scale(0)',
               opacity: searchQuery ? 1 : 0,
-              transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)', // Bouncy effect
-              background: '#e0e0e0',
-              border: 'none',
+              transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              // CHANGE: Adapts to dark mode background
+              background: 'var(--bg-body)', 
+              border: '1px solid var(--border)',
               borderRadius: '50%',
               width: '28px',
               height: '28px',
@@ -346,12 +356,12 @@ function App() {
               alignItems: 'center', 
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#555',
+              color: 'var(--text-main)', // Adapts text color
               fontSize: '14px',
             }}
-            // Hover effect logic
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#d6d6d6'; e.currentTarget.style.color = 'black'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '#e0e0e0'; e.currentTarget.style.color = '#555'; }}
+            // Hover effect (Manual check for theme not possible inline, so we use opacity)
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
           >
             ✕
           </button>
