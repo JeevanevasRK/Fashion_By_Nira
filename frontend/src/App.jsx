@@ -280,15 +280,6 @@ function App() {
         <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
         <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
       </header>
-
-            {/* MODERN SEARCH BAR */}
-      {view === 'shop' && (
-        <div style={{ 
-          position: 'relative', 
-          maxWidth: '500px', 
-          margin: '0 auto 30px auto', // Centered with space below
-          transition: 'all 0.3s ease'
-        }}>
           
                 {/* MODERN SEARCH BAR (DARK MODE ADAPTIVE) */}
       {view === 'shop' && (
