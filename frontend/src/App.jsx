@@ -275,34 +275,51 @@ function App() {
   return (
     <div className="wrapper">
 
-            {/* HEADER WITH CART BUTTON */}
+                  {/* PREMIUM HEADER */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', margin: 0 }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          {/* CART ICON BUTTON */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+          
+          {/* MODERN CART BUTTON */}
           <button 
             onClick={() => setView('cart')} 
-            style={{ background: 'none', border: 'none', position: 'relative', cursor: 'pointer' }}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              position: 'relative', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              color: 'var(--text-main)' // Auto-adapts to Dark Mode
+            }}
           >
-            <span style={{ fontSize: '24px' }}>🛍️</span>
-            {/* Quantity Badge (Only shows if items exist) */}
+            {/* Minimalist SVG Bag Icon */}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+
+            {/* Premium Notification Dot */}
             {cart.length > 0 && (
               <span style={{
                 position: 'absolute', 
                 top: '-5px', 
                 right: '-8px',
-                background: '#ff4757', // Red notification color
-                color: 'white', 
+                background: 'var(--accent)', // Uses your Gold/Theme color
+                color: 'var(--accent-text)', 
                 borderRadius: '50%',
-                width: '18px', 
+                minWidth: '18px', 
                 height: '18px', 
                 fontSize: '10px',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                fontWeight: 'bold',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                fontWeight: '800',
+                border: '2px solid var(--bg-body)', // Creates a "cutout" effect
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                padding: '0 4px'
               }}>
                 {cart.reduce((a, c) => a + c.quantity, 0)}
               </span>
@@ -310,9 +327,10 @@ function App() {
           </button>
 
           {/* MENU BUTTON */}
-          <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
+          <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '28px', cursor: 'pointer', color: 'var(--text-main)', lineHeight: 1 }}>☰</button>
         </div>
       </header>
+      
           
                 {/* MODERN SEARCH BAR (DARK MODE ADAPTIVE) */}
       {view === 'shop' && (
