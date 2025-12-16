@@ -469,8 +469,8 @@ function App() {
                 <h3>Total: ₹{cart.reduce((a, c) => a + (c.price * c.quantity), 0)}</h3>
                 <form onSubmit={handleCheckout} style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
                   <input className="input" placeholder="Full Name" required onChange={e => setGuestDetails({ ...guestDetails, name: e.target.value })} />
-
-                                    {/* WORLDWIDE PHONE INPUT */}
+                  
+                                    {/* PHONE INPUT: STRICT DIGIT LIMITS */}
                   <div style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -482,7 +482,11 @@ function App() {
                   }}>
                     {/* Country Code Dropdown */}
                     <select 
-                      defaultValue="+91" // <--- DEFAULT SET TO INDIA
+                      value={selectedCountry}
+                      onChange={(e) => {
+                        setSelectedCountry(e.target.value);
+                        setGuestDetails({ ...guestDetails, phone: '' }); // Clear phone on country change
+                      }}
                       style={{ 
                         border: 'none', 
                         background: 'transparent', 
@@ -492,11 +496,10 @@ function App() {
                         cursor: 'pointer',
                         padding: '12px 0',
                         fontSize: '14px',
-                        maxWidth: '80px'
-                      }}
-                      onChange={(e) => {
-                         // Optional: You can save the code separately if needed
-                         // For now it just sits next to the number
+                        maxWidth: '80px',
+                        appearance: 'none',        // Modern clear style
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'none'
                       }}
                     >
                       <option value="+91">🇮🇳 +91</option>
@@ -564,20 +567,43 @@ function App() {
                       <option value="+46">🇸🇪 +46</option>
                       <option value="+886">🇹🇼 +886</option>
                       <option value="+84">🇻🇳 +84</option>
-                      {/* Add more as needed */}
                     </select>
 
                     {/* Vertical Divider */}
                     <div style={{ width: '1px', height: '20px', background: 'var(--border)', margin: '0 10px' }}></div>
 
-                    {/* Numeric Input */}
+                    {/* Numeric Input with Strict Validation */}
                     <input 
                       type="tel"
                       placeholder="Phone Number" 
                       required 
                       value={guestDetails.phone}
-                      // RESTRICT TO NUMBERS ONLY
-                      onChange={(e) => setGuestDetails({ ...guestDetails, phone: e.target.value.replace(/[^0-9]/g, '') })} 
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, ''); // Numbers only
+                        
+                        // --- DIGIT LIMITS FOR EVERY COUNTRY IN YOUR LIST ---
+                        const limits = { 
+                          "+91": 10, "+1": 10, "+44": 10, "+971": 9, "+61": 9, "+86": 11, 
+                          "+33": 9, "+49": 10, "+81": 10, "+7": 10, "+966": 9, "+65": 8, 
+                          "+27": 9, "+82": 10, "+34": 9, "+94": 9, "+41": 9, "+66": 9, 
+                          "+90": 10, "+380": 9, "+93": 9, "+355": 9, "+213": 9, "+54": 10, 
+                          "+374": 8, "+43": 10, "+973": 8, "+880": 10, "+32": 9, "+975": 8, 
+                          "+55": 11, "+359": 9, "+855": 9, "+56": 9, "+57": 10, "+20": 10, 
+                          "+358": 10, "+30": 10, "+852": 8, "+36": 9, "+354": 7, "+62": 12, 
+                          "+98": 10, "+964": 10, "+353": 9, "+972": 9, "+39": 10, "+965": 8, 
+                          "+60": 9, "+960": 7, "+52": 10, "+977": 10, "+31": 9, "+64": 9, 
+                          "+47": 8, "+968": 8, "+92": 10, "+63": 10, "+48": 9, "+351": 9, 
+                          "+974": 8, "+46": 9, "+886": 9, "+84": 9
+                        };
+                        
+                        // Default to 15 if somehow missed, but above covers your list
+                        const limit = limits[selectedCountry] || 15;
+
+                        // Only allow update if within limit
+                        if (val.length <= limit) {
+                          setGuestDetails({ ...guestDetails, phone: val });
+                        }
+                      }} 
                       style={{ 
                         border: 'none', 
                         outline: 'none', 
@@ -590,7 +616,7 @@ function App() {
                     />
                   </div>
                   
-                  
+                      
                   <textarea className="input" placeholder="Full Address" required onChange={e => setGuestDetails({ ...guestDetails, address: e.target.value })} />
                   <button className="btn btn-primary" style={{ width: '100%' }}>Confirm Order (COD)</button>
                 </form>
