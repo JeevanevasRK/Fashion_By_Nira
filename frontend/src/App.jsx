@@ -205,7 +205,8 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
-
+  const [selectedCountry, setSelectedCountry] = useState("+91");
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
