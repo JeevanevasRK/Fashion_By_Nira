@@ -469,7 +469,8 @@ function App() {
                 <h3>Total: ₹{cart.reduce((a, c) => a + (c.price * c.quantity), 0)}</h3>
                 <form onSubmit={handleCheckout} style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
                   <input className="input" placeholder="Full Name" required onChange={e => setGuestDetails({ ...guestDetails, name: e.target.value })} />
-                                    {/* MODERN COUNTRY & PHONE INPUT */}
+                                    
+                                      {/* MODERN PHONE INPUT WITH COUNTRY NAMES */}
                   <div style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -477,51 +478,100 @@ function App() {
                     border: '1px solid var(--border)', 
                     borderRadius: '12px', 
                     marginBottom: '10px',
-                    overflow: 'hidden', // Keeps the corners rounded
                     transition: 'all 0.3s ease',
+                    position: 'relative'
                   }}
                   onFocus={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
                   onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
                   >
-                    {/* Modern Dropdown with Country Names */}
-                    <div style={{ position: 'relative', background: 'rgba(0,0,0,0.03)', borderRight: '1px solid var(--border)' }}>
+                    {/* Modern Dropdown Container */}
+                    <div style={{ position: 'relative', borderRight: '1px solid var(--border)', width: '150px' }}>
                       <select 
                         defaultValue="+91"
                         style={{ 
-                          appearance: 'none', // Hides default ugly arrow
+                          width: '100%',
+                          appearance: 'none', // Removes ugly browser default styling
+                          -webkitAppearance: 'none',
+                          -mozAppearance: 'none',
                           border: 'none', 
                           background: 'transparent', 
                           fontWeight: '600', 
                           color: 'var(--text-main)', 
                           outline: 'none',
                           cursor: 'pointer',
-                          padding: '14px 10px 14px 15px',
-                          fontSize: '14px',
-                          maxWidth: '120px', // Limits width so it doesn't crush the input
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
+                          padding: '14px 25px 14px 15px',
+                          fontSize: '13px',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis'
                         }}
-                        onChange={(e) => { /* Handle code change if needed */ }}
                       >
-                        <option value="+91">🇮🇳 India (+91)</option>
-                        <option value="+1">🇺🇸 USA (+1)</option>
-                        <option value="+44">🇬🇧 UK (+44)</option>
-                        <option value="+971">🇦🇪 UAE (+971)</option>
+                        <option value="+93">🇦🇫 Afghanistan (+93)</option>
+                        <option value="+355">🇦🇱 Albania (+355)</option>
+                        <option value="+213">🇩🇿 Algeria (+213)</option>
+                        <option value="+54">🇦🇷 Argentina (+54)</option>
                         <option value="+61">🇦🇺 Australia (+61)</option>
+                        <option value="+43">🇦🇹 Austria (+43)</option>
+                        <option value="+973">🇧🇭 Bahrain (+973)</option>
+                        <option value="+880">🇧🇩 Bangladesh (+880)</option>
+                        <option value="+32">🇧🇪 Belgium (+32)</option>
+                        <option value="+55">🇧🇷 Brazil (+55)</option>
                         <option value="+1">🇨🇦 Canada (+1)</option>
                         <option value="+86">🇨🇳 China (+86)</option>
+                        <option value="+45">🇩🇰 Denmark (+45)</option>
+                        <option value="+20">🇪🇬 Egypt (+20)</option>
                         <option value="+33">🇫🇷 France (+33)</option>
                         <option value="+49">🇩🇪 Germany (+49)</option>
+                        <option value="+30">🇬🇷 Greece (+30)</option>
+                        <option value="+852">🇭🇰 Hong Kong (+852)</option>
+                        <option value="+91">🇮🇳 India (+91)</option>
+                        <option value="+62">🇮🇩 Indonesia (+62)</option>
+                        <option value="+98">🇮🇷 Iran (+98)</option>
+                        <option value="+964">🇮🇶 Iraq (+964)</option>
+                        <option value="+353">🇮🇪 Ireland (+353)</option>
+                        <option value="+972">🇮🇱 Israel (+972)</option>
+                        <option value="+39">🇮🇹 Italy (+39)</option>
                         <option value="+81">🇯🇵 Japan (+81)</option>
-                        <option value="+966">🇸🇦 Saudi (+966)</option>
+                        <option value="+965">🇰🇼 Kuwait (+965)</option>
+                        <option value="+60">🇲🇾 Malaysia (+60)</option>
+                        <option value="+960">🇲🇻 Maldives (+960)</option>
+                        <option value="+52">🇲🇽 Mexico (+52)</option>
+                        <option value="+977">🇳🇵 Nepal (+977)</option>
+                        <option value="+31">🇳🇱 Netherlands (+31)</option>
+                        <option value="+64">🇳🇿 New Zealand (+64)</option>
+                        <option value="+47">🇳🇴 Norway (+47)</option>
+                        <option value="+968">🇴🇲 Oman (+968)</option>
+                        <option value="+92">🇵🇰 Pakistan (+92)</option>
+                        <option value="+63">🇵🇭 Philippines (+63)</option>
+                        <option value="+48">🇵🇱 Poland (+48)</option>
+                        <option value="+351">🇵🇹 Portugal (+351)</option>
+                        <option value="+974">🇶🇦 Qatar (+974)</option>
+                        <option value="+7">🇷🇺 Russia (+7)</option>
+                        <option value="+966">🇸🇦 Saudi Arabia (+966)</option>
                         <option value="+65">🇸🇬 Singapore (+65)</option>
+                        <option value="+27">🇿🇦 South Africa (+27)</option>
+                        <option value="+82">🇰🇷 South Korea (+82)</option>
+                        <option value="+34">🇪🇸 Spain (+34)</option>
                         <option value="+94">🇱🇰 Sri Lanka (+94)</option>
-                        <option value="+41">🇨🇭 Swiss (+41)</option>
+                        <option value="+46">🇸🇪 Sweden (+46)</option>
+                        <option value="+41">🇨🇭 Switzerland (+41)</option>
+                        <option value="+66">🇹🇭 Thailand (+66)</option>
                         <option value="+90">🇹🇷 Turkey (+90)</option>
-                        {/* Add other countries as needed */}
+                        <option value="+971">🇦🇪 UAE (+971)</option>
+                        <option value="+44">🇬🇧 UK (+44)</option>
+                        <option value="+1">🇺🇸 USA (+1)</option>
+                        <option value="+84">🇻🇳 Vietnam (+84)</option>
                       </select>
-                      {/* Custom Tiny Arrow for style */}
-                      <span style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', fontSize: '8px', color: 'var(--text-muted)', pointerEvents: 'none' }}>▼</span>
+
+                      {/* Custom Arrow Icon (Absolute Positioned) */}
+                      <span style={{ 
+                        position: 'absolute', 
+                        right: '10px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)', 
+                        fontSize: '10px', 
+                        color: 'var(--text-muted)', 
+                        pointerEvents: 'none' 
+                      }}>▼</span>
                     </div>
 
                     {/* Numeric Input */}
@@ -530,7 +580,7 @@ function App() {
                       placeholder="Phone Number" 
                       required 
                       value={guestDetails.phone}
-                      // Only allow numbers
+                      // Regex: Removes anything that is NOT a number
                       onChange={(e) => setGuestDetails({ ...guestDetails, phone: e.target.value.replace(/[^0-9]/g, '') })} 
                       style={{ 
                         flex: 1,
