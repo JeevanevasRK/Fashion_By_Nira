@@ -575,23 +575,33 @@ function AdminPanel({ token, setIsAdmin }) {
                                                     return (
                                                         <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                                                                                 {/* SAME LOGIC AS CART: Checks Array -> String -> Proxy */}
+                                                                                                        {/* FINAL FIX: Checks Direct Snapshot AND Database Reference (Matches Cart Logic) */}
                                                     <img
-                                                        src={`https://wsrv.nl/?url=${encodeURIComponent(
-                                                            (p.productId?.images && p.productId.images.length > 0) 
-                                                            ? p.productId.images[0] 
-                                                            : (p.productId?.image || "")
-                                                        )}&w=60&q=70&output=webp`}
+                                                        src={(() => {
+                                                            // 1. Try finding image in productId (Database)
+                                                            const dbImage = (p.productId?.images && p.productId.images.length > 0) ? p.productId.images[0] : p.productId?.image;
+                                                            // 2. Try finding image directly on item (Cart Snapshot)
+                                                            const snapshotImage = p.image || p.images?.[0];
+                                                            // 3. Pick the first valid one
+                                                            const finalImage = dbImage || snapshotImage;
+
+                                                            // 4. Return Proxied URL or Placeholder
+                                                            return finalImage 
+                                                                ? `https://wsrv.nl/?url=${encodeURIComponent(finalImage)}&w=60&q=70&output=webp`
+                                                                : "https://via.placeholder.com/40?text=NA";
+                                                        })()}
                                                         alt="Item"
                                                         style={{ 
-                                                            width: '30px', 
-                                                            height: '30px', 
+                                                            width: '40px', 
+                                                            height: '40px', 
                                                             borderRadius: '4px', 
                                                             objectFit: 'cover', 
                                                             background: '#f0f0f0',
                                                             border: '1px solid #ccc'
                                                         }}
-                                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/30?text=NA' }}
+                                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=Err' }}
                                                     />
+                                                            
                                                             
                                                             {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
                                                         </div>
