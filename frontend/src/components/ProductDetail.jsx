@@ -106,11 +106,20 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
                   position: 'relative'
                 }}
               >
+                                {/* OPTIMIZED MAIN IMAGE: High Res (1000px) but compressed */}
                 <img
-                  src={img}
+                  src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=1000&q=85&output=webp`}
                   alt={product.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
+                  loading="lazy"
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'contain', 
+                    mixBlendMode: 'normal', // Changed to normal for clear detail
+                    filter: product.inStock ? 'none' : 'grayscale(100%)' 
+                  }}
                 />
+                
                 {!product.inStock && (
                   <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
                     SOLD OUT
@@ -123,16 +132,23 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
           {/* Thumbnails */}
           <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
             {images.map((img, index) => (
+                            {/* OPTIMIZED THUMBNAIL: Tiny size (150px) for instant loading */}
               <img
                 key={index}
-                src={img}
+                src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=150&q=70&output=webp`}
                 onClick={() => scrollToImage(index)}
                 style={{
-                  width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer',
+                  width: '60px', 
+                  height: '60px', 
+                  objectFit: 'cover', 
+                  borderRadius: '8px', 
+                  cursor: 'pointer',
                   border: activeImgIndex === index ? '2px solid var(--accent)' : '1px solid #ddd',
-                  opacity: activeImgIndex === index ? 1 : 0.6
+                  opacity: activeImgIndex === index ? 1 : 0.6,
+                  transition: 'opacity 0.2s'
                 }}
               />
+            
             ))}
           </div>
         </div>
