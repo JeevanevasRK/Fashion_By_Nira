@@ -571,23 +571,27 @@ function AdminPanel({ token, setIsAdmin }) {
                                                     <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                                                                             {/* ADMIN ORDER IMAGE FIX: Smart Check + Proxy Speed */}
                                                                                                         {/* FIXED ADMIN IMAGE: Crash-proof & Proxy Speed */}
+                                                                                                        {/* FINAL FIX: Checks for valid link BEFORE calling proxy */}
                                                     <img
-                                                        src={`https://wsrv.nl/?url=${encodeURIComponent(
-                                                            (p.productId?.images && p.productId.images.length > 0) 
-                                                            ? p.productId.images[0] 
-                                                            : (p.productId?.image || 'https://via.placeholder.com/50?text=No+Img')
-                                                        )}&w=60&q=70&output=webp`}
+                                                        src={
+                                                            (p.productId?.images && p.productId.images.length > 0 && p.productId.images[0])
+                                                            ? `https://wsrv.nl/?url=${encodeURIComponent(p.productId.images[0])}&w=60&q=70&output=webp`
+                                                            : (p.productId?.image
+                                                                ? `https://wsrv.nl/?url=${encodeURIComponent(p.productId.image)}&w=60&q=70&output=webp`
+                                                                : "https://via.placeholder.com/40?text=No+Img")
+                                                        }
                                                         alt="Item"
                                                         style={{ 
                                                             width: '40px', 
                                                             height: '40px', 
                                                             borderRadius: '4px', 
                                                             objectFit: 'cover', 
-                                                            background: '#f0f0f0',
-                                                            border: '1px solid #ddd'
+                                                            background: '#eee', // Grey background to see if image is missing
+                                                            border: '1px solid #ccc'
                                                         }}
                                                         onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=Error' }}
                                                     />
+                                                        
                                                         
                                                         
                                                         {p.productId?.title} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
