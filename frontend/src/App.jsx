@@ -491,8 +491,8 @@ function App() {
                         style={{ 
                           width: '100%',
                           appearance: 'none', // Removes ugly browser default styling
-                          -webkitAppearance: 'none',
-                          -mozAppearance: 'none',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
                           border: 'none', 
                           background: 'transparent', 
                           fontWeight: '600', 
