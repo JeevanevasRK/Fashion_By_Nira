@@ -275,10 +275,43 @@ function App() {
   return (
     <div className="wrapper">
 
-      {/* HEADER */}
+            {/* HEADER WITH CART BUTTON */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
-        <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
+        <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', margin: 0 }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {/* CART ICON BUTTON */}
+          <button 
+            onClick={() => setView('cart')} 
+            style={{ background: 'none', border: 'none', position: 'relative', cursor: 'pointer' }}
+          >
+            <span style={{ fontSize: '24px' }}>🛍️</span>
+            {/* Quantity Badge (Only shows if items exist) */}
+            {cart.length > 0 && (
+              <span style={{
+                position: 'absolute', 
+                top: '-5px', 
+                right: '-8px',
+                background: '#ff4757', // Red notification color
+                color: 'white', 
+                borderRadius: '50%',
+                width: '18px', 
+                height: '18px', 
+                fontSize: '10px',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                fontWeight: 'bold',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+              }}>
+                {cart.reduce((a, c) => a + c.quantity, 0)}
+              </span>
+            )}
+          </button>
+
+          {/* MENU BUTTON */}
+          <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '26px', cursor: 'pointer', color: 'var(--text-main)' }}>☰</button>
+        </div>
       </header>
           
                 {/* MODERN SEARCH BAR (DARK MODE ADAPTIVE) */}
