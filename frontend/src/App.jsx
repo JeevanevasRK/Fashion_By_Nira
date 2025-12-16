@@ -469,105 +469,107 @@ function App() {
                 <h3>Total: ₹{cart.reduce((a, c) => a + (c.price * c.quantity), 0)}</h3>
                 <form onSubmit={handleCheckout} style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
                   <input className="input" placeholder="Full Name" required onChange={e => setGuestDetails({ ...guestDetails, name: e.target.value })} />
-                                    {/* WORLDWIDE PHONE INPUT */}
+                                    {/* WORLDWIDE PHONE INPUT (Modern Style) */}
                   <div style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
                     background: 'var(--bg-card)', 
                     border: '1px solid var(--border)', 
                     borderRadius: '12px', 
-                    padding: '0 10px',
-                    marginBottom: '10px'
-                  }}>
-                    {/* Country Code Dropdown */}
-                    <select 
-                      defaultValue="+91" // <--- DEFAULT SET TO INDIA
-                      style={{ 
-                        border: 'none', 
-                        background: 'transparent', 
-                        fontWeight: 'bold', 
-                        color: 'var(--text-main)', 
-                        outline: 'none',
-                        cursor: 'pointer',
-                        padding: '12px 0',
-                        fontSize: '14px',
-                        maxWidth: '80px'
-                      }}
-                      onChange={(e) => {
-                         // Optional: You can save the code separately if needed
-                         // For now it just sits next to the number
-                      }}
-                    >
-                      <option value="+91">🇮🇳 +91</option>
-                      <option value="+1">🇺🇸 +1</option>
-                      <option value="+44">🇬🇧 +44</option>
-                      <option value="+971">🇦🇪 +971</option>
-                      <option value="+61">🇦🇺 +61</option>
-                      <option value="+86">🇨🇳 +86</option>
-                      <option value="+33">🇫🇷 +33</option>
-                      <option value="+49">🇩🇪 +49</option>
-                      <option value="+81">🇯🇵 +81</option>
-                      <option value="+7">🇷🇺 +7</option>
-                      <option value="+966">🇸🇦 +966</option>
-                      <option value="+65">🇸🇬 +65</option>
-                      <option value="+27">🇿🇦 +27</option>
-                      <option value="+82">🇰🇷 +82</option>
-                      <option value="+34">🇪🇸 +34</option>
-                      <option value="+94">🇱🇰 +94</option>
-                      <option value="+41">🇨🇭 +41</option>
-                      <option value="+66">🇹🇭 +66</option>
-                      <option value="+90">🇹🇷 +90</option>
-                      <option value="+380">🇺🇦 +380</option>
-                      <option value="+93">🇦🇫 +93</option>
-                      <option value="+355">🇦🇱 +355</option>
-                      <option value="+213">🇩🇿 +213</option>
-                      <option value="+54">🇦🇷 +54</option>
-                      <option value="+374">🇦🇲 +374</option>
-                      <option value="+43">🇦🇹 +43</option>
-                      <option value="+973">🇧🇭 +973</option>
-                      <option value="+880">🇧🇩 +880</option>
-                      <option value="+32">🇧🇪 +32</option>
-                      <option value="+975">🇧🇹 +975</option>
-                      <option value="+55">🇧🇷 +55</option>
-                      <option value="+359">🇧🇬 +359</option>
-                      <option value="+855">🇰🇭 +855</option>
-                      <option value="+1">🇨🇦 +1</option>
-                      <option value="+56">🇨🇱 +56</option>
-                      <option value="+57">🇨🇴 +57</option>
-                      <option value="+20">🇪🇬 +20</option>
-                      <option value="+358">🇫🇮 +358</option>
-                      <option value="+30">🇬🇷 +30</option>
-                      <option value="+852">🇭🇰 +852</option>
-                      <option value="+36">🇭🇺 +36</option>
-                      <option value="+354">🇮🇸 +354</option>
-                      <option value="+62">🇮🇩 +62</option>
-                      <option value="+98">🇮🇷 +98</option>
-                      <option value="+964">🇮🇶 +964</option>
-                      <option value="+353">🇮🇪 +353</option>
-                      <option value="+972">🇮🇱 +972</option>
-                      <option value="+39">🇮🇹 +39</option>
-                      <option value="+965">🇰🇼 +965</option>
-                      <option value="+60">🇲🇾 +60</option>
-                      <option value="+960">🇲🇻 +960</option>
-                      <option value="+52">🇲🇽 +52</option>
-                      <option value="+977">🇳🇵 +977</option>
-                      <option value="+31">🇳🇱 +31</option>
-                      <option value="+64">🇳🇿 +64</option>
-                      <option value="+47">🇳🇴 +47</option>
-                      <option value="+968">🇴🇲 +968</option>
-                      <option value="+92">🇵🇰 +92</option>
-                      <option value="+63">🇵🇭 +63</option>
-                      <option value="+48">🇵🇱 +48</option>
-                      <option value="+351">🇵🇹 +351</option>
-                      <option value="+974">🇶🇦 +974</option>
-                      <option value="+46">🇸🇪 +46</option>
-                      <option value="+886">🇹🇼 +886</option>
-                      <option value="+84">🇻🇳 +84</option>
-                      {/* Add more as needed */}
-                    </select>
-
-                    {/* Vertical Divider */}
-                    <div style={{ width: '1px', height: '20px', background: 'var(--border)', margin: '0 10px' }}></div>
+                    marginBottom: '10px',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                  >
+                    {/* Country Select Dropdown */}
+                    <div style={{ position: 'relative', borderRight: '1px solid var(--border)', width: '140px' }}>
+                      <select 
+                        defaultValue="+91"
+                        style={{ 
+                          width: '100%',
+                          appearance: 'none', // Hides default browser arrow
+                          border: 'none', 
+                          background: 'transparent', 
+                          fontWeight: '600', 
+                          color: 'var(--text-main)', 
+                          outline: 'none',
+                          cursor: 'pointer',
+                          padding: '14px 25px 14px 15px', // Extra right padding for arrow
+                          fontSize: '13px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        <option value="+93">🇦🇫 Afghanistan (+93)</option>
+                        <option value="+355">🇦🇱 Albania (+355)</option>
+                        <option value="+213">🇩🇿 Algeria (+213)</option>
+                        <option value="+54">🇦🇷 Argentina (+54)</option>
+                        <option value="+61">🇦🇺 Australia (+61)</option>
+                        <option value="+43">🇦🇹 Austria (+43)</option>
+                        <option value="+973">🇧🇭 Bahrain (+973)</option>
+                        <option value="+880">🇧🇩 Bangladesh (+880)</option>
+                        <option value="+32">🇧🇪 Belgium (+32)</option>
+                        <option value="+55">🇧🇷 Brazil (+55)</option>
+                        <option value="+1">🇨🇦 Canada (+1)</option>
+                        <option value="+86">🇨🇳 China (+86)</option>
+                        <option value="+45">🇩🇰 Denmark (+45)</option>
+                        <option value="+20">🇪🇬 Egypt (+20)</option>
+                        <option value="+33">🇫🇷 France (+33)</option>
+                        <option value="+49">🇩🇪 Germany (+49)</option>
+                        <option value="+30">🇬🇷 Greece (+30)</option>
+                        <option value="+852">🇭🇰 Hong Kong (+852)</option>
+                        <option value="+91">🇮🇳 India (+91)</option>
+                        <option value="+62">🇮🇩 Indonesia (+62)</option>
+                        <option value="+98">🇮🇷 Iran (+98)</option>
+                        <option value="+964">🇮🇶 Iraq (+964)</option>
+                        <option value="+353">🇮🇪 Ireland (+353)</option>
+                        <option value="+972">🇮🇱 Israel (+972)</option>
+                        <option value="+39">🇮🇹 Italy (+39)</option>
+                        <option value="+81">🇯🇵 Japan (+81)</option>
+                        <option value="+965">🇰🇼 Kuwait (+965)</option>
+                        <option value="+60">🇲🇾 Malaysia (+60)</option>
+                        <option value="+960">🇲🇻 Maldives (+960)</option>
+                        <option value="+52">🇲🇽 Mexico (+52)</option>
+                        <option value="+977">🇳🇵 Nepal (+977)</option>
+                        <option value="+31">🇳🇱 Netherlands (+31)</option>
+                        <option value="+64">🇳🇿 New Zealand (+64)</option>
+                        <option value="+47">🇳🇴 Norway (+47)</option>
+                        <option value="+968">🇴🇲 Oman (+968)</option>
+                        <option value="+92">🇵🇰 Pakistan (+92)</option>
+                        <option value="+63">🇵🇭 Philippines (+63)</option>
+                        <option value="+48">🇵🇱 Poland (+48)</option>
+                        <option value="+351">🇵🇹 Portugal (+351)</option>
+                        <option value="+974">🇶🇦 Qatar (+974)</option>
+                        <option value="+7">🇷🇺 Russia (+7)</option>
+                        <option value="+966">🇸🇦 Saudi Arabia (+966)</option>
+                        <option value="+65">🇸🇬 Singapore (+65)</option>
+                        <option value="+27">🇿🇦 South Africa (+27)</option>
+                        <option value="+82">🇰🇷 South Korea (+82)</option>
+                        <option value="+34">🇪🇸 Spain (+34)</option>
+                        <option value="+94">🇱🇰 Sri Lanka (+94)</option>
+                        <option value="+46">🇸🇪 Sweden (+46)</option>
+                        <option value="+41">🇨🇭 Switzerland (+41)</option>
+                        <option value="+66">🇹🇭 Thailand (+66)</option>
+                        <option value="+90">🇹🇷 Turkey (+90)</option>
+                        <option value="+971">🇦🇪 UAE (+971)</option>
+                        <option value="+44">🇬🇧 UK (+44)</option>
+                        <option value="+1">🇺🇸 USA (+1)</option>
+                        <option value="+84">🇻🇳 Vietnam (+84)</option>
+                      </select>
+                      
+                      {/* Modern Arrow Indicator */}
+                      <span style={{ 
+                        position: 'absolute', 
+                        right: '8px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)', 
+                        fontSize: '10px', 
+                        color: 'var(--text-muted)', 
+                        pointerEvents: 'none' 
+                      }}>▼</span>
+                    </div>
 
                     {/* Numeric Input */}
                     <input 
@@ -575,19 +577,21 @@ function App() {
                       placeholder="Phone Number" 
                       required 
                       value={guestDetails.phone}
-                      // RESTRICT TO NUMBERS ONLY
+                      // Regex: Replaces anything that is NOT a number (0-9)
                       onChange={(e) => setGuestDetails({ ...guestDetails, phone: e.target.value.replace(/[^0-9]/g, '') })} 
                       style={{ 
+                        flex: 1,
                         border: 'none', 
                         outline: 'none', 
-                        width: '100%', 
                         background: 'transparent',
                         color: 'var(--text-main)',
                         fontSize: '14px',
-                        padding: '12px 0'
+                        padding: '14px 15px',
+                        fontWeight: '500'
                       }} 
                     />
                   </div>
+                  
                   
                   <textarea className="input" placeholder="Full Address" required onChange={e => setGuestDetails({ ...guestDetails, address: e.target.value })} />
                   <button className="btn btn-primary" style={{ width: '100%' }}>Confirm Order (COD)</button>
