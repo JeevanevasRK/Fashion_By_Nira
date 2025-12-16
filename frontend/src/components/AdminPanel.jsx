@@ -574,22 +574,25 @@ function AdminPanel({ token, setIsAdmin }) {
 
                                                     return (
                                                         <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                            <img
-                                                                src={validImg 
-                                                                    ? `https://wsrv.nl/?url=${encodeURIComponent(validImg)}&w=60&q=70&output=webp`
-                                                                    : "https://via.placeholder.com/40?text=NA"
-                                                                }
-                                                                style={{ 
-                                                                    width: '30px', 
-                                                                    height: '30px', 
-                                                                    borderRadius: '4px', 
-                                                                    objectFit: 'cover', 
-                                                                    background: '#e0e0e0', // Darker grey to make white images visible
-                                                                    border: '1px solid #ccc'
-                                                                }}
-                                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/30?text=Err' }}
-                                                                alt="Product"
-                                                            />
+                                                                                                                {/* SAME LOGIC AS CART: Checks Array -> String -> Proxy */}
+                                                    <img
+                                                        src={`https://wsrv.nl/?url=${encodeURIComponent(
+                                                            (p.productId?.images && p.productId.images.length > 0) 
+                                                            ? p.productId.images[0] 
+                                                            : (p.productId?.image || "")
+                                                        )}&w=60&q=70&output=webp`}
+                                                        alt="Item"
+                                                        style={{ 
+                                                            width: '30px', 
+                                                            height: '30px', 
+                                                            borderRadius: '4px', 
+                                                            objectFit: 'cover', 
+                                                            background: '#f0f0f0',
+                                                            border: '1px solid #ccc'
+                                                        }}
+                                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/30?text=NA' }}
+                                                    />
+                                                            
                                                             {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
                                                         </div>
                                                     );
