@@ -387,7 +387,20 @@ function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 {cart.map(item => (
                   <div key={item._id} className="card" style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '15px' }}>
-                    <img src={item.image} style={{ width: '70px', height: '70px', objectFit: 'contain', background: 'white', borderRadius: '8px' }} />
+                                        {/* CART IMAGE FIX: Checks array first, uses proxy for speed */}
+                    <img 
+                      src={`https://wsrv.nl/?url=${encodeURIComponent((item.images && item.images.length > 0) ? item.images[0] : item.image)}&w=150&q=70&output=webp`}
+                      alt={item.title}
+                      style={{ 
+                        width: '70px', 
+                        height: '70px', 
+                        objectFit: 'cover', 
+                        background: '#f0f0f0', 
+                        borderRadius: '8px' 
+                      }}
+                      onError={(e) => { e.target.src = 'https://via.placeholder.com/70' }}
+                    />
+                    
                     <div style={{ flex: 1 }}>
                       <h4 style={{ fontSize: '16px' }}>{item.title}</h4>
                       <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>₹{item.price}</p>
