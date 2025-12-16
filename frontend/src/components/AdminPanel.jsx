@@ -569,11 +569,21 @@ function AdminPanel({ token, setIsAdmin }) {
                                             <div style={{ background: 'var(--bg-body)', padding: '10px', borderRadius: '10px', marginBottom: '15px' }}>
                                                 {o.products.map((p, i) => (
                                                     <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        <img
-                                                            src={p.productId?.images && p.productId.images.length > 0 ? p.productId.images[0] : p.productId?.image}
-                                                            style={{ width: '30px', height: '30px', borderRadius: '4px', objectFit: 'cover', background: '#f0f0f0' }}
-                                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/30' }}
-                                                        />
+                                                                                                            {/* ADMIN ORDER IMAGE FIX: Smart Check + Proxy Speed */}
+                                                    <img
+                                                        src={`https://wsrv.nl/?url=${encodeURIComponent((p.productId?.images && p.productId.images.length > 0) ? p.productId.images[0] : p.productId?.image)}&w=50&q=70&output=webp`}
+                                                        alt="Product"
+                                                        style={{ 
+                                                            width: '40px', 
+                                                            height: '40px', 
+                                                            borderRadius: '4px', 
+                                                            objectFit: 'cover', 
+                                                            background: '#f0f0f0',
+                                                            border: '1px solid #eee'
+                                                        }}
+                                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=NA' }}
+                                                    />
+                                                        
                                                         {p.productId?.title} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
                                                     </div>
                                                 ))}
