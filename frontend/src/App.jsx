@@ -632,7 +632,7 @@ function App() {
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
           
           <form onSubmit={handleTrackOrder} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
-            {/* LOGIC: Only allows numbers (0-9). Removes country codes/symbols automatically */}
+            {/* Logic: Excludes country code, takes only numbers */}
             <input 
               className="input" 
               placeholder="Enter Mobile Number (e.g. 9876543210)" 
@@ -657,37 +657,44 @@ function App() {
                     {o.status}
                   </span>
                 </div>
-                {/* Invoice will still show full number saved in database (with country code) */}
                 <button onClick={() => downloadInvoice(o)} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>Download Invoice</button>
               </div>
 
-              {o.products.map((p, i) => (
-                <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
-                  
-                  {/* FIXED IMAGE PREVIEW: Handles Array & String formats + Proxy */}
-                  <img 
-                    src={`https://wsrv.nl/?url=${encodeURIComponent((p.productId?.images && p.productId.images.length > 0) ? p.productId.images[0] : p.productId?.image)}&w=100&q=70&output=webp`}
-                    style={{ 
-                      width: '50px', 
-                      height: '50px', 
-                      objectFit: 'cover', 
-                      borderRadius: '8px',
-                      background: '#f0f0f0'
-                    }} 
-                    onError={(e) => { e.target.src = 'https://via.placeholder.com/50' }}
-                    alt="Product"
-                  />
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>{p.productId?.title || 'Item'}</span>
-                    <span style={{ fontSize: '12px' }}>Qty: {p.quantity}</span>
+              {o.products.map((p, i) => {
+                // ROBUST IMAGE CHECK: Handles new array, old string, or missing product
+                const safeImage = (p.productId?.images && p.productId.images.length > 0) 
+                  ? p.productId.images[0] 
+                  : (p.productId?.image || 'https://via.placeholder.com/150?text=No+Image');
+
+                return (
+                  <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
+                    
+                    {/* Fixed Image Tag */}
+                    <img 
+                      src={`https://wsrv.nl/?url=${encodeURIComponent(safeImage)}&w=100&q=70&output=webp`}
+                      style={{ 
+                        width: '50px', 
+                        height: '50px', 
+                        objectFit: 'cover', 
+                        borderRadius: '8px',
+                        background: '#f0f0f0'
+                      }} 
+                      onError={(e) => { e.target.src = 'https://via.placeholder.com/50?text=Error' }}
+                      alt="Product"
+                    />
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>{p.productId?.title || 'Item (Unavailable)'}</span>
+                      <span style={{ fontSize: '12px' }}>Qty: {p.quantity}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>
       )}
+      
       
 
       {view === 'contact' && (
