@@ -566,38 +566,36 @@ function AdminPanel({ token, setIsAdmin }) {
                                                 </div>
                                                 <span style={{ fontWeight: 'bold', fontSize: '18px' }}>₹{o.totalAmount}</span>
                                             </div>
-                                            <div style={{ background: 'var(--bg-body)', padding: '10px', borderRadius: '10px', marginBottom: '15px' }}>
-                                                {o.products.map((p, i) => (
-                                                    <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                                                                            {/* ADMIN ORDER IMAGE FIX: Smart Check + Proxy Speed */}
-                                                                                                        {/* FIXED ADMIN IMAGE: Crash-proof & Proxy Speed */}
-                                                                                                        {/* FINAL FIX: Checks for valid link BEFORE calling proxy */}
-                                                    <img
-                                                        src={
-                                                            (p.productId?.images && p.productId.images.length > 0 && p.productId.images[0])
-                                                            ? `https://wsrv.nl/?url=${encodeURIComponent(p.productId.images[0])}&w=60&q=70&output=webp`
-                                                            : (p.productId?.image
-                                                                ? `https://wsrv.nl/?url=${encodeURIComponent(p.productId.image)}&w=60&q=70&output=webp`
-                                                                : "https://via.placeholder.com/40?text=No+Img")
-                                                        }
-                                                        alt="Item"
-                                                        style={{ 
-                                                            width: '40px', 
-                                                            height: '40px', 
-                                                            borderRadius: '4px', 
-                                                            objectFit: 'cover', 
-                                                            background: '#eee', // Grey background to see if image is missing
-                                                            border: '1px solid #ccc'
-                                                        }}
-                                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=Error' }}
-                                                    />
-                                                        
-                                                        
-                                                        
-                                                        {p.productId?.title} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
-                                                    </div>
-                                                ))}
+                                                                                        <div style={{ background: 'var(--bg-body)', padding: '10px', borderRadius: '10px', marginBottom: '15px' }}>
+                                                {o.products.map((p, i) => {
+                                                    // 1. ROOT CAUSE FIX: Find the first image that is NOT empty/null
+                                                    // This prevents sending empty strings to the proxy which causes the white box
+                                                    const validImg = (p.productId?.images?.find(url => url && url.trim() !== "") || p.productId?.image || "").trim();
+
+                                                    return (
+                                                        <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <img
+                                                                src={validImg 
+                                                                    ? `https://wsrv.nl/?url=${encodeURIComponent(validImg)}&w=60&q=70&output=webp`
+                                                                    : "https://via.placeholder.com/40?text=NA"
+                                                                }
+                                                                style={{ 
+                                                                    width: '30px', 
+                                                                    height: '30px', 
+                                                                    borderRadius: '4px', 
+                                                                    objectFit: 'cover', 
+                                                                    background: '#e0e0e0', // Darker grey to make white images visible
+                                                                    border: '1px solid #ccc'
+                                                                }}
+                                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/30?text=Err' }}
+                                                                alt="Product"
+                                                            />
+                                                            {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
+                                            
                                             <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '15px' }}>📍 {o.shippingAddress}</p>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                                                 <StatusDropdown currentStatus={o.status} onUpdate={(newStatus) => updateStatus(o._id, newStatus)} />
