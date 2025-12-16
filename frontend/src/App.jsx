@@ -627,15 +627,25 @@ function App() {
         </div>
       )}
 
-      {view === 'track' && (
+            {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
+          
           <form onSubmit={handleTrackOrder} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
-            <input className="input" placeholder="Enter Phone Number" value={trackPhone} onChange={e => setTrackPhone(e.target.value)} required />
+            {/* LOGIC: Only allows numbers (0-9). Removes country codes/symbols automatically */}
+            <input 
+              className="input" 
+              placeholder="Enter Mobile Number (e.g. 9876543210)" 
+              value={trackPhone} 
+              onChange={e => setTrackPhone(e.target.value.replace(/[^0-9]/g, ''))} 
+              required 
+              style={{ flex: 1 }}
+            />
             <button className="btn btn-primary">Search</button>
           </form>
+
           {trackedOrders && trackedOrders.map(o => (
-            <div key={o._id} className="card">
+            <div key={o._id} className="card" style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>
                 <div>
                   <strong>#{o._id.slice(-6).toUpperCase()}</strong>
@@ -647,18 +657,38 @@ function App() {
                     {o.status}
                   </span>
                 </div>
+                {/* Invoice will still show full number saved in database (with country code) */}
                 <button onClick={() => downloadInvoice(o)} className="btn btn-outline" style={{ padding: '5px 10px', fontSize: '10px' }}>Download Invoice</button>
               </div>
+
               {o.products.map((p, i) => (
-                <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-                  <img src={p.productId?.image || 'https://via.placeholder.com/40'} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '5px' }} />
-                  <span>{p.productId?.title || 'Item'} x{p.quantity}</span>
+                <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
+                  
+                  {/* FIXED IMAGE PREVIEW: Handles Array & String formats + Proxy */}
+                  <img 
+                    src={`https://wsrv.nl/?url=${encodeURIComponent((p.productId?.images && p.productId.images.length > 0) ? p.productId.images[0] : p.productId?.image)}&w=100&q=70&output=webp`}
+                    style={{ 
+                      width: '50px', 
+                      height: '50px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px',
+                      background: '#f0f0f0'
+                    }} 
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/50' }}
+                    alt="Product"
+                  />
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>{p.productId?.title || 'Item'}</span>
+                    <span style={{ fontSize: '12px' }}>Qty: {p.quantity}</span>
+                  </div>
                 </div>
               ))}
             </div>
           ))}
         </div>
       )}
+      
 
       {view === 'contact' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
