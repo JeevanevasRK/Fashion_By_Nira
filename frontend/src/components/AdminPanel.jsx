@@ -576,18 +576,20 @@ function AdminPanel({ token, setIsAdmin }) {
                                                         <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                                                                                 {/* SAME LOGIC AS CART: Checks Array -> String -> Proxy */}
                                                                                                         {/* FINAL FIX: Checks Direct Snapshot AND Database Reference (Matches Cart Logic) */}
+                                                                                                        {/* FINAL SOLVED: Validates URL string to prevent Empty Proxy calls */}
                                                     <img
                                                         src={(() => {
-                                                            // 1. Try finding image in productId (Database)
-                                                            const dbImage = (p.productId?.images && p.productId.images.length > 0) ? p.productId.images[0] : p.productId?.image;
-                                                            // 2. Try finding image directly on item (Cart Snapshot)
-                                                            const snapshotImage = p.image || p.images?.[0];
-                                                            // 3. Pick the first valid one
-                                                            const finalImage = dbImage || snapshotImage;
+                                                            // 1. Get the raw string from Array or Single field
+                                                            const raw = (p.productId?.images && p.productId.images[0]) 
+                                                                        ? p.productId.images[0] 
+                                                                        : (p.productId?.image || "");
+                                                            
+                                                            // 2. STRICT VALIDATION: Must be a string AND start with 'http'
+                                                            const isValid = raw && typeof raw === 'string' && raw.trim().startsWith('http');
 
-                                                            // 4. Return Proxied URL or Placeholder
-                                                            return finalImage 
-                                                                ? `https://wsrv.nl/?url=${encodeURIComponent(finalImage)}&w=60&q=70&output=webp`
+                                                            // 3. Return Proxy URL if valid, otherwise Placeholder
+                                                            return isValid 
+                                                                ? `https://wsrv.nl/?url=${encodeURIComponent(raw.trim())}&w=60&q=70&output=webp`
                                                                 : "https://via.placeholder.com/40?text=NA";
                                                         })()}
                                                         alt="Item"
@@ -596,11 +598,13 @@ function AdminPanel({ token, setIsAdmin }) {
                                                             height: '40px', 
                                                             borderRadius: '4px', 
                                                             objectFit: 'cover', 
-                                                            background: '#f0f0f0',
+                                                            background: '#eee', 
                                                             border: '1px solid #ccc'
                                                         }}
+                                                        // Fallback in case the URL is valid but the image is dead (404)
                                                         onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=Err' }}
                                                     />
+                                                            
                                                             
                                                             
                                                             {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
