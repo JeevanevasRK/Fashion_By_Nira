@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react'; // FIXED: Lowercase 'import'
 
 const ProductDetail = ({ product, addToCart, onBack }) => {
   const [isAdded, setIsAdded] = useState(false);
-  const scrollRef = useRef(null); // Reference for the scroll container
+  const scrollRef = useRef(null);
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+
+  // FIXED: This check must happen FIRST, before accessing product.images
+  if (!product) return null;
 
   // Handle new array format or fallback to old string format
   const images = product?.images && product.images.length > 0 ? product.images : [product?.image];
-  const [activeImgIndex, setActiveImgIndex] = useState(0);
-
-  if (!product) return null;
 
   const handleAddToCart = () => {
     if (!product.inStock) return;
@@ -17,7 +18,6 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
     setTimeout(() => setIsAdded(false), 2000);
   };
 
-  // Function to scroll to a specific image when thumbnail is clicked
   const scrollToImage = (index) => {
     setActiveImgIndex(index);
     if (scrollRef.current) {
@@ -31,10 +31,10 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
 
   return (
     <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-            {/* PREMIUM BACK BUTTON */}
+      
+      {/* PREMIUM BACK BUTTON */}
       <button 
         onClick={onBack}
-        // Hover Animation Logic
         onMouseEnter={(e) => { 
           e.currentTarget.style.transform = 'translateX(-5px)'; 
           e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
@@ -44,41 +44,40 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
           e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
         }}
         style={{
-          background: 'var(--bg-card)',       // Adapts to Dark/Light mode
-          border: '1px solid var(--border)',  // Subtle border
-          borderRadius: '30px',               // Premium Pill Shape
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          borderRadius: '30px',
           padding: '12px 25px',
           marginBottom: '30px',
           cursor: 'pointer',
           fontSize: '13px',
           fontWeight: '600',
-          letterSpacing: '2px',               // Fashion Brand spacing
+          letterSpacing: '2px',
           textTransform: 'uppercase',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          color: 'var(--text-main)',          // Auto-color text
+          color: 'var(--text-main)',
           boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-          transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)', // Smooth physics
+          transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
           width: 'fit-content'
         }}
       >
-        {/* Custom SVG Arrow for crisp look */}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
         Back to Collection
       </button>
-      
 
       <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', padding: '30px' }}>
 
         {/* IMAGE GALLERY SECTION */}
         <div>
-          {/* Main Image Carousel (Scrollable) */}
+          {/* Main Image Carousel */}
           <div
             ref={scrollRef}
+            className="hide-scrollbar" // FIXED: Moved comment out of the tag structure or ensured newline
             style={{
               display: 'flex',
               overflowX: 'auto',
@@ -88,10 +87,9 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
               height: '400px',
               position: 'relative',
               marginBottom: '15px',
-              scrollbarWidth: 'none', // Hide scrollbar Firefox
-              msOverflowStyle: 'none' // Hide scrollbar IE
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
             }}
-            className="hide-scrollbar" // Add css class if needed for webkit
           >
             {images.map((img, index) => (
               <div
@@ -106,20 +104,13 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
                   position: 'relative'
                 }}
               >
-                                {/* OPTIMIZED MAIN IMAGE: High Res (1000px) but compressed */}
+                {/* OPTIMIZED MAIN IMAGE (Updated as per previous request) */}
                 <img
                   src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=1000&q=85&output=webp`}
                   alt={product.title}
                   loading="lazy"
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'contain', 
-                    mixBlendMode: 'normal', // Changed to normal for clear detail
-                    filter: product.inStock ? 'none' : 'grayscale(100%)' 
-                  }}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'normal', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
                 />
-                
                 {!product.inStock && (
                   <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
                     SOLD OUT
@@ -132,23 +123,17 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
           {/* Thumbnails */}
           <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
             {images.map((img, index) => (
-                            {/* OPTIMIZED THUMBNAIL: Tiny size (150px) for instant loading */}
               <img
                 key={index}
                 src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=150&q=70&output=webp`}
                 onClick={() => scrollToImage(index)}
                 style={{
-                  width: '60px', 
-                  height: '60px', 
-                  objectFit: 'cover', 
-                  borderRadius: '8px', 
-                  cursor: 'pointer',
+                  width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer',
                   border: activeImgIndex === index ? '2px solid var(--accent)' : '1px solid #ddd',
                   opacity: activeImgIndex === index ? 1 : 0.6,
                   transition: 'opacity 0.2s'
                 }}
               />
-            
             ))}
           </div>
         </div>
