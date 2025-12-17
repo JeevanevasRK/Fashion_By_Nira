@@ -202,6 +202,16 @@ function App() {
 
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
   const [deleteId, setDeleteId] = useState(null);
+  // --- ADD THIS FOR TRACKING FIX ---
+  const [allProducts, setAllProducts] = useState([]);
+
+  // Fetch Inventory to allow looking up images by ID
+  useEffect(() => {
+    axios.get(`${API}/products`)
+      .then(res => setAllProducts(res.data))
+      .catch(err => console.error("Inventory fetch failed", err));
+  }, []);
+  // ---------------------------------
 
   useEffect(() => { localStorage.setItem('myShopCart', JSON.stringify(cart)); }, [cart]);
 
@@ -658,34 +668,37 @@ function App() {
                 return (
                   <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
 
-                    {/* TRACK ORDER FIX: Admin-Style URL Repair (Adapted for App.js) */}
+                    {/* TRACK ORDER FIX: Master Inventory Lookup (Requires 'allProducts' state) */}
                     {(() => {
-                      // 1. GET PRODUCT DATA
-                      // Since we don't have the 'products' list here, we rely on the populated productId
-                      const prod = (typeof p.productId === 'object') ? p.productId : {};
+                      // 1. RESOLVE PRODUCT ID
+                      // Handle cases where it's an object, a string, or Mongo $oid
+                      const targetId = p.productId?._id || p.productId?.$oid || p.productId;
 
-                      // 2. FIND IMAGE STRING (Check Populated Data -> Order Snapshot)
-                      const raw = (prod.images && prod.images[0]) ||
-                        prod.image ||
+                      // 2. LOOK UP IN MASTER INVENTORY (The 'Dictionary')
+                      // We search 'allProducts' because the order likely only has the ID
+                      const masterItem = allProducts.find(prod => prod._id === targetId) || (typeof p.productId === 'object' ? p.productId : {});
+
+                      // 3. EXTRACT IMAGE STRING (Priority: Inventory -> Snapshot -> Fallback)
+                      const raw = (masterItem.images && masterItem.images[0]) ||
+                        masterItem.image ||
                         p.image ||
                         (p.images && p.images[0]) ||
                         "";
 
-                      // 3. CONSTRUCT URL (Exact same logic as Admin Panel)
+                      // 4. CONSTRUCT URL
                       let src = "";
                       if (raw) {
                         const cleanRaw = raw.toString().trim();
-                        // Case A: Full Cloud Link (e.g. Cloudinary) -> Use Proxy
                         if (cleanRaw.toLowerCase().startsWith("http")) {
+                          // Cloud Link -> Proxy
                           src = `https://wsrv.nl/?url=${encodeURIComponent(cleanRaw)}&w=100&q=70&output=webp`;
-                        }
-                        // Case B: Local Filename (e.g. "IMG-2138.jpg") -> Add Server URL
-                        else {
+                        } else {
+                          // Local Filename -> Prepend Server URL
                           src = `https://fashion-by-nira.onrender.com/${cleanRaw}`;
                         }
                       }
 
-                      // 4. RENDER
+                      // 5. RENDER
                       if (src) {
                         return (
                           <img
@@ -706,7 +719,6 @@ function App() {
                           />
                         );
                       } else {
-                        // FALLBACK: NA Box
                         return (
                           <div style={{
                             width: '50px', height: '50px', borderRadius: '8px',
@@ -720,7 +732,7 @@ function App() {
                       }
                     })()}
 
-                    {/* ERROR BOX (Shows if the constructed URL fails) */}
+                    {/* ERROR FALLBACK */}
                     <div style={{
                       width: '50px', height: '50px', borderRadius: '8px',
                       background: '#ffcdd2', border: '1px solid #e57373',
