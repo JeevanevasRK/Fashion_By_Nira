@@ -625,37 +625,66 @@ function AdminPanel({ token, setIsAdmin }) {
 
                                                     return (
                                                         <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                            {/* SAME LOGIC AS CART: Checks Array -> String -> Proxy */}
-                                                            {/* FINAL FIX: Checks Direct Snapshot AND Database Reference (Matches Cart Logic) */}
-                                                            {/* FINAL SOLVED: Validates URL string to prevent Empty Proxy calls */}
-                                                            <img
-                                                                src={(() => {
-                                                                    // 1. Get the raw string from Array or Single field
-                                                                    const raw = (p.productId?.images && p.productId.images[0])
-                                                                        ? p.productId.images[0]
-                                                                        : (p.productId?.image || "");
 
-                                                                    // 2. STRICT VALIDATION: Must be a string AND start with 'http'
-                                                                    const isValid = raw && typeof raw === 'string' && raw.trim().startsWith('http');
+                                                            {/* FINAL FIX: Universal Image Loader (Crash-Proof) */}
+                                                            {(() => {
+                                                                // 1. UNIVERSAL SEARCH: Check Order Snapshot first, then Database
+                                                                // This prioritizes the image saved with the order (p.image) which works in Cart
+                                                                let raw = p.image ||
+                                                                    (p.images && p.images[0]) ||
+                                                                    (p.productId?.images && p.productId.images[0]) ||
+                                                                    p.productId?.image ||
+                                                                    "";
 
-                                                                    // 3. Return Proxy URL if valid, otherwise Placeholder
-                                                                    return isValid
-                                                                        ? `https://wsrv.nl/?url=${encodeURIComponent(raw.trim())}&w=60&q=70&output=webp`
-                                                                        : "https://via.placeholder.com/40?text=NA";
-                                                                })()}
-                                                                alt="Item"
-                                                                style={{
-                                                                    width: '40px',
-                                                                    height: '40px',
-                                                                    borderRadius: '4px',
-                                                                    objectFit: 'cover',
-                                                                    background: '#eee',
-                                                                    border: '1px solid #ccc'
-                                                                }}
-                                                                // Fallback in case the URL is valid but the image is dead (404)
-                                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=Err' }}
-                                                            />
+                                                                // 2. CLEANUP & VALIDATE: Must be a string and start with 'http'
+                                                                raw = raw.toString().trim();
+                                                                const isValidUrl = raw.length > 5 && raw.toLowerCase().startsWith('http');
 
+                                                                // 3. RENDER
+                                                                if (isValidUrl) {
+                                                                    return (
+                                                                        <img
+                                                                            src={`https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=60&q=70&output=webp`}
+                                                                            alt="Item"
+                                                                            style={{
+                                                                                width: '40px',
+                                                                                height: '40px',
+                                                                                borderRadius: '4px',
+                                                                                objectFit: 'cover',
+                                                                                background: '#eee',
+                                                                                border: '1px solid #ccc'
+                                                                            }}
+                                                                            // If valid URL fails (404), hide img and show CSS fallback
+                                                                            onError={(e) => {
+                                                                                e.target.style.display = 'none';
+                                                                                e.target.nextSibling.style.display = 'flex';
+                                                                            }}
+                                                                        />
+                                                                    );
+                                                                } else {
+                                                                    // INVALID URL FALLBACK (Shows immediately for 'IMG-2138.jpg' etc.)
+                                                                    return (
+                                                                        <div style={{
+                                                                            width: '40px', height: '40px', borderRadius: '4px',
+                                                                            background: '#e0e0e0', border: '1px solid #ccc',
+                                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                                            fontSize: '10px', fontWeight: 'bold', color: '#777'
+                                                                        }}>
+                                                                            NA
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            })()}
+
+                                                            {/* HIDDEN FALLBACK: Shows if the valid URL above fails to load */}
+                                                            <div style={{
+                                                                width: '40px', height: '40px', borderRadius: '4px',
+                                                                background: '#e0e0e0', border: '1px solid #ccc',
+                                                                display: 'none', alignItems: 'center', justifyContent: 'center',
+                                                                fontSize: '8px', fontWeight: 'bold', color: '#777'
+                                                            }}>
+                                                                ERR
+                                                            </div>
 
 
                                                             {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
