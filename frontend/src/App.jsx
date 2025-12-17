@@ -658,29 +658,38 @@ function App() {
                 return (
                   <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
 
-                    {/* TRACK ORDER FIX: Auto-Repairs Filenames & Handles Errors */}
+                    {/* TRACK ORDER FIX: Master Inventory Lookup + URL Repair */}
                     {(() => {
-                      // 1. EXTRACT IMAGE DATA
-                      // We look inside the populated productId first
-                      const raw = (p.productId?.images && p.productId.images[0]) ||
-                        p.productId?.image ||
+                      // 1. RESOLVE PRODUCT ID
+                      // Handles mixed formats (Object, String ID, or Mongo $oid)
+                      const targetId = p.productId?._id || p.productId?.$oid || p.productId;
+
+                      // 2. LOOK UP IN MASTER INVENTORY
+                      // We search the 'products' list because the order object usually only has the ID
+                      const masterItem = products.find(prod => prod._id === targetId) || {};
+
+                      // 3. EXTRACT IMAGE DATA (Priority: Inventory -> Snapshot -> Fallback)
+                      const raw = (masterItem.images && masterItem.images[0]) ||
+                        masterItem.image ||
+                        p.image ||
+                        (p.images && p.images[0]) ||
                         "";
 
-                      // 2. CONSTRUCT VALID URL
+                      // 4. CONSTRUCT URL
                       let src = "";
                       if (raw) {
                         const cleanRaw = raw.toString().trim();
-                        // Case A: Full Link (e.g., Cloudinary) -> Use Proxy for speed
+                        // Case A: Full Link (Cloudinary/Firebase) -> Use Proxy
                         if (cleanRaw.toLowerCase().startsWith("http")) {
                           src = `https://wsrv.nl/?url=${encodeURIComponent(cleanRaw)}&w=100&q=70&output=webp`;
                         }
-                        // Case B: Local Filename (e.g., "IMG-2138.jpg") -> Add your Server URL
+                        // Case B: Local Filename (IMG-2138.jpg) -> Prepend Server URL
                         else {
                           src = `https://fashion-by-nira.onrender.com/${cleanRaw}`;
                         }
                       }
 
-                      // 3. RENDER
+                      // 5. RENDER
                       if (src) {
                         return (
                           <img
@@ -693,7 +702,6 @@ function App() {
                               background: '#eee',
                               border: '1px solid #ccc'
                             }}
-                            // If image fails to load, hide it and show the Error Box below
                             onError={(e) => {
                               e.target.style.display = 'none';
                               e.target.nextSibling.style.display = 'flex';
@@ -702,7 +710,7 @@ function App() {
                           />
                         );
                       } else {
-                        // FALLBACK: NA Box (If no image data exists)
+                        // FALLBACK: NA Box
                         return (
                           <div style={{
                             width: '50px', height: '50px', borderRadius: '8px',
@@ -716,7 +724,7 @@ function App() {
                       }
                     })()}
 
-                    {/* FALLBACK: Error Box (Shows if the valid link is broken/404) */}
+                    {/* ERROR BOX (Shows if valid link fails) */}
                     <div style={{
                       width: '50px', height: '50px', borderRadius: '8px',
                       background: '#ffcdd2', border: '1px solid #e57373',
