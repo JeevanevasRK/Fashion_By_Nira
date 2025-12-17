@@ -626,25 +626,38 @@ function AdminPanel({ token, setIsAdmin }) {
                                                     return (
                                                         <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
 
-                                                            {/* FINAL FIX: Universal Image Loader (Crash-Proof) */}
-                                                            {(() => {
-                                                                // 1. UNIVERSAL SEARCH: Check Order Snapshot first, then Database
-                                                                // This prioritizes the image saved with the order (p.image) which works in Cart
-                                                                let raw = p.image ||
-                                                                    (p.images && p.images[0]) ||
-                                                                    (p.productId?.images && p.productId.images[0]) ||
-                                                                    p.productId?.image ||
-                                                                    "";
 
-                                                                // 2. CLEANUP & VALIDATE: Must be a string and start with 'http'
-                                                                raw = raw.toString().trim();
-                                                                const isValidUrl = raw.length > 5 && raw.toLowerCase().startsWith('http');
+                                                            {/* FINAL FIX: Auto-Detects URL or Reconstructs Filename */}
+                                                            {(() => {
+                                                                // 1. GATHER ALL CANDIDATES
+                                                                const candidates = [
+                                                                    p.image,
+                                                                    (p.images && p.images[0]),
+                                                                    (p.productId?.images && p.productId.images[0]),
+                                                                    p.productId?.image
+                                                                ];
+
+                                                                // 2. FIND THE BEST IMAGE
+                                                                // A. First, look for a full valid URL (starts with http)
+                                                                let finalImg = candidates.find(img => img && typeof img === 'string' && img.trim().toLowerCase().startsWith('http'));
+
+                                                                // B. If no full URL, find ANY filename and reconstruct it
+                                                                if (!finalImg) {
+                                                                    const filename = candidates.find(img => img && typeof img === 'string' && img.trim().length > 0);
+                                                                    if (filename) {
+                                                                        // PREPEND YOUR BACKEND URL (Based on your API link)
+                                                                        // Try standard static paths. If your images are in 'uploads', add that.
+                                                                        finalImg = `https://fashion-by-nira.onrender.com/${filename.trim()}`;
+                                                                    }
+                                                                }
 
                                                                 // 3. RENDER
-                                                                if (isValidUrl) {
+                                                                if (finalImg) {
                                                                     return (
                                                                         <img
-                                                                            src={`https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=60&q=70&output=webp`}
+                                                                            // We remove the proxy for reconstructed links to avoid double-fail, 
+                                                                            // or keep it if you want compression. Let's try direct first for safety.
+                                                                            src={finalImg}
                                                                             alt="Item"
                                                                             style={{
                                                                                 width: '40px',
@@ -654,7 +667,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                                                                 background: '#eee',
                                                                                 border: '1px solid #ccc'
                                                                             }}
-                                                                            // If valid URL fails (404), hide img and show CSS fallback
+                                                                            // If direct load fails, hide it and show CSS fallback
                                                                             onError={(e) => {
                                                                                 e.target.style.display = 'none';
                                                                                 e.target.nextSibling.style.display = 'flex';
@@ -662,7 +675,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                                                         />
                                                                     );
                                                                 } else {
-                                                                    // INVALID URL FALLBACK (Shows immediately for 'IMG-2138.jpg' etc.)
+                                                                    // NA FALLBACK (No data found at all)
                                                                     return (
                                                                         <div style={{
                                                                             width: '40px', height: '40px', borderRadius: '4px',
@@ -676,16 +689,15 @@ function AdminPanel({ token, setIsAdmin }) {
                                                                 }
                                                             })()}
 
-                                                            {/* HIDDEN FALLBACK: Shows if the valid URL above fails to load */}
+                                                            {/* HIDDEN FALLBACK: Shows if the image link is broken (404) */}
                                                             <div style={{
                                                                 width: '40px', height: '40px', borderRadius: '4px',
-                                                                background: '#e0e0e0', border: '1px solid #ccc',
+                                                                background: '#ffcdd2', border: '1px solid #e57373',
                                                                 display: 'none', alignItems: 'center', justifyContent: 'center',
-                                                                fontSize: '8px', fontWeight: 'bold', color: '#777'
+                                                                fontSize: '8px', fontWeight: 'bold', color: '#b71c1c'
                                                             }}>
                                                                 ERR
                                                             </div>
-
 
                                                             {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
                                                         </div>
