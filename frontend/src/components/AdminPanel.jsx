@@ -470,7 +470,7 @@ function AdminPanel({ token, setIsAdmin }) {
                             {/* GRID with Pagination Slice (Only shows 10 items at a time) */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px' }}>
                                 {products
-                                    .slice((currentPage - 1) * 10, currentPage * 10) // Shows 10 items per page
+                                    .slice((currentPage - 1) * 12, currentPage * 12) // Shows 10 items per page
                                     .map(p => (
                                         <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px', opacity: p.inStock ? 1 : 0.6 }}>
 
