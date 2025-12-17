@@ -239,6 +239,7 @@ function AdminPanel({ token, setIsAdmin }) {
     const [editingId, setEditingId] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1); // Pagination State
 
     // MODAL STATES
     const [orderToDelete, setOrderToDelete] = useState(null);
@@ -259,19 +260,19 @@ function AdminPanel({ token, setIsAdmin }) {
     };
 
     // NEW: Handle to add multiple images 
-        const handleProductSubmit = async (e) => {
+    const handleProductSubmit = async (e) => {
         e.preventDefault();
-        
+
         // 1. Get the list of clean links
         const imageArray = product.images.filter(url => url.trim() !== "");
 
         // 2. CRITICAL FIX: 
         // We set 'image' (Singular) to the first link. 
         // This ensures the database actually saves it.
-        const payload = { 
-            ...product, 
+        const payload = {
+            ...product,
             images: imageArray,
-            image: imageArray.length > 0 ? imageArray[0] : "" 
+            image: imageArray.length > 0 ? imageArray[0] : ""
         };
 
         const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
@@ -283,10 +284,10 @@ function AdminPanel({ token, setIsAdmin }) {
             // Reset form
             setProduct({ title: '', price: '', description: '', images: [''], inStock: true });
             setEditingId(null);
-            
+
             // Refresh Data
             fetchData();
-            
+
             // Go back to list
             if (editingId) setActiveTab('inventory');
 
@@ -295,7 +296,7 @@ function AdminPanel({ token, setIsAdmin }) {
             alert("Error saving product");
         }
     };
-    
+
 
     // NEW: Handle Edit Click (Populate form including stock status)
     const handleEdit = (p) => {
@@ -461,28 +462,78 @@ function AdminPanel({ token, setIsAdmin }) {
 
                 <div style={{ flex: 1, padding: '20px', marginLeft: menuOpen ? '0' : '0', overflowY: 'auto', width: '100%' }}>
 
-                    {/* INVENTORY TAB */}
-                {activeTab === 'inventory' && (
+                    {/* INVENTORY TAB: Optimized with Pagination & Robust Images */}
+                    {activeTab === 'inventory' && (
                         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                            <h2 style={{ marginBottom: '20px' }}>Inventory</h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-                                {products.map(p => (
-                                    <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px', opacity: p.inStock ? 1 : 0.6 }}>
-                                        <img
-                                            src={p.images && p.images.length > 0 ? p.images[0] : p.image}
-                                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: 'var(--bg-body)' }}
-                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
-                                        />
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
-                                            <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
-                                            {!p.inStock && <div style={{ color: 'red', fontSize: '12px', fontWeight: 'bold' }}>OUT OF STOCK</div>}
+                            <h2 style={{ marginBottom: '20px' }}>Inventory ({products.length} Items)</h2>
+
+                            {/* GRID with Pagination Slice (Only shows 10 items at a time) */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+                                {products
+                                    .slice((currentPage - 1) * 10, currentPage * 10) // Shows 10 items per page
+                                    .map(p => (
+                                        <div key={p._id} className="card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px', opacity: p.inStock ? 1 : 0.6 }}>
+
+                                            {/* CRASH-PROOF IMAGE LOGIC */}
+                                            {(() => {
+                                                const raw = (p.images && p.images[0]) ? p.images[0] : (p.image || "");
+                                                const isValidUrl = raw && typeof raw === 'string' && raw.trim().toLowerCase().startsWith('http');
+
+                                                if (isValidUrl) {
+                                                    return (
+                                                        <img
+                                                            src={`https://wsrv.nl/?url=${encodeURIComponent(raw.trim())}&w=100&q=70&output=webp`}
+                                                            alt="Item"
+                                                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', background: '#eee', border: '1px solid #ccc' }}
+                                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                                        />
+                                                    );
+                                                } else {
+                                                    // CSS Fallback (No network needed)
+                                                    return (
+                                                        <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: '#e0e0e0', border: '1px solid #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#777', fontWeight: 'bold' }}>NA</div>
+                                                    );
+                                                }
+                                            })()}
+
+                                            {/* Hidden Fallback for Broken Links */}
+                                            <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: '#e0e0e0', border: '1px solid #ccc', display: 'none', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: '#777' }}>ERR</div>
+
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
+                                                <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
+                                                {!p.inStock && <div style={{ color: 'red', fontSize: '12px', fontWeight: 'bold' }}>OUT OF STOCK</div>}
+                                            </div>
+                                            <button onClick={() => handleEdit(p)} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
+                                            <button onClick={() => requestDeleteProduct(p._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
                                         </div>
-                                        <button onClick={() => handleEdit(p)} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
-                                        <button onClick={() => requestDeleteProduct(p._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>🗑️</button>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
+
+                            {/* PAGINATION BUTTONS */}
+                            {products.length > 10 && (
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '20px' }}>
+                                    <button
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        className="btn btn-outline"
+                                        style={{ opacity: currentPage === 1 ? 0.5 : 1 }}
+                                    >
+                                        ← Previous
+                                    </button>
+                                    <span style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+                                        Page {currentPage} of {Math.ceil(products.length / 10)}
+                                    </span>
+                                    <button
+                                        disabled={currentPage === Math.ceil(products.length / 10)}
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(products.length / 10)))}
+                                        className="btn btn-outline"
+                                        style={{ opacity: currentPage === Math.ceil(products.length / 10) ? 0.5 : 1 }}
+                                    >
+                                        Next →
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -566,7 +617,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                                 </div>
                                                 <span style={{ fontWeight: 'bold', fontSize: '18px' }}>₹{o.totalAmount}</span>
                                             </div>
-                                                                                        <div style={{ background: 'var(--bg-body)', padding: '10px', borderRadius: '10px', marginBottom: '15px' }}>
+                                            <div style={{ background: 'var(--bg-body)', padding: '10px', borderRadius: '10px', marginBottom: '15px' }}>
                                                 {o.products.map((p, i) => {
                                                     // 1. ROOT CAUSE FIX: Find the first image that is NOT empty/null
                                                     // This prevents sending empty strings to the proxy which causes the white box
@@ -574,45 +625,45 @@ function AdminPanel({ token, setIsAdmin }) {
 
                                                     return (
                                                         <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                                                                                {/* SAME LOGIC AS CART: Checks Array -> String -> Proxy */}
-                                                                                                        {/* FINAL FIX: Checks Direct Snapshot AND Database Reference (Matches Cart Logic) */}
-                                                                                                        {/* FINAL SOLVED: Validates URL string to prevent Empty Proxy calls */}
-                                                    <img
-                                                        src={(() => {
-                                                            // 1. Get the raw string from Array or Single field
-                                                            const raw = (p.productId?.images && p.productId.images[0]) 
-                                                                        ? p.productId.images[0] 
+                                                            {/* SAME LOGIC AS CART: Checks Array -> String -> Proxy */}
+                                                            {/* FINAL FIX: Checks Direct Snapshot AND Database Reference (Matches Cart Logic) */}
+                                                            {/* FINAL SOLVED: Validates URL string to prevent Empty Proxy calls */}
+                                                            <img
+                                                                src={(() => {
+                                                                    // 1. Get the raw string from Array or Single field
+                                                                    const raw = (p.productId?.images && p.productId.images[0])
+                                                                        ? p.productId.images[0]
                                                                         : (p.productId?.image || "");
-                                                            
-                                                            // 2. STRICT VALIDATION: Must be a string AND start with 'http'
-                                                            const isValid = raw && typeof raw === 'string' && raw.trim().startsWith('http');
 
-                                                            // 3. Return Proxy URL if valid, otherwise Placeholder
-                                                            return isValid 
-                                                                ? `https://wsrv.nl/?url=${encodeURIComponent(raw.trim())}&w=60&q=70&output=webp`
-                                                                : "https://via.placeholder.com/40?text=NA";
-                                                        })()}
-                                                        alt="Item"
-                                                        style={{ 
-                                                            width: '40px', 
-                                                            height: '40px', 
-                                                            borderRadius: '4px', 
-                                                            objectFit: 'cover', 
-                                                            background: '#eee', 
-                                                            border: '1px solid #ccc'
-                                                        }}
-                                                        // Fallback in case the URL is valid but the image is dead (404)
-                                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=Err' }}
-                                                    />
-                                                            
-                                                            
-                                                            
+                                                                    // 2. STRICT VALIDATION: Must be a string AND start with 'http'
+                                                                    const isValid = raw && typeof raw === 'string' && raw.trim().startsWith('http');
+
+                                                                    // 3. Return Proxy URL if valid, otherwise Placeholder
+                                                                    return isValid
+                                                                        ? `https://wsrv.nl/?url=${encodeURIComponent(raw.trim())}&w=60&q=70&output=webp`
+                                                                        : "https://via.placeholder.com/40?text=NA";
+                                                                })()}
+                                                                alt="Item"
+                                                                style={{
+                                                                    width: '40px',
+                                                                    height: '40px',
+                                                                    borderRadius: '4px',
+                                                                    objectFit: 'cover',
+                                                                    background: '#eee',
+                                                                    border: '1px solid #ccc'
+                                                                }}
+                                                                // Fallback in case the URL is valid but the image is dead (404)
+                                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=Err' }}
+                                                            />
+
+
+
                                                             {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
                                                         </div>
                                                     );
                                                 })}
                                             </div>
-                                            
+
                                             <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '15px' }}>📍 {o.shippingAddress}</p>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                                                 <StatusDropdown currentStatus={o.status} onUpdate={(newStatus) => updateStatus(o._id, newStatus)} />
