@@ -658,30 +658,28 @@ function App() {
                 return (
                   <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
 
-                    {/* TRACK ORDER FINAL FIX: Deep Search + URL Repair */}
+                    {/* TRACK ORDER FIX: Admin-Style URL Repair (Adapted for App.js) */}
                     {(() => {
-                      // 1. GATHER ALL IMAGE CANDIDATES
-                      // We check the populated product (if available) AND the order snapshot (p)
-                      // This covers: Array format, String format, Snapshot, and Populated data
-                      const candidates = [
-                        p.productId?.images?.[0],  // New Product Schema (Populated)
-                        p.productId?.image,        // Old Product Schema (Populated)
-                        p.images?.[0],             // Order Snapshot (Array)
-                        p.image                    // Order Snapshot (String)
-                      ];
+                      // 1. GET PRODUCT DATA
+                      // Since we don't have the 'products' list here, we rely on the populated productId
+                      const prod = (typeof p.productId === 'object') ? p.productId : {};
 
-                      // 2. FIND THE FIRST VALID IMAGE STRING
-                      const raw = candidates.find(img => img && typeof img === 'string' && img.trim() !== "") || "";
+                      // 2. FIND IMAGE STRING (Check Populated Data -> Order Snapshot)
+                      const raw = (prod.images && prod.images[0]) ||
+                        prod.image ||
+                        p.image ||
+                        (p.images && p.images[0]) ||
+                        "";
 
-                      // 3. CONSTRUCT THE FINAL URL
+                      // 3. CONSTRUCT URL (Exact same logic as Admin Panel)
                       let src = "";
                       if (raw) {
-                        const cleanRaw = raw.trim();
-                        // Case A: Full Cloud Link (e.g., Cloudinary) -> Use Proxy
+                        const cleanRaw = raw.toString().trim();
+                        // Case A: Full Cloud Link (e.g. Cloudinary) -> Use Proxy
                         if (cleanRaw.toLowerCase().startsWith("http")) {
                           src = `https://wsrv.nl/?url=${encodeURIComponent(cleanRaw)}&w=100&q=70&output=webp`;
                         }
-                        // Case B: Local Filename (e.g., "IMG-2138.jpg") -> Prepend Server URL
+                        // Case B: Local Filename (e.g. "IMG-2138.jpg") -> Add Server URL
                         else {
                           src = `https://fashion-by-nira.onrender.com/${cleanRaw}`;
                         }
@@ -700,7 +698,6 @@ function App() {
                               background: '#eee',
                               border: '1px solid #ccc'
                             }}
-                            // If the constructed URL fails (404), hide img and show Error box
                             onError={(e) => {
                               e.target.style.display = 'none';
                               e.target.nextSibling.style.display = 'flex';
@@ -709,7 +706,7 @@ function App() {
                           />
                         );
                       } else {
-                        // FALLBACK: NA Box (If absolutely no image data found)
+                        // FALLBACK: NA Box
                         return (
                           <div style={{
                             width: '50px', height: '50px', borderRadius: '8px',
@@ -723,7 +720,7 @@ function App() {
                       }
                     })()}
 
-                    {/* ERROR BOX (Shows if the image link exists but is broken) */}
+                    {/* ERROR BOX (Shows if the constructed URL fails) */}
                     <div style={{
                       width: '50px', height: '50px', borderRadius: '8px',
                       background: '#ffcdd2', border: '1px solid #e57373',
