@@ -612,6 +612,10 @@ function AdminPanel({ token, setIsAdmin }) {
                                         <div key={o._id} className="card" style={{ borderLeft: `5px solid ${styles.text}` }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>
                                                 <div>
+                                                    {/* FIXED: Shows Order ID (Last 6 chars) like Track Page */}
+                                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#777', marginBottom: '2px' }}>
+                                                        #{o._id.slice(-6).toUpperCase()}
+                                                    </div>
                                                     <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{o.customerName}</div>
                                                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{o.customerPhone}</div>
                                                 </div>
