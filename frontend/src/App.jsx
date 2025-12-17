@@ -647,8 +647,13 @@ function App() {
             <div key={o._id} className="card" style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>
                 <div>
-                  <strong>#{o._id.slice(-6).toUpperCase()}</strong>
-                  <br />
+                  {/* FIXED: Order ID + Date & Time */}
+                  <div style={{ marginBottom: '5px' }}>
+                    <strong style={{ fontSize: '16px' }}>#{o._id.slice(-6).toUpperCase()}</strong>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '10px' }}>
+                      {new Date(o.createdAt).toLocaleString()}
+                    </span>
+                  </div>
                   <span style={{
                     color: getStatusColor(o.status), fontWeight: 'bold', fontSize: '12px',
                     padding: '2px 8px', background: `${getStatusColor(o.status)}20`, borderRadius: '10px'
