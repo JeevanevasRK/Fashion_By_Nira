@@ -658,38 +658,33 @@ function App() {
                 return (
                   <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
 
-                    {/* TRACK ORDER FIX: Master Inventory Lookup + URL Repair */}
+                    {/* TRACK ORDER FIX: Safe Data Extraction (No Crash) */}
                     {(() => {
-                      // 1. RESOLVE PRODUCT ID
-                      // Handles mixed formats (Object, String ID, or Mongo $oid)
-                      const targetId = p.productId?._id || p.productId?.$oid || p.productId;
+                      // 1. SAFE DATA ACCESS (Don't use 'products' list as it causes crash here)
+                      // We look strictly inside the populated productId info
+                      const prod = p.productId || {};
 
-                      // 2. LOOK UP IN MASTER INVENTORY
-                      // We search the 'products' list because the order object usually only has the ID
-                      const masterItem = products.find(prod => prod._id === targetId) || {};
-
-                      // 3. EXTRACT IMAGE DATA (Priority: Inventory -> Snapshot -> Fallback)
-                      const raw = (masterItem.images && masterItem.images[0]) ||
-                        masterItem.image ||
+                      // 2. EXTRACT IMAGE (Check all possible locations inside the order)
+                      const raw = (prod.images && prod.images[0]) ||
+                        prod.image ||
                         p.image ||
-                        (p.images && p.images[0]) ||
                         "";
 
-                      // 4. CONSTRUCT URL
+                      // 3. CONSTRUCT VALID URL
                       let src = "";
                       if (raw) {
                         const cleanRaw = raw.toString().trim();
-                        // Case A: Full Link (Cloudinary/Firebase) -> Use Proxy
+                        // Case A: Full Link (e.g. Cloudinary) -> Use Proxy
                         if (cleanRaw.toLowerCase().startsWith("http")) {
                           src = `https://wsrv.nl/?url=${encodeURIComponent(cleanRaw)}&w=100&q=70&output=webp`;
                         }
-                        // Case B: Local Filename (IMG-2138.jpg) -> Prepend Server URL
+                        // Case B: Local Filename (e.g. "IMG-2138.jpg") -> Add Server URL
                         else {
                           src = `https://fashion-by-nira.onrender.com/${cleanRaw}`;
                         }
                       }
 
-                      // 5. RENDER
+                      // 4. RENDER
                       if (src) {
                         return (
                           <img
