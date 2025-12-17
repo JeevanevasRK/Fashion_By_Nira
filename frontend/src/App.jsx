@@ -195,7 +195,7 @@ function App() {
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("+91");
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
@@ -265,19 +265,19 @@ function App() {
   return (
     <div className="wrapper">
 
-                  {/* PREMIUM HEADER */}
+      {/* PREMIUM HEADER */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', margin: 0 }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
-          
+
           {/* MODERN CART BUTTON */}
-          <button 
-            onClick={() => setView('cart')} 
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              position: 'relative', 
+          <button
+            onClick={() => setView('cart')}
+            style={{
+              background: 'none',
+              border: 'none',
+              position: 'relative',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -294,18 +294,18 @@ function App() {
             {/* Premium Notification Dot */}
             {cart.length > 0 && (
               <span style={{
-                position: 'absolute', 
-                top: '-5px', 
+                position: 'absolute',
+                top: '-5px',
                 right: '-8px',
                 background: 'var(--accent)', // Uses your Gold/Theme color
-                color: 'var(--accent-text)', 
+                color: 'var(--accent-text)',
                 borderRadius: '50%',
-                minWidth: '18px', 
-                height: '18px', 
+                minWidth: '18px',
+                height: '18px',
                 fontSize: '10px',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 fontWeight: '800',
                 border: '2px solid var(--bg-body)', // Creates a "cutout" effect
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
@@ -320,17 +320,17 @@ function App() {
           <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', fontSize: '28px', cursor: 'pointer', color: 'var(--text-main)', lineHeight: 1 }}>☰</button>
         </div>
       </header>
-      
-          
-                {/* MODERN SEARCH BAR (DARK MODE ADAPTIVE) */}
+
+
+      {/* MODERN SEARCH BAR (DARK MODE ADAPTIVE) */}
       {view === 'shop' && (
-        <div style={{ 
-          position: 'relative', 
-          maxWidth: '500px', 
-          margin: '0 auto 30px auto', 
+        <div style={{
+          position: 'relative',
+          maxWidth: '500px',
+          margin: '0 auto 30px auto',
           transition: 'all 0.3s ease'
         }}>
-          
+
           {/* SEARCH ICON */}
           <span style={{
             position: 'absolute',
@@ -356,9 +356,9 @@ function App() {
               padding: '16px 50px 16px 55px',
               borderRadius: '50px',
               // CHANGE: Used variables instead of fixed colors
-              border: '1px solid var(--border)', 
-              background: 'var(--bg-card)', 
-              color: 'var(--text-main)', 
+              border: '1px solid var(--border)',
+              background: 'var(--bg-card)',
+              color: 'var(--text-main)',
               fontSize: '16px',
               outline: 'none',
               boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
@@ -379,13 +379,13 @@ function App() {
               opacity: searchQuery ? 1 : 0,
               transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
               // CHANGE: Adapts to dark mode background
-              background: 'var(--bg-body)', 
+              background: 'var(--bg-body)',
               border: '1px solid var(--border)',
               borderRadius: '50%',
               width: '28px',
               height: '28px',
-              display: 'flex', 
-              alignItems: 'center', 
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
               color: 'var(--text-main)', // Adapts text color
@@ -399,7 +399,7 @@ function App() {
           </button>
         </div>
       )}
-      
+
 
       {/* COMPONENTS */}
       <SideMenu isOpen={menuOpen} close={() => setMenuOpen(false)} view={view} setView={setView} cartCount={cart.reduce((a, c) => a + c.quantity, 0)} isAdmin={token && role === 'admin'} onLogin={() => setShowLogin(true)} onLogout={() => { setToken(null); setRole(null); setView('shop') }} />
@@ -428,20 +428,20 @@ function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 {cart.map(item => (
                   <div key={item._id} className="card" style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '15px' }}>
-                                        {/* CART IMAGE FIX: Checks array first, uses proxy for speed */}
-                    <img 
+                    {/* CART IMAGE FIX: Checks array first, uses proxy for speed */}
+                    <img
                       src={`https://wsrv.nl/?url=${encodeURIComponent((item.images && item.images.length > 0) ? item.images[0] : item.image)}&w=150&q=70&output=webp`}
                       alt={item.title}
-                      style={{ 
-                        width: '70px', 
-                        height: '70px', 
-                        objectFit: 'cover', 
-                        background: '#f0f0f0', 
-                        borderRadius: '8px' 
+                      style={{
+                        width: '70px',
+                        height: '70px',
+                        objectFit: 'cover',
+                        background: '#f0f0f0',
+                        borderRadius: '8px'
                       }}
                       onError={(e) => { e.target.src = 'https://via.placeholder.com/70' }}
                     />
-                    
+
                     <div style={{ flex: 1 }}>
                       <h4 style={{ fontSize: '16px' }}>{item.title}</h4>
                       <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>₹{item.price}</p>
@@ -459,29 +459,29 @@ function App() {
                 <h3>Total: ₹{cart.reduce((a, c) => a + (c.price * c.quantity), 0)}</h3>
                 <form onSubmit={handleCheckout} style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
                   <input className="input" placeholder="Full Name" required onChange={e => setGuestDetails({ ...guestDetails, name: e.target.value })} />
-                  
-                                    {/* PHONE INPUT: STRICT DIGIT LIMITS */}
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    background: 'var(--bg-card)', 
-                    border: '1px solid var(--border)', 
-                    borderRadius: '12px', 
+
+                  {/* PHONE INPUT: STRICT DIGIT LIMITS */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
                     padding: '0 10px',
                     marginBottom: '10px'
                   }}>
                     {/* Country Code Dropdown */}
-                    <select 
+                    <select
                       value={selectedCountry}
                       onChange={(e) => {
                         setSelectedCountry(e.target.value);
                         setGuestDetails({ ...guestDetails, phone: '' }); // Clear phone on country change
                       }}
-                      style={{ 
-                        border: 'none', 
-                        background: 'transparent', 
-                        fontWeight: 'bold', 
-                        color: 'var(--text-main)', 
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        fontWeight: 'bold',
+                        color: 'var(--text-main)',
                         outline: 'none',
                         cursor: 'pointer',
                         padding: '12px 0',
@@ -563,29 +563,29 @@ function App() {
                     <div style={{ width: '1px', height: '20px', background: 'var(--border)', margin: '0 10px' }}></div>
 
                     {/* Numeric Input with Strict Validation */}
-                    <input 
+                    <input
                       type="tel"
-                      placeholder="Phone Number" 
-                      required 
+                      placeholder="Phone Number"
+                      required
                       value={guestDetails.phone}
                       onChange={(e) => {
                         const val = e.target.value.replace(/[^0-9]/g, ''); // Numbers only
-                        
+
                         // --- DIGIT LIMITS FOR EVERY COUNTRY IN YOUR LIST ---
-                        const limits = { 
-                          "+91": 10, "+1": 10, "+44": 10, "+971": 9, "+61": 9, "+86": 11, 
-                          "+33": 9, "+49": 10, "+81": 10, "+7": 10, "+966": 9, "+65": 8, 
-                          "+27": 9, "+82": 10, "+34": 9, "+94": 9, "+41": 9, "+66": 9, 
-                          "+90": 10, "+380": 9, "+93": 9, "+355": 9, "+213": 9, "+54": 10, 
-                          "+374": 8, "+43": 10, "+973": 8, "+880": 10, "+32": 9, "+975": 8, 
-                          "+55": 11, "+359": 9, "+855": 9, "+56": 9, "+57": 10, "+20": 10, 
-                          "+358": 10, "+30": 10, "+852": 8, "+36": 9, "+354": 7, "+62": 12, 
-                          "+98": 10, "+964": 10, "+353": 9, "+972": 9, "+39": 10, "+965": 8, 
-                          "+60": 9, "+960": 7, "+52": 10, "+977": 10, "+31": 9, "+64": 9, 
-                          "+47": 8, "+968": 8, "+92": 10, "+63": 10, "+48": 9, "+351": 9, 
+                        const limits = {
+                          "+91": 10, "+1": 10, "+44": 10, "+971": 9, "+61": 9, "+86": 11,
+                          "+33": 9, "+49": 10, "+81": 10, "+7": 10, "+966": 9, "+65": 8,
+                          "+27": 9, "+82": 10, "+34": 9, "+94": 9, "+41": 9, "+66": 9,
+                          "+90": 10, "+380": 9, "+93": 9, "+355": 9, "+213": 9, "+54": 10,
+                          "+374": 8, "+43": 10, "+973": 8, "+880": 10, "+32": 9, "+975": 8,
+                          "+55": 11, "+359": 9, "+855": 9, "+56": 9, "+57": 10, "+20": 10,
+                          "+358": 10, "+30": 10, "+852": 8, "+36": 9, "+354": 7, "+62": 12,
+                          "+98": 10, "+964": 10, "+353": 9, "+972": 9, "+39": 10, "+965": 8,
+                          "+60": 9, "+960": 7, "+52": 10, "+977": 10, "+31": 9, "+64": 9,
+                          "+47": 8, "+968": 8, "+92": 10, "+63": 10, "+48": 9, "+351": 9,
                           "+974": 8, "+46": 9, "+886": 9, "+84": 9
                         };
-                        
+
                         // Default to 15 if somehow missed, but above covers your list
                         const limit = limits[selectedCountry] || 15;
 
@@ -593,20 +593,20 @@ function App() {
                         if (val.length <= limit) {
                           setGuestDetails({ ...guestDetails, phone: val });
                         }
-                      }} 
-                      style={{ 
-                        border: 'none', 
-                        outline: 'none', 
-                        width: '100%', 
+                      }}
+                      style={{
+                        border: 'none',
+                        outline: 'none',
+                        width: '100%',
                         background: 'transparent',
                         color: 'var(--text-main)',
                         fontSize: '14px',
                         padding: '12px 0'
-                      }} 
+                      }}
                     />
                   </div>
-                  
-                      
+
+
                   <textarea className="input" placeholder="Full Address" required onChange={e => setGuestDetails({ ...guestDetails, address: e.target.value })} />
                   <button className="btn btn-primary" style={{ width: '100%' }}>Confirm Order (COD)</button>
                 </form>
@@ -616,18 +616,18 @@ function App() {
         </div>
       )}
 
-            {view === 'track' && (
+      {view === 'track' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Track Order</h2>
-          
+
           <form onSubmit={handleTrackOrder} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
             {/* Logic: Excludes country code, takes only numbers */}
-            <input 
-              className="input" 
-              placeholder="Enter Mobile Number (e.g. 9876543210)" 
-              value={trackPhone} 
-              onChange={e => setTrackPhone(e.target.value.replace(/[^0-9]/g, ''))} 
-              required 
+            <input
+              className="input"
+              placeholder="Enter Mobile Number (e.g. 9876543210)"
+              value={trackPhone}
+              onChange={e => setTrackPhone(e.target.value.replace(/[^0-9]/g, ''))}
+              required
               style={{ flex: 1 }}
             />
             <button className="btn btn-primary">Search</button>
@@ -651,27 +651,81 @@ function App() {
 
               {o.products.map((p, i) => {
                 // ROBUST IMAGE CHECK: Handles new array, old string, or missing product
-                const safeImage = (p.productId?.images && p.productId.images.length > 0) 
-                  ? p.productId.images[0] 
+                const safeImage = (p.productId?.images && p.productId.images.length > 0)
+                  ? p.productId.images[0]
                   : (p.productId?.image || 'https://via.placeholder.com/150?text=No+Image');
 
                 return (
                   <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
-                    
-                    {/* Fixed Image Tag */}
-                    <img 
-                      src={`https://wsrv.nl/?url=${encodeURIComponent(safeImage)}&w=100&q=70&output=webp`}
-                      style={{ 
-                        width: '50px', 
-                        height: '50px', 
-                        objectFit: 'cover', 
-                        borderRadius: '8px',
-                        background: '#f0f0f0'
-                      }} 
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/50?text=Error' }}
-                      alt="Product"
-                    />
-                    
+
+                    {/* TRACK ORDER FIX: Auto-Repairs Filenames & Handles Errors */}
+                    {(() => {
+                      // 1. EXTRACT IMAGE DATA
+                      // We look inside the populated productId first
+                      const raw = (p.productId?.images && p.productId.images[0]) ||
+                        p.productId?.image ||
+                        "";
+
+                      // 2. CONSTRUCT VALID URL
+                      let src = "";
+                      if (raw) {
+                        const cleanRaw = raw.toString().trim();
+                        // Case A: Full Link (e.g., Cloudinary) -> Use Proxy for speed
+                        if (cleanRaw.toLowerCase().startsWith("http")) {
+                          src = `https://wsrv.nl/?url=${encodeURIComponent(cleanRaw)}&w=100&q=70&output=webp`;
+                        }
+                        // Case B: Local Filename (e.g., "IMG-2138.jpg") -> Add your Server URL
+                        else {
+                          src = `https://fashion-by-nira.onrender.com/${cleanRaw}`;
+                        }
+                      }
+
+                      // 3. RENDER
+                      if (src) {
+                        return (
+                          <img
+                            src={src}
+                            style={{
+                              width: '50px',
+                              height: '50px',
+                              objectFit: 'cover',
+                              borderRadius: '8px',
+                              background: '#eee',
+                              border: '1px solid #ccc'
+                            }}
+                            // If image fails to load, hide it and show the Error Box below
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                            alt="Product"
+                          />
+                        );
+                      } else {
+                        // FALLBACK: NA Box (If no image data exists)
+                        return (
+                          <div style={{
+                            width: '50px', height: '50px', borderRadius: '8px',
+                            background: '#e0e0e0', border: '1px solid #ccc',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '10px', fontWeight: 'bold', color: '#777'
+                          }}>
+                            NA
+                          </div>
+                        );
+                      }
+                    })()}
+
+                    {/* FALLBACK: Error Box (Shows if the valid link is broken/404) */}
+                    <div style={{
+                      width: '50px', height: '50px', borderRadius: '8px',
+                      background: '#ffcdd2', border: '1px solid #e57373',
+                      display: 'none', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '8px', fontWeight: 'bold', color: '#b71c1c'
+                    }}>
+                      ERR
+                    </div>
+
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>{p.productId?.title || 'Item (Unavailable)'}</span>
                       <span style={{ fontSize: '12px' }}>Qty: {p.quantity}</span>
@@ -683,8 +737,8 @@ function App() {
           ))}
         </div>
       )}
-      
-      
+
+
 
       {view === 'contact' && (
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
