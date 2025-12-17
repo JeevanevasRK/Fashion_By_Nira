@@ -627,37 +627,42 @@ function AdminPanel({ token, setIsAdmin }) {
                                                         <div key={i} style={{ fontSize: '13px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
 
 
-                                                            {/* FINAL FIX: Auto-Detects URL or Reconstructs Filename */}
+                                                            {/* FINAL SOLUTION: Master Inventory Lookup + URL Repair */}
                                                             {(() => {
-                                                                // 1. GATHER ALL CANDIDATES
-                                                                const candidates = [
-                                                                    p.image,
-                                                                    (p.images && p.images[0]),
-                                                                    (p.productId?.images && p.productId.images[0]),
-                                                                    p.productId?.image
-                                                                ];
+                                                                // 1. RESOLVE PRODUCT ID
+                                                                // Your database has mixed formats: sometimes string, sometimes object with $oid
+                                                                const targetId = p.productId?._id || p.productId?.$oid || p.productId;
 
-                                                                // 2. FIND THE BEST IMAGE
-                                                                // A. First, look for a full valid URL (starts with http)
-                                                                let finalImg = candidates.find(img => img && typeof img === 'string' && img.trim().toLowerCase().startsWith('http'));
+                                                                // 2. LOOK UP IN MASTER INVENTORY
+                                                                // We search the 'products' state because the order only has the ID
+                                                                const masterItem = products.find(prod => prod._id === targetId) || {};
 
-                                                                // B. If no full URL, find ANY filename and reconstruct it
-                                                                if (!finalImg) {
-                                                                    const filename = candidates.find(img => img && typeof img === 'string' && img.trim().length > 0);
-                                                                    if (filename) {
-                                                                        // PREPEND YOUR BACKEND URL (Based on your API link)
-                                                                        // Try standard static paths. If your images are in 'uploads', add that.
-                                                                        finalImg = `https://fashion-by-nira.onrender.com/${filename.trim()}`;
+                                                                // 3. EXTRACT IMAGE STRING (Priority: Inventory -> Order Snapshot -> Fallback)
+                                                                const raw = (masterItem.images && masterItem.images[0]) ||
+                                                                    masterItem.image ||
+                                                                    p.image ||
+                                                                    (p.images && p.images[0]) ||
+                                                                    "";
+
+                                                                // 4. CONSTRUCT URL
+                                                                let src = "";
+                                                                if (raw) {
+                                                                    const cleanRaw = raw.toString().trim();
+                                                                    // If it's a full link (Cloudinary/Firebase), use Proxy
+                                                                    if (cleanRaw.toLowerCase().startsWith("http")) {
+                                                                        src = `https://wsrv.nl/?url=${encodeURIComponent(cleanRaw)}&w=60&q=70&output=webp`;
+                                                                    }
+                                                                    // If it's a local filename (IMG-2138.jpg), prepend Server URL
+                                                                    else {
+                                                                        src = `https://fashion-by-nira.onrender.com/${cleanRaw}`;
                                                                     }
                                                                 }
 
-                                                                // 3. RENDER
-                                                                if (finalImg) {
+                                                                // 5. RENDER
+                                                                if (src) {
                                                                     return (
                                                                         <img
-                                                                            // We remove the proxy for reconstructed links to avoid double-fail, 
-                                                                            // or keep it if you want compression. Let's try direct first for safety.
-                                                                            src={finalImg}
+                                                                            src={src}
                                                                             alt="Item"
                                                                             style={{
                                                                                 width: '40px',
@@ -667,7 +672,6 @@ function AdminPanel({ token, setIsAdmin }) {
                                                                                 background: '#eee',
                                                                                 border: '1px solid #ccc'
                                                                             }}
-                                                                            // If direct load fails, hide it and show CSS fallback
                                                                             onError={(e) => {
                                                                                 e.target.style.display = 'none';
                                                                                 e.target.nextSibling.style.display = 'flex';
@@ -675,7 +679,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                                                         />
                                                                     );
                                                                 } else {
-                                                                    // NA FALLBACK (No data found at all)
+                                                                    // NA FALLBACK (If product deleted & no snapshot)
                                                                     return (
                                                                         <div style={{
                                                                             width: '40px', height: '40px', borderRadius: '4px',
@@ -689,7 +693,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                                                 }
                                                             })()}
 
-                                                            {/* HIDDEN FALLBACK: Shows if the image link is broken (404) */}
+                                                            {/* ERROR FALLBACK */}
                                                             <div style={{
                                                                 width: '40px', height: '40px', borderRadius: '4px',
                                                                 background: '#ffcdd2', border: '1px solid #e57373',
