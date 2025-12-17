@@ -658,27 +658,30 @@ function App() {
                 return (
                   <div key={i} style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
 
-                    {/* TRACK ORDER FIX: Safe Data Extraction (No Crash) */}
+                    {/* TRACK ORDER FINAL FIX: Deep Search + URL Repair */}
                     {(() => {
-                      // 1. SAFE DATA ACCESS (Don't use 'products' list as it causes crash here)
-                      // We look strictly inside the populated productId info
-                      const prod = p.productId || {};
+                      // 1. GATHER ALL IMAGE CANDIDATES
+                      // We check the populated product (if available) AND the order snapshot (p)
+                      // This covers: Array format, String format, Snapshot, and Populated data
+                      const candidates = [
+                        p.productId?.images?.[0],  // New Product Schema (Populated)
+                        p.productId?.image,        // Old Product Schema (Populated)
+                        p.images?.[0],             // Order Snapshot (Array)
+                        p.image                    // Order Snapshot (String)
+                      ];
 
-                      // 2. EXTRACT IMAGE (Check all possible locations inside the order)
-                      const raw = (prod.images && prod.images[0]) ||
-                        prod.image ||
-                        p.image ||
-                        "";
+                      // 2. FIND THE FIRST VALID IMAGE STRING
+                      const raw = candidates.find(img => img && typeof img === 'string' && img.trim() !== "") || "";
 
-                      // 3. CONSTRUCT VALID URL
+                      // 3. CONSTRUCT THE FINAL URL
                       let src = "";
                       if (raw) {
-                        const cleanRaw = raw.toString().trim();
-                        // Case A: Full Link (e.g. Cloudinary) -> Use Proxy
+                        const cleanRaw = raw.trim();
+                        // Case A: Full Cloud Link (e.g., Cloudinary) -> Use Proxy
                         if (cleanRaw.toLowerCase().startsWith("http")) {
                           src = `https://wsrv.nl/?url=${encodeURIComponent(cleanRaw)}&w=100&q=70&output=webp`;
                         }
-                        // Case B: Local Filename (e.g. "IMG-2138.jpg") -> Add Server URL
+                        // Case B: Local Filename (e.g., "IMG-2138.jpg") -> Prepend Server URL
                         else {
                           src = `https://fashion-by-nira.onrender.com/${cleanRaw}`;
                         }
@@ -697,6 +700,7 @@ function App() {
                               background: '#eee',
                               border: '1px solid #ccc'
                             }}
+                            // If the constructed URL fails (404), hide img and show Error box
                             onError={(e) => {
                               e.target.style.display = 'none';
                               e.target.nextSibling.style.display = 'flex';
@@ -705,7 +709,7 @@ function App() {
                           />
                         );
                       } else {
-                        // FALLBACK: NA Box
+                        // FALLBACK: NA Box (If absolutely no image data found)
                         return (
                           <div style={{
                             width: '50px', height: '50px', borderRadius: '8px',
@@ -719,7 +723,7 @@ function App() {
                       }
                     })()}
 
-                    {/* ERROR BOX (Shows if valid link fails) */}
+                    {/* ERROR BOX (Shows if the image link exists but is broken) */}
                     <div style={{
                       width: '50px', height: '50px', borderRadius: '8px',
                       background: '#ffcdd2', border: '1px solid #e57373',
