@@ -20,8 +20,7 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR (INVISIBLE TO USER) ---
-// --- FAST INVOICE GENERATOR ---
+// --- INVOICE GENERATOR (FIXED PRICE DISPLAY) ---
 const downloadInvoice = async (order) => {
   const element = document.createElement('div');
 
@@ -29,10 +28,20 @@ const downloadInvoice = async (order) => {
   const A4_WIDTH_PX = 794;
   const A4_HEIGHT_PX = 1123;
 
-  element.style.cssText = `
-    position: fixed; left: -10000px; top: 0; width: ${A4_WIDTH_PX}px; min-height: ${A4_HEIGHT_PX}px;
-    z-index: -1000; background-color: #ffffff; color: #333; padding: 40px; font-family: Arial, sans-serif; box-sizing: border-box;
-  `;
+  // Position off-screen
+  Object.assign(element.style, {
+    position: 'fixed',
+    left: '-10000px',
+    top: '0',
+    width: `${A4_WIDTH_PX}px`,
+    minHeight: `${A4_HEIGHT_PX}px`,
+    zIndex: '-1000',
+    backgroundColor: '#ffffff',
+    color: '#333',
+    padding: '40px',
+    fontFamily: 'Arial, sans-serif',
+    boxSizing: 'border-box'
+  });
 
   element.innerHTML = `
     <div style="width: 100%; height: 100%; background: white;">
@@ -58,6 +67,7 @@ const downloadInvoice = async (order) => {
             +91 9585026838
           </p>
         </div>
+        
         <div style="width: 45%;">
           <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed To</h4>
           <p style="font-size: 13px; line-height: 1.6; margin: 0;">
@@ -80,13 +90,12 @@ const downloadInvoice = async (order) => {
         <tbody>
           ${order.products.map(p => `
             <tr>
-              <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item (Deleted)'}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
               <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
               
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹{p.price || p.productId?.price || 0}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.price || p.productId?.price || 0}</td>
               
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹{(p.price || p.productId?.price || 0) * p.quantity}</td>
-              
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${(p.price || p.productId?.price || 0) * p.quantity}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -109,17 +118,18 @@ const downloadInvoice = async (order) => {
 
   document.body.appendChild(element);
 
-  // OPTIMIZATION: Reduced wait time from 500ms to 50ms (Instant feel)
-  await new Promise(resolve => setTimeout(resolve, 50));
+  // Wait for browser to paint
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 1.5, // Slightly reduced scale for faster generation (still good quality)
+      scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      windowWidth: 1200
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
     const link = document.createElement('a');
     link.href = imgData;
     link.download = `Invoice_${order._id.slice(-6)}.jpg`;

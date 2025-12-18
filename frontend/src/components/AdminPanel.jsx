@@ -46,7 +46,7 @@ const DeleteModal = ({ onConfirm, onCancel, title = "Delete?", desc = "This acti
     </div>
 );
 
-// --- INVOICE GENERATOR (INVISIBLE TO USER) ---
+// --- INVOICE GENERATOR (FIXED PRICE DISPLAY) ---
 const downloadInvoice = async (order) => {
     const element = document.createElement('div');
 
@@ -54,14 +54,14 @@ const downloadInvoice = async (order) => {
     const A4_WIDTH_PX = 794;
     const A4_HEIGHT_PX = 1123;
 
-    // FIX: Position it off-screen so the user doesn't see the "glitch" at the bottom
+    // Position off-screen
     Object.assign(element.style, {
-        position: 'fixed',        // Take it out of the normal document flow
-        left: '-10000px',         // Move it far off to the left
+        position: 'fixed',
+        left: '-10000px',
         top: '0',
         width: `${A4_WIDTH_PX}px`,
         minHeight: `${A4_HEIGHT_PX}px`,
-        zIndex: '-1000',          // Put it behind everything
+        zIndex: '-1000',
         backgroundColor: '#ffffff',
         color: '#333',
         padding: '40px',
@@ -119,9 +119,9 @@ const downloadInvoice = async (order) => {
               <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
               <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
               
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹{p.price || p.productId?.price || 0}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.price || p.productId?.price || 0}</td>
               
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹{(p.price || p.productId?.price || 0) * p.quantity}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${(p.price || p.productId?.price || 0) * p.quantity}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -144,12 +144,12 @@ const downloadInvoice = async (order) => {
 
     document.body.appendChild(element);
 
-    // Wait for browser to paint (while hidden)
+    // Wait for browser to paint
     await new Promise(resolve => setTimeout(resolve, 500));
 
     try {
         const canvas = await html2canvas(element, {
-            scale: 2, // High resolution
+            scale: 2,
             useCORS: true,
             backgroundColor: '#ffffff',
             windowWidth: 1200
@@ -165,7 +165,6 @@ const downloadInvoice = async (order) => {
         alert("Error creating invoice");
         console.error(err);
     } finally {
-        // Clean up the hidden element
         document.body.removeChild(element);
     }
 };
