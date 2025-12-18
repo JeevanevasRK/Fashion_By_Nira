@@ -255,7 +255,8 @@ function App() {
     if (cart.length === 0) return alert("Cart empty");
     try {
       await axios.post(`${API}/orders`, {
-        products: cart.map(i => ({ productId: i._id, quantity: i.quantity })),
+        // FIXED: Saves the 'price' snapshot so future changes don't affect this order
+        products: cart.map(i => ({ productId: i._id, quantity: i.quantity, price: i.price })),
         totalAmount: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0),
         shippingAddress: guestDetails.address, customerName: guestDetails.name, customerPhone: guestDetails.phone
       });
