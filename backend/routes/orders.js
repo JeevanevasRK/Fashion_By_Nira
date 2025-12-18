@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Order = require('../models/order'); // Fixed: Capital 'O' to match filename
+const Product = require('../models/product'); // <--- ADD THIS LINE
 const jwt = require('jsonwebtoken');
 
 // Middleware for Admin Checks
@@ -15,21 +16,54 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// 1. PLACE ORDER (Public)
+// 1. PLACE ORDER (Public) - [UPDATED FOR INVOICE FIX]
 router.post('/', async (req, res) => {
     try {
-        const { products, totalAmount, shippingAddress, customerName, customerPhone } = req.body;
+        const { products, shippingAddress, customerName, customerPhone } = req.body;
+
+        // A. Prepare variables
+        let finalTotal = 0;
+        const frozenProducts = [];
+
+        // B. Loop through every item requested by the customer
+        for (const item of products) {
+            // Find the REAL product in the database to get the current price
+            const dbProduct = await Product.findById(item.productId);
+
+            if (!dbProduct) {
+                return res.status(404).json({ error: `Product not found: ${item.productId}` });
+            }
+
+            // C. Calculate cost using the DB price (Secure)
+            const lineTotal = dbProduct.price * item.quantity;
+            finalTotal += lineTotal;
+
+            // D. Create the "Frozen Snapshot"
+            // We save the price, title, and image NOW so they never change in the future
+            frozenProducts.push({
+                productId: dbProduct._id,
+                quantity: item.quantity,
+                price: dbProduct.price,    // <--- THE FIX: Saving price explicitly
+                title: dbProduct.title,    // <--- Saving title explicitly
+                image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || "" // Robust image fallback
+            });
+        }
+
+        // E. Save the order with the frozen data
         const newOrder = new Order({
-            products,
-            totalAmount,
+            products: frozenProducts,   // Use our new detailed array
+            totalAmount: finalTotal,    // Use the calculated total
             shippingAddress,
             customerName,
             customerPhone,
             status: 'Pending'
         });
+
         await newOrder.save();
         res.json({ message: "Order placed successfully!", orderId: newOrder._id });
+
     } catch (err) {
+        console.error("Order Error:", err);
         res.status(500).json({ error: "Could not place order" });
     }
 });
