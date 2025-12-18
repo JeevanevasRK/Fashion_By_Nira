@@ -118,8 +118,10 @@ const downloadInvoice = async (order) => {
             <tr>
               <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
               <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.productId?.price}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${p.productId?.price * p.quantity}</td>
+              {/* FIXED: Uses saved price first, then live price */}
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹{p.price || p.productId?.price || 0}</td>
+              {/* FIXED: Calculates total using saved price */}
+              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹{(p.price || p.productId?.price || 0) * p.quantity}</td>
             </tr>
           `).join('')}
         </tbody>
