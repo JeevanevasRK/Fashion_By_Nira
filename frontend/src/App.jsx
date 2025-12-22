@@ -215,6 +215,19 @@ function App() {
 
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
   const [deleteId, setDeleteId] = useState(null);
+  // 🟢 NEW: Cart Error State (For Stock Validation)
+  const [cartErrors, setCartErrors] = useState({});
+
+  const triggerCartError = (id, msg) => {
+    setCartErrors(prev => ({ ...prev, [id]: msg }));
+    setTimeout(() => {
+      setCartErrors(prev => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }, 2500);
+  };
   // --- ADD THIS FOR TRACKING FIX ---
   const [allProducts, setAllProducts] = useState([]);
 
@@ -483,10 +496,56 @@ function App() {
                       <h4 style={{ fontSize: '16px' }}>{item.title}</h4>
                       <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>₹{item.price}</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-body)', borderRadius: '20px', padding: '5px 10px' }}>
-                      <button onClick={() => decreaseQty(item._id)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>-</button>
-                      <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
-                      <button onClick={() => updateQty(item._id, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
+                    {/* 🟢 MODERN CART CONTROLS (With Stock Logic) */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '100px' }}>
+                      <div style={{
+                        display: 'flex', alignItems: 'center',
+                        background: 'var(--bg-body)',
+                        border: cartErrors[item._id] ? '1px solid var(--danger)' : '1px solid var(--border)',
+                        borderRadius: '50px', // Pill Shape
+                        padding: '4px',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+                        transition: 'border 0.3s ease'
+                      }}>
+                        <button
+                          onClick={() => decreaseQty(item._id)}
+                          style={{
+                            width: '28px', height: '28px', borderRadius: '50%', border: 'none',
+                            background: 'var(--bg-card)', color: 'var(--text-main)', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '16px'
+                          }}
+                        >−</button>
+
+                        <span style={{ margin: '0 12px', fontSize: '14px', fontWeight: 'bold', color: 'var(--text-main)' }}>{item.quantity}</span>
+
+                        <button
+                          onClick={() => {
+                            // 🟢 STOCK CHECK LOGIC
+                            if (item.stock && item.quantity >= item.stock) {
+                              triggerCartError(item._id, `Only ${item.stock} pcs available`);
+                              return;
+                            }
+                            updateQty(item._id, 1);
+                          }}
+                          style={{
+                            width: '28px', height: '28px', borderRadius: '50%', border: 'none',
+                            background: 'var(--accent)', color: 'var(--accent-text)', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '16px'
+                          }}
+                        >+</button>
+                      </div>
+
+                      {/* 🟢 INLINE ERROR MESSAGE */}
+                      <div style={{
+                        height: '14px', marginTop: '4px', textAlign: 'center',
+                        opacity: cartErrors[item._id] ? 1 : 0, transition: 'opacity 0.3s'
+                      }}>
+                        <span style={{ fontSize: '9px', color: 'var(--danger)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          {cartErrors[item._id]}
+                        </span>
+                      </div>
                     </div>
                     <button onClick={() => removeFromCart(item._id)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
                   </div>
