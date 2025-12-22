@@ -172,24 +172,24 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
             </p>
           </div>
 
-          {/* 🟢 NEW: QUANTITY SELECTOR UI */}
+          {/* 🟢 QUANTITY SELECTOR (Dark Mode Fixed & Hidden Stock Count) */}
           {product.inStock && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-              <span style={{ fontWeight: '600', fontSize: '14px' }}>Quantity:</span>
-              <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '8px' }}>
+              <span style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text-main)' }}>Quantity:</span>
+
+              <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }}>
                 <button
                   onClick={decreaseQty}
-                  style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '16px' }}
+                  style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '18px', color: 'var(--text-main)' }}
                 >-</button>
-                <span style={{ padding: '0 10px', fontWeight: 'bold' }}>{quantity}</span>
+
+                <span style={{ padding: '0 10px', fontWeight: 'bold', minWidth: '20px', textAlign: 'center' }}>{quantity}</span>
+
                 <button
                   onClick={increaseQty}
-                  style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '16px' }}
+                  style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '18px', color: 'var(--text-main)' }}
                 >+</button>
               </div>
-              <span style={{ fontSize: '12px', color: '#888' }}>
-                ({product.stock} available)
-              </span>
             </div>
           )}
 
