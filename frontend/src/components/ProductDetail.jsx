@@ -117,11 +117,19 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
                 }}
               >
                 {/* OPTIMIZED MAIN IMAGE (Updated as per previous request) */}
+                {/* OPTIMIZED MAIN IMAGE (Faster Loading) */}
                 <img
-                  src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=1000&q=85&output=webp`}
+                  // 🟢 FIXED: Reduced size (w=800) and quality (q=75) for faster load, same proxy rule as List
+                  src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=800&q=75&output=webp`}
                   alt={product.title}
                   loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'normal' }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    mixBlendMode: 'normal'
+                    // Note: Grayscale removed as per your previous request
+                  }}
                 />
                 {!product.inStock && (
                   <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
