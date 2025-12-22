@@ -5,40 +5,29 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
   const scrollRef = useRef(null);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
 
-  // 🟢 NEW: State for Quantity (Starts at 1)
-  const [quantity, setQuantity] = useState(1);
+  // 🟢 NEW: State for Modern Error Message (No Alerts)
+  const [stockMessage, setStockMessage] = useState("");
 
-  // FIXED: This check must happen FIRST, before accessing product.images
+  // FIXED: This check must happen FIRST
   if (!product) return null;
 
   // Handle new array format or fallback to old string format
   const images = product?.images && product.images.length > 0 ? product.images : [product?.image];
 
-  // 🟢 NEW: Increase Logic (Stops at Stock Limit)
-  const increaseQty = () => {
-    const maxLimit = product.stock || 1; // Default to 1 if stock is missing
+  // Helper to handle adding with Stock Check
+  const handleSmartAdd = () => {
+    const cartItem = cart ? cart.find(item => item._id === product._id) : null;
+    const currentQty = cartItem ? cartItem.quantity : 0;
 
-    if (quantity >= maxLimit) {
-      alert(`Sorry, only ${maxLimit} units available in stock!`);
+    // Check Stock Limit
+    if (product.stock && currentQty >= product.stock) {
+      setStockMessage(`Max limit reached! Only ${product.stock} available.`);
+      setTimeout(() => setStockMessage(""), 2500); // Auto-hide
       return;
     }
-    setQuantity(prev => prev + 1);
-  };
 
-  // 🟢 NEW: Decrease Logic (Stops at 1)
-  // 🟢 RENAMED: Decrease Logic (Stops at 1)
-  const decreaseLocalQty = () => {
-    if (quantity > 1) setQuantity(prev => prev - 1);
-  };
-
-  const handleAddToCart = () => {
-    if (!product.inStock) return;
-
-    // 🟢 UPDATED: Sends the specific quantity selected to the Cart
-    addToCart(product, quantity);
-
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+    setStockMessage("");
+    addToCart(product);
   };
 
   const scrollToImage = (index) => {
@@ -173,70 +162,74 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
             </p>
           </div>
 
-          {/* 🟢 SMART CART LOGIC (Syncs with Global Cart) */}
+          {/* 🟢 SMART CART LOGIC (Aligned & Modern) */}
           {(() => {
             const cartItem = cart ? cart.find(item => item._id === product._id) : null;
             const currentQty = cartItem ? cartItem.quantity : 0;
 
             if (!product.inStock) {
               return (
-                <button
-                  disabled
-                  className="btn"
-                  style={{ width: '100%', padding: '18px', background: '#ccc', color: '#666', cursor: 'not-allowed', border: 'none' }}
-                >
+                <button disabled className="btn" style={{ width: '100%', padding: '18px', background: '#ccc', color: '#666', cursor: 'not-allowed', border: 'none' }}>
                   Out of Stock
                 </button>
               );
             }
 
             return cartItem ? (
-              // 🅰️ IF IN CART: Show Big Quantity Controls
+              // 🅰️ IF IN CART: Show Aligned Controls
               <div style={{ marginTop: '20px' }}>
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  border: '2px solid var(--accent)', borderRadius: '8px', padding: '5px'
+                  border: stockMessage ? '1px solid var(--danger)' : '2px solid var(--accent)',
+                  borderRadius: '50px', // Modern Pill Shape
+                  padding: '5px',
+                  transition: 'border 0.3s ease'
                 }}>
+                  {/* DECREASE BUTTON */}
                   <button
-                    onClick={decreaseLocalQty} // <--- FIXED
-                    style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '18px', color: 'var(--text-main)' }}
-                  >-</button>
+                    onClick={() => decreaseQty(product._id)}
+                    style={{
+                      flex: 1, background: 'none', border: 'none', padding: '12px',
+                      cursor: 'pointer', fontSize: '24px', color: 'var(--text-main)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                  >−</button>
 
                   <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-main)' }}>{currentQty}</span>
 
+                  {/* INCREASE BUTTON */}
                   <button
-                    onClick={() => {
-                      // Stock Check
-                      if (product.stock && currentQty >= product.stock) {
-                        alert(`Only ${product.stock} units available!`);
-                        return;
-                      }
-                      addToCart(product);
-                    }}
+                    onClick={handleSmartAdd}
                     style={{
-                      flex: 1, background: 'none', border: 'none', padding: '15px',
-                      cursor: 'pointer', fontSize: '24px', color: 'var(--text-main)'
+                      flex: 1, background: 'none', border: 'none', padding: '12px',
+                      cursor: 'pointer', fontSize: '24px', color: 'var(--text-main)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}
                   >+</button>
                 </div>
-                <p style={{ textAlign: 'center', marginTop: '10px', fontSize: '14px', color: 'var(--success)' }}>
+
+                {/* 🟢 MODERN ERROR MESSAGE (No Popup) */}
+                <div style={{
+                  height: '24px', marginTop: '8px', textAlign: 'center',
+                  opacity: stockMessage ? 1 : 0, transition: 'opacity 0.3s'
+                }}>
+                  <span style={{ color: 'var(--danger)', fontSize: '13px', fontWeight: '600' }}>
+                    ⚠️ {stockMessage}
+                  </span>
+                </div>
+
+                <p style={{ textAlign: 'center', fontSize: '14px', color: 'var(--success)' }}>
                   ✓ Item in your bag
                 </p>
               </div>
             ) : (
               // 🅱️ IF NOT IN CART: Show Standard Add Button
               <button
-                onClick={() => addToCart(product)}
+                onClick={handleSmartAdd}
                 className="btn"
                 style={{
-                  width: '100%',
-                  marginTop: '20px',
-                  padding: '18px',
-                  fontSize: '16px',
-                  background: 'var(--accent)',
-                  color: 'var(--accent-text)',
-                  cursor: 'pointer',
-                  border: 'none'
+                  width: '100%', marginTop: '20px', padding: '18px', fontSize: '16px',
+                  background: 'var(--accent)', color: 'var(--accent-text)', cursor: 'pointer', border: 'none'
                 }}
               >
                 Add to Cart
