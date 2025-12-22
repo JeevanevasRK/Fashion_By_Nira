@@ -1,192 +1,234 @@
 import React, { useState, useRef } from 'react'; // FIXED: Lowercase 'import'
 
-const ProductDetail = ({ product, addToCart, onBack }) => {
-  const [isAdded, setIsAdded] = useState(false);
-  const scrollRef = useRef(null);
-  const [activeImgIndex, setActiveImgIndex] = useState(0);
+const [isAdded, setIsAdded] = useState(false);
+const scrollRef = useRef(null);
+const [activeImgIndex, setActiveImgIndex] = useState(0);
 
-  // FIXED: This check must happen FIRST, before accessing product.images
-  if (!product) return null;
+// 🟢 NEW: State for Quantity (Starts at 1)
+const [quantity, setQuantity] = useState(1);
 
-  // Handle new array format or fallback to old string format
-  const images = product?.images && product.images.length > 0 ? product.images : [product?.image];
+// FIXED: This check must happen FIRST, before accessing product.images
+if (!product) return null;
 
-  const handleAddToCart = () => {
-    if (!product.inStock) return;
-    addToCart(product);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
-  };
+// Handle new array format or fallback to old string format
+const images = product?.images && product.images.length > 0 ? product.images : [product?.image];
 
-  const scrollToImage = (index) => {
-    setActiveImgIndex(index);
-    if (scrollRef.current) {
-      const width = scrollRef.current.offsetWidth;
-      scrollRef.current.scrollTo({
-        left: width * index,
-        behavior: 'smooth'
-      });
-    }
-  };
+// 🟢 NEW: Increase Logic (Stops at Stock Limit)
+const increaseQty = () => {
+  const maxLimit = product.stock || 1; // Default to 1 if stock is missing
 
-  return (
-    <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      
-      {/* PREMIUM BACK BUTTON */}
-      <button 
-        onClick={onBack}
-        onMouseEnter={(e) => { 
-          e.currentTarget.style.transform = 'translateX(-5px)'; 
-          e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
-        }}
-        onMouseLeave={(e) => { 
-          e.currentTarget.style.transform = 'translateX(0)'; 
-          e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
-        }}
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          borderRadius: '30px',
-          padding: '12px 25px',
-          marginBottom: '30px',
-          cursor: 'pointer',
-          fontSize: '13px',
-          fontWeight: '600',
-          letterSpacing: '2px',
-          textTransform: 'uppercase',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          color: 'var(--text-main)',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-          transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-          width: 'fit-content'
-        }}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        Back to Collection
-      </button>
+  if (quantity >= maxLimit) {
+    alert(`Sorry, only ${maxLimit} units available in stock!`);
+    return;
+  }
+  setQuantity(prev => prev + 1);
+};
 
-      <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', padding: '30px' }}>
+// 🟢 NEW: Decrease Logic (Stops at 1)
+const decreaseQty = () => {
+  if (quantity > 1) setQuantity(prev => prev - 1);
+};
 
-        {/* IMAGE GALLERY SECTION */}
-        <div>
-          {/* Main Image Carousel */}
-          <div
-            ref={scrollRef}
-            className="hide-scrollbar" // FIXED: Moved comment out of the tag structure or ensured newline
-            style={{
-              display: 'flex',
-              overflowX: 'auto',
-              scrollSnapType: 'x mandatory',
-              background: '#f8f8f8',
-              borderRadius: '15px',
-              height: '400px',
-              position: 'relative',
-              marginBottom: '15px',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}
-          >
-            {images.map((img, index) => (
-              <div
-                key={index}
-                style={{
-                  minWidth: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  scrollSnapAlign: 'center',
-                  position: 'relative'
-                }}
-              >
-                {/* OPTIMIZED MAIN IMAGE (Updated as per previous request) */}
-                <img
-                  src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=1000&q=85&output=webp`}
-                  alt={product.title}
-                  loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'normal', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
-                />
-                {!product.inStock && (
-                  <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
-                    SOLD OUT
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+const handleAddToCart = () => {
+  if (!product.inStock) return;
 
-          {/* Thumbnails */}
-          <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
-            {images.map((img, index) => (
+  // 🟢 UPDATED: Sends the specific quantity selected to the Cart
+  addToCart(product, quantity);
+
+  setIsAdded(true);
+  setTimeout(() => setIsAdded(false), 2000);
+};
+
+const scrollToImage = (index) => {
+  setActiveImgIndex(index);
+  if (scrollRef.current) {
+    const width = scrollRef.current.offsetWidth;
+    scrollRef.current.scrollTo({
+      left: width * index,
+      behavior: 'smooth'
+    });
+  }
+};
+
+return (
+  <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+
+    {/* PREMIUM BACK BUTTON */}
+    <button
+      onClick={onBack}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateX(-5px)';
+        e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateX(0)';
+        e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+      }}
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        borderRadius: '30px',
+        padding: '12px 25px',
+        marginBottom: '30px',
+        cursor: 'pointer',
+        fontSize: '13px',
+        fontWeight: '600',
+        letterSpacing: '2px',
+        textTransform: 'uppercase',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        color: 'var(--text-main)',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+        transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+        width: 'fit-content'
+      }}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to Collection
+    </button>
+
+    <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', padding: '30px' }}>
+
+      {/* IMAGE GALLERY SECTION */}
+      <div>
+        {/* Main Image Carousel */}
+        <div
+          ref={scrollRef}
+          className="hide-scrollbar" // FIXED: Moved comment out of the tag structure or ensured newline
+          style={{
+            display: 'flex',
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            background: '#f8f8f8',
+            borderRadius: '15px',
+            height: '400px',
+            position: 'relative',
+            marginBottom: '15px',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
+        >
+          {images.map((img, index) => (
+            <div
+              key={index}
+              style={{
+                minWidth: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                scrollSnapAlign: 'center',
+                position: 'relative'
+              }}
+            >
+              {/* OPTIMIZED MAIN IMAGE (Updated as per previous request) */}
               <img
-                key={index}
-                src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=150&q=70&output=webp`}
-                onClick={() => scrollToImage(index)}
-                style={{
-                  width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer',
-                  border: activeImgIndex === index ? '2px solid var(--accent)' : '1px solid #ddd',
-                  opacity: activeImgIndex === index ? 1 : 0.6,
-                  transition: 'opacity 0.2s'
-                }}
+                src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=1000&q=85&output=webp`}
+                alt={product.title}
+                loading="lazy"
+                style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'normal', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
               />
-            ))}
-          </div>
+              {!product.inStock && (
+                <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>
+                  SOLD OUT
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* INFO SECTION */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>{product.title}</h1>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)', marginBottom: '20px' }}>₹{product.price}</p>
-
-          <div style={{ marginBottom: '30px' }}>
-            <h4 style={{ marginBottom: '10px', color: 'var(--text-muted)' }}>Description</h4>
-            <p style={{ lineHeight: '1.6', color: 'var(--text-main)' }}>
-              {product.description || "No description available for this premium item."}
-            </p>
-          </div>
-
-          <button
-            onClick={handleAddToCart}
-            disabled={!product.inStock}
-            className="btn"
-            style={{
-              width: '100%',
-              padding: '18px',
-              fontSize: '16px',
-              background: !product.inStock ? '#ccc' : (isAdded ? 'var(--success)' : 'var(--accent)'),
-              color: !product.inStock ? '#666' : 'var(--accent-text)',
-              cursor: !product.inStock ? 'not-allowed' : 'pointer',
-              border: 'none'
-            }}
-          >
-            {!product.inStock ? "Out of Stock" : (isAdded ? "✓ Added to Bag" : "Add to Cart")}
-          </button>
-
-          <button
-            onClick={onBack}
-            style={{
-              marginTop: '15px',
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-muted)',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontSize: '14px',
-              width: '100%'
-            }}
-          >
-            Back to Listing
-          </button>
+        {/* Thumbnails */}
+        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
+          {images.map((img, index) => (
+            <img
+              key={index}
+              src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=150&q=70&output=webp`}
+              onClick={() => scrollToImage(index)}
+              style={{
+                width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer',
+                border: activeImgIndex === index ? '2px solid var(--accent)' : '1px solid #ddd',
+                opacity: activeImgIndex === index ? 1 : 0.6,
+                transition: 'opacity 0.2s'
+              }}
+            />
+          ))}
         </div>
-
       </div>
+
+      {/* INFO SECTION */}
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>{product.title}</h1>
+        <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)', marginBottom: '20px' }}>₹{product.price}</p>
+
+        <div style={{ marginBottom: '30px' }}>
+          <h4 style={{ marginBottom: '10px', color: 'var(--text-muted)' }}>Description</h4>
+          <p style={{ lineHeight: '1.6', color: 'var(--text-main)' }}>
+            {product.description || "No description available for this premium item."}
+          </p>
+        </div>
+
+        {/* 🟢 NEW: QUANTITY SELECTOR UI */}
+        {product.inStock && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
+            <span style={{ fontWeight: '600', fontSize: '14px' }}>Quantity:</span>
+            <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '8px' }}>
+              <button
+                onClick={decreaseQty}
+                style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '16px' }}
+              >-</button>
+              <span style={{ padding: '0 10px', fontWeight: 'bold' }}>{quantity}</span>
+              <button
+                onClick={increaseQty}
+                style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '16px' }}
+              >+</button>
+            </div>
+            <span style={{ fontSize: '12px', color: '#888' }}>
+              ({product.stock} available)
+            </span>
+          </div>
+        )}
+
+        <button
+          onClick={handleAddToCart}
+          disabled={!product.inStock}
+          className="btn"
+          style={{
+            width: '100%',
+            padding: '18px',
+            fontSize: '16px',
+            background: !product.inStock ? '#ccc' : (isAdded ? 'var(--success)' : 'var(--accent)'),
+            color: !product.inStock ? '#666' : 'var(--accent-text)',
+            cursor: !product.inStock ? 'not-allowed' : 'pointer',
+            border: 'none'
+          }}
+        >
+          {!product.inStock ? "Out of Stock" : (isAdded ? `✓ Added ${quantity} to Bag` : "Add to Cart")}
+        </button>
+
+        <button
+          onClick={onBack}
+          style={{
+            marginTop: '15px',
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-muted)',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            fontSize: '14px',
+            width: '100%'
+          }}
+        >
+          Back to Listing
+        </button>
+      </div>
+
     </div>
-  );
+  </div>
+);
 };
 
 export default ProductDetail;
