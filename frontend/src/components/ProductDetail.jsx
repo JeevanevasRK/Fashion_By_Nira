@@ -21,7 +21,7 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
 
     // Check Stock Limit
     if (product.stock && currentQty >= product.stock) {
-      setStockMessage(`Max limit reached! Only ${product.stock} available.`);
+      setStockMessage(`Max limit reached! Only ${product.stock} pcs available.`);
       setTimeout(() => setStockMessage(""), 2500); // Auto-hide
       return;
     }

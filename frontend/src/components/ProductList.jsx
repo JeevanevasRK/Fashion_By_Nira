@@ -225,12 +225,13 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
 
                       <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)' }}>{qty}</span>
 
-                      {/* INCREASE */}
+                      {/* INCREASE BUTTON */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           if (p.stock && qty >= p.stock) {
-                            triggerError(p._id, `Max: ${p.stock}`);
+                            // 🟢 UPDATED ERROR TEXT
+                            triggerError(p._id, `Only ${p.stock} pcs available`);
                             return;
                           }
                           addToCart(p);
