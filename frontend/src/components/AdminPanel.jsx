@@ -236,7 +236,7 @@ function AdminPanel({ token, setIsAdmin }) {
     // State
     // UPDATED: Initial state includes inStock
     // Initialize 'images' as an array with one empty string
-    const [product, setProduct] = useState({ title: '', price: '', description: '', images: [''], inStock: true });
+    const [product, setProduct] = useState({ title: '', price: '', stock: '', description: '', images: [''], inStock: true });
     const [editingId, setEditingId] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ phoneNumber: '', password: '' });
     const [editUser, setEditUser] = useState(null);
@@ -304,8 +304,8 @@ function AdminPanel({ token, setIsAdmin }) {
         setProduct({
             title: p.title,
             price: p.price,
+            stock: p.stock || 0, // <--- Load existing stock
             description: p.description,
-            // Handle legacy single image vs new array images
             images: p.images && p.images.length > 0 ? p.images : [p.image || ''],
             inStock: p.inStock !== undefined ? p.inStock : true
         });
@@ -503,6 +503,10 @@ function AdminPanel({ token, setIsAdmin }) {
                                             <div style={{ flex: 1 }}>
                                                 <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{p.title}</div>
                                                 <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>₹{p.price}</div>
+                                                {/* 🟢 PASTE THIS LINE HERE 🟢 */}
+                                                <div style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>
+                                                    Stock: <strong>{p.stock}</strong> units
+                                                </div>
                                                 {!p.inStock && <div style={{ color: 'red', fontSize: '12px', fontWeight: 'bold' }}>OUT OF STOCK</div>}
                                             </div>
                                             <button onClick={() => handleEdit(p)} style={{ marginRight: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
@@ -544,7 +548,24 @@ function AdminPanel({ token, setIsAdmin }) {
                             <h2 style={{ marginBottom: '20px' }}>{editingId ? 'Edit Product' : 'Add New Product'}</h2>
                             <form onSubmit={handleProductSubmit} className="card" style={{ display: 'grid', gap: '15px' }}>
                                 <input className="input" placeholder="Title" value={product.title} onChange={e => setProduct({ ...product, title: e.target.value })} required />
-                                <input className="input" placeholder="Price" type="number" value={product.price} onChange={e => setProduct({ ...product, price: e.target.value })} required />
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                    <input
+                                        className="input"
+                                        placeholder="Price (₹)"
+                                        type="number"
+                                        value={product.price}
+                                        onChange={e => setProduct({ ...product, price: e.target.value })}
+                                        required
+                                    />
+                                    <input
+                                        className="input"
+                                        placeholder="Stock Qty"
+                                        type="number"
+                                        value={product.stock}
+                                        onChange={e => setProduct({ ...product, stock: e.target.value })}
+                                        required
+                                    />
+                                </div>
                                 {/* 🟢 PASTE THIS NEW CODE HERE 🟢 */}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Product Images</label>

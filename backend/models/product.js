@@ -4,9 +4,21 @@ const productSchema = new mongoose.Schema({
     title: { type: String, required: true },
     price: { type: Number, required: true },
     description: String,
-    images: [String], // <--- CHANGED TO ARRAY
+
+    // Supports multiple images
+    images: [String],
+
+    // Legacy support for single image (optional, keeps old data safe)
+    image: String,
+
     category: String,
-    inStock: { type: Boolean, default: true }
-});
+
+    // Stock Status
+    inStock: { type: Boolean, default: true }, // <--- Added comma here
+
+    // 🟢 NEW: Stock Quantity Logic
+    stock: { type: Number, default: 0 }
+
+}, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

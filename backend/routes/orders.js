@@ -16,43 +16,60 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// 1. PLACE ORDER (Public) - [UPDATED FOR INVOICE FIX]
+// 1. PLACE ORDER (Public) - [INVOICE FIX + STOCK MANAGEMENT]
 router.post('/', async (req, res) => {
     try {
         const { products, shippingAddress, customerName, customerPhone } = req.body;
 
-        // A. Prepare variables
         let finalTotal = 0;
         const frozenProducts = [];
 
-        // B. Loop through every item requested by the customer
+        // Loop through every item requested by the customer
         for (const item of products) {
-            // Find the REAL product in the database to get the current price
+            // Find the REAL product in the database
             const dbProduct = await Product.findById(item.productId);
 
             if (!dbProduct) {
                 return res.status(404).json({ error: `Product not found: ${item.productId}` });
             }
 
-            // C. Calculate cost using the DB price (Secure)
+            // 🟢 STOCK CHECK: Stop if customer orders more than available
+            if (dbProduct.stock < item.quantity) {
+                return res.status(400).json({
+                    error: `Stock Error: Only ${dbProduct.stock} units available for "${dbProduct.title}".`
+                });
+            }
+
+            // 🟢 DEDUCT STOCK
+            dbProduct.stock = dbProduct.stock - item.quantity;
+
+            // 🟢 AUTO OUT-OF-STOCK (If stock hits 0)
+            if (dbProduct.stock <= 0) {
+                dbProduct.stock = 0;
+                dbProduct.inStock = false;
+            }
+
+            // Save the new stock count to Database
+            await dbProduct.save();
+
+            // Calculate cost using the DB price (Secure)
             const lineTotal = dbProduct.price * item.quantity;
             finalTotal += lineTotal;
 
-            // D. Create the "Frozen Snapshot"
-            // We save the price, title, and image NOW so they never change in the future
+            // 🟢 SNAPSHOT: Freeze data for the Invoice
             frozenProducts.push({
                 productId: dbProduct._id,
                 quantity: item.quantity,
-                price: dbProduct.price,    // <--- THE FIX: Saving price explicitly
-                title: dbProduct.title,    // <--- Saving title explicitly
-                image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || "" // Robust image fallback
+                price: dbProduct.price,    // Frozen Price
+                title: dbProduct.title,    // Frozen Title
+                image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || ""
             });
         }
 
-        // E. Save the order with the frozen data
+        // Save the Order
         const newOrder = new Order({
-            products: frozenProducts,   // Use our new detailed array
-            totalAmount: finalTotal,    // Use the calculated total
+            products: frozenProducts,
+            totalAmount: finalTotal,
             shippingAddress,
             customerName,
             customerPhone,
