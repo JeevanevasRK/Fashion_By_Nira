@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'; // FIXED: Lowercase 'import'
 
-const ProductDetail = ({ product, addToCart, onBack }) => {
+const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
   const [isAdded, setIsAdded] = useState(false);
   const scrollRef = useRef(null);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
@@ -172,43 +172,79 @@ const ProductDetail = ({ product, addToCart, onBack }) => {
             </p>
           </div>
 
-          {/* 🟢 QUANTITY SELECTOR (Dark Mode Fixed & Hidden Stock Count) */}
-          {product.inStock && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-              <span style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text-main)' }}>Quantity:</span>
+          {/* 🟢 SMART CART LOGIC (Syncs with Global Cart) */}
+          {(() => {
+            const cartItem = cart ? cart.find(item => item._id === product._id) : null;
+            const currentQty = cartItem ? cartItem.quantity : 0;
 
-              <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }}>
+            if (!product.inStock) {
+              return (
                 <button
-                  onClick={decreaseQty}
-                  style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '18px', color: 'var(--text-main)' }}
-                >-</button>
+                  disabled
+                  className="btn"
+                  style={{ width: '100%', padding: '18px', background: '#ccc', color: '#666', cursor: 'not-allowed', border: 'none' }}
+                >
+                  Out of Stock
+                </button>
+              );
+            }
 
-                <span style={{ padding: '0 10px', fontWeight: 'bold', minWidth: '20px', textAlign: 'center' }}>{quantity}</span>
+            return cartItem ? (
+              // 🅰️ IF IN CART: Show Big Quantity Controls
+              <div style={{ marginTop: '20px' }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  border: '2px solid var(--accent)', borderRadius: '8px', padding: '5px'
+                }}>
+                  <button
+                    onClick={() => decreaseQty(product._id)}
+                    style={{
+                      flex: 1, background: 'none', border: 'none', padding: '15px',
+                      cursor: 'pointer', fontSize: '24px', color: 'var(--text-main)'
+                    }}
+                  >−</button>
 
-                <button
-                  onClick={increaseQty}
-                  style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '18px', color: 'var(--text-main)' }}
-                >+</button>
+                  <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-main)' }}>{currentQty}</span>
+
+                  <button
+                    onClick={() => {
+                      // Stock Check
+                      if (product.stock && currentQty >= product.stock) {
+                        alert(`Only ${product.stock} units available!`);
+                        return;
+                      }
+                      addToCart(product);
+                    }}
+                    style={{
+                      flex: 1, background: 'none', border: 'none', padding: '15px',
+                      cursor: 'pointer', fontSize: '24px', color: 'var(--text-main)'
+                    }}
+                  >+</button>
+                </div>
+                <p style={{ textAlign: 'center', marginTop: '10px', fontSize: '14px', color: 'var(--success)' }}>
+                  ✓ Item in your bag
+                </p>
               </div>
-            </div>
-          )}
-
-          <button
-            onClick={handleAddToCart}
-            disabled={!product.inStock}
-            className="btn"
-            style={{
-              width: '100%',
-              padding: '18px',
-              fontSize: '16px',
-              background: !product.inStock ? '#ccc' : (isAdded ? 'var(--success)' : 'var(--accent)'),
-              color: !product.inStock ? '#666' : 'var(--accent-text)',
-              cursor: !product.inStock ? 'not-allowed' : 'pointer',
-              border: 'none'
-            }}
-          >
-            {!product.inStock ? "Out of Stock" : (isAdded ? `✓ Added ${quantity} to Bag` : "Add to Cart")}
-          </button>
+            ) : (
+              // 🅱️ IF NOT IN CART: Show Standard Add Button
+              <button
+                onClick={() => addToCart(product)}
+                className="btn"
+                style={{
+                  width: '100%',
+                  marginTop: '20px',
+                  padding: '18px',
+                  fontSize: '16px',
+                  background: 'var(--accent)',
+                  color: 'var(--accent-text)',
+                  cursor: 'pointer',
+                  border: 'none'
+                }}
+              >
+                Add to Cart
+              </button>
+            );
+          })()}
 
           <button
             onClick={onBack}

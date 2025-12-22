@@ -449,7 +449,13 @@ function App() {
         apiUrl={API}
       />}
 
-      {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
+      {view === 'details' && selectedProduct && <ProductDetail
+        product={selectedProduct}
+        addToCart={addToCart}
+        decreaseQty={decreaseQty}  // <--- Added
+        cart={cart}                // <--- Added
+        onBack={() => setView('shop')}
+      />}
 
       {view === 'cart' && (
         <div className="animate" style={{ maxWidth: '1000px', margin: '0 auto' }}>
