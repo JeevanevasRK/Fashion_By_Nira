@@ -5,6 +5,11 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
   const scrollRef = useRef(null);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
 
+  // 🟢 NEW: Force scroll to top when page opens
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // 🟢 NEW: State for Modern Error Message (No Alerts)
   const [stockMessage, setStockMessage] = useState("");
 
