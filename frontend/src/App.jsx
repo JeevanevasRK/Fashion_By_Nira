@@ -273,7 +273,12 @@ function App() {
     const newCart = cart.filter(x => x._id !== deleteId);
     setCart(newCart);
     setDeleteId(null);
-    if (newCart.length === 0) setView('shop');
+
+    // If cart becomes empty, go to Shop and SCROLL TO TOP
+    if (newCart.length === 0) {
+      setView('shop');
+      window.scrollTo(0, 0); // 🟢 FIXED: Forces top of page
+    }
   };
 
   const handleCheckout = async (e) => {
