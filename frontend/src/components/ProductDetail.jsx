@@ -121,7 +121,7 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
                   src={`https://wsrv.nl/?url=${encodeURIComponent(img)}&w=1000&q=85&output=webp`}
                   alt={product.title}
                   loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'normal', filter: product.inStock ? 'none' : 'grayscale(100%)' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'normal' }}
                 />
                 {!product.inStock && (
                   <div style={{ position: 'absolute', padding: '10px 20px', background: 'rgba(255,255,255,0.9)', border: '2px solid red', color: 'red', fontWeight: 'bold', transform: 'rotate(-15deg)', fontSize: '24px' }}>

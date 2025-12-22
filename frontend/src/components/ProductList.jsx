@@ -167,7 +167,6 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                   height: '100%',
                   objectFit: 'cover',     // <--- FILL THE BOX
                   mixBlendMode: 'normal', // <--- NORMAL MODE FOR CLEAR PHOTOS
-                  filter: p.inStock ? 'none' : 'grayscale(100%)'
                 }}
                 onError={(e) => { e.target.src = 'https://via.placeholder.com/400x533' }}
               />
