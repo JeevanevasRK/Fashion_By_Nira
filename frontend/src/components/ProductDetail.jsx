@@ -26,7 +26,8 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
   };
 
   // 🟢 NEW: Decrease Logic (Stops at 1)
-  const decreaseQty = () => {
+  // 🟢 RENAMED: Decrease Logic (Stops at 1)
+  const decreaseLocalQty = () => {
     if (quantity > 1) setQuantity(prev => prev - 1);
   };
 
@@ -197,12 +198,9 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
                   border: '2px solid var(--accent)', borderRadius: '8px', padding: '5px'
                 }}>
                   <button
-                    onClick={() => decreaseQty(product._id)}
-                    style={{
-                      flex: 1, background: 'none', border: 'none', padding: '15px',
-                      cursor: 'pointer', fontSize: '24px', color: 'var(--text-main)'
-                    }}
-                  >−</button>
+                    onClick={decreaseLocalQty} // <--- FIXED
+                    style={{ background: 'none', border: 'none', padding: '10px 15px', cursor: 'pointer', fontSize: '18px', color: 'var(--text-main)' }}
+                  >-</button>
 
                   <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-main)' }}>{currentQty}</span>
 
