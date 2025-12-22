@@ -100,6 +100,21 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 🟢 NEW: State to track stock errors per product ID
+  const [stockErrors, setStockErrors] = useState({});
+
+  // Helper to show error for a specific product
+  const triggerError = (id, msg) => {
+    setStockErrors(prev => ({ ...prev, [id]: msg }));
+    setTimeout(() => {
+      setStockErrors(prev => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }, 2500); // Auto-hide after 2.5s
+  };
+
   useEffect(() => {
     // We remove the timestamp logic because the Proxy URL handles updates automatically now
     axios.get(`${API}/products`)
@@ -177,65 +192,97 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
             <div>
               <h3 style={{ fontSize: '15px', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</h3>
               <p style={{ fontSize: '15px', fontWeight: 'bold', color: '#512da8' }}>₹{p.price}</p>
-              {/* 🟢 SMART CART LOGIC (Replaces AddToCartBtn) */}
+              {/* 🟢 ULTRA-MODERN CART CONTROLS */}
               {(() => {
-                // Safety check: ensure cart exists
                 const currentCart = cart || [];
                 const cartItem = currentCart.find(item => item._id === p._id);
                 const qty = cartItem ? cartItem.quantity : 0;
+                const errorMsg = stockErrors[p._id]; // Get error for THIS product
 
                 return cartItem ? (
-                  // 🅰️ IF ITEM IS IN CART: Show Quantity Controls
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '4px', background: 'white' }}>
+                  // 🅰️ IN CART: Modern Control Pill
+                  <div style={{ marginTop: '15px' }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      background: 'var(--bg-body)',
+                      border: errorMsg ? '1px solid var(--danger)' : '1px solid var(--border)',
+                      borderRadius: '50px', // Fully rounded pill
+                      padding: '4px',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                      transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'
+                    }}>
 
-                      {/* DECREASE BUTTON */}
+                      {/* DECREASE */}
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          decreaseQty(p._id);
+                        onClick={(e) => { e.stopPropagation(); decreaseQty(p._id); }}
+                        style={{
+                          width: '32px', height: '32px', borderRadius: '50%', border: 'none',
+                          background: 'var(--bg-card)', color: 'var(--text-main)',
+                          cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                         }}
-                        style={{ background: 'none', border: 'none', color: 'black', padding: '5px 12px', cursor: 'pointer', fontSize: '18px' }}
                       >−</button>
 
-                      <span style={{ padding: '0 8px', fontWeight: 'bold', color: 'black', fontSize: '14px' }}>{qty}</span>
+                      <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)' }}>{qty}</span>
 
-                      {/* INCREASE BUTTON (With Stock Check) */}
+                      {/* INCREASE */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          // 🟢 STOCK LOGIC
                           if (p.stock && qty >= p.stock) {
-                            alert(`Only ${p.stock} units available!`);
+                            triggerError(p._id, `Max: ${p.stock}`);
                             return;
                           }
                           addToCart(p);
                         }}
-                        style={{ background: 'none', border: 'none', color: 'black', padding: '5px 12px', cursor: 'pointer', fontSize: '18px' }}
+                        style={{
+                          width: '32px', height: '32px', borderRadius: '50%', border: 'none',
+                          background: 'var(--accent)', color: 'var(--accent-text)',
+                          cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                        }}
                       >+</button>
+                    </div>
+
+                    {/* 🟢 MODERN INLINE ERROR (No Cheap Popup) */}
+                    <div style={{
+                      height: '16px', marginTop: '6px', textAlign: 'center',
+                      opacity: errorMsg ? 1 : 0, transition: 'opacity 0.3s ease',
+                      overflow: 'hidden'
+                    }}>
+                      <span style={{ fontSize: '10px', color: 'var(--danger)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {errorMsg || " "}
+                      </span>
                     </div>
                   </div>
                 ) : (
-                  // 🅱️ IF NOT IN CART: Show Standard Button
+                  // 🅱️ NOT IN CART: Modern Minimalist Button
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       if (p.inStock) addToCart(p);
                     }}
                     disabled={!p.inStock}
-                    className="btn"
                     style={{
                       width: '100%',
-                      marginTop: '10px',
-                      padding: '10px',
-                      background: p.inStock ? 'black' : '#ccc',
-                      cursor: p.inStock ? 'pointer' : 'not-allowed',
+                      marginTop: '15px',
+                      padding: '12px',
+                      background: p.inStock ? 'var(--text-main)' : '#e0e0e0', // Adaptive Black/White
+                      color: p.inStock ? 'var(--bg-card)' : '#999',
                       border: 'none',
-                      color: p.inStock ? 'white' : '#666',
-                      borderRadius: '4px'
+                      borderRadius: '8px',
+                      cursor: p.inStock ? 'pointer' : 'not-allowed',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      letterSpacing: '0.5px',
+                      textTransform: 'uppercase',
+                      transition: 'transform 0.2s ease',
+                      boxShadow: p.inStock ? '0 4px 15px rgba(0,0,0,0.1)' : 'none'
                     }}
+                    onMouseEnter={(e) => { if (p.inStock) e.currentTarget.style.transform = 'translateY(-2px)' }}
+                    onMouseLeave={(e) => { if (p.inStock) e.currentTarget.style.transform = 'translateY(0)' }}
                   >
-                    {p.inStock ? "Add to Cart" : "Out of Stock"}
+                    {p.inStock ? "Add to Bag" : "Sold Out"}
                   </button>
                 );
               })()}
