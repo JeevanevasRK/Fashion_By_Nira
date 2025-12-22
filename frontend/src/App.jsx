@@ -440,7 +440,14 @@ function App() {
 
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
-      {view === 'shop' && <ProductList addToCart={addToCart} searchQuery={searchQuery} onProductClick={(p) => { setSelectedProduct(p); setView('details') }} apiUrl={API} />}
+      {view === 'shop' && <ProductList
+        addToCart={addToCart}
+        decreaseQty={decreaseQty} // <--- Pass this function
+        cart={cart}               // <--- Pass the cart state
+        searchQuery={searchQuery}
+        onProductClick={(p) => { setSelectedProduct(p); setView('details') }}
+        apiUrl={API}
+      />}
 
       {view === 'details' && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} onBack={() => setView('shop')} />}
 
