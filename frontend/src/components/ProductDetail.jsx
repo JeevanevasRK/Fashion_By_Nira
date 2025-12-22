@@ -51,7 +51,10 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
 
       {/* PREMIUM BACK BUTTON */}
       <button
-        onClick={onBack}
+        onClick={() => {
+          window.scrollTo(0, 0); // 🟢 FIXED: Scrolls to top before switching view
+          onBack();
+        }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateX(-5px)';
           e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
@@ -250,20 +253,43 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
             );
           })()}
 
+          {/* 🟢 MODERN BOTTOM BACK BUTTON */}
           <button
-            onClick={onBack}
+            onClick={() => {
+              window.scrollTo(0, 0); // 🟢 FIXED: Scrolls to top immediately
+              onBack();
+            }}
             style={{
-              marginTop: '15px',
-              background: 'none',
-              border: 'none',
+              marginTop: '25px',
+              width: '100%',
+              padding: '15px',
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '50px', // Modern Pill Shape
               color: 'var(--text-muted)',
-              textDecoration: 'underline',
+              fontSize: '13px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
               cursor: 'pointer',
-              fontSize: '14px',
-              width: '100%'
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--text-main)';
+              e.currentTarget.style.color = 'var(--text-main)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--text-muted)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            Back to Listing
+            Back to Collection
           </button>
         </div>
 
