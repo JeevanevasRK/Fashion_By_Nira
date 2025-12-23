@@ -276,51 +276,47 @@ function App() {
     }));
   };
 
-      const decreaseQty = (id, color = null) => {
-    // 🟢 FIXED: Normalize color to ensure 'undefined' matches 'null'
+        const decreaseQty = (id, color = null) => {
     const targetColor = color || null;
+    const item = cart.find(x => x._id === id && (x.selectedColor || null) === targetColor);
 
-    setCart(prevCart => {
-      const existing = prevCart.find(item => 
-        item._id === id && (item.selectedColor || null) === targetColor
-      );
+    // 🟢 FIXED: Trigger Modal if Qty is 1
+    if (item && item.quantity === 1) {
+       setItemToDelete({ id, color: targetColor });
+       return;
+    }
 
-      if (!existing) return prevCart; // Safety check
-
-      if (existing.quantity === 1) {
-        // Remove specific variant
-        return prevCart.filter(item => 
-            !(item._id === id && (item.selectedColor || null) === targetColor)
-        );
-      } else {
-        // Decrease specific variant
-        return prevCart.map(item =>
-          (item._id === id && (item.selectedColor || null) === targetColor)
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        );
-      }
-    });
+    // Otherwise decrease normal
+    setCart(prevCart => prevCart.map(item =>
+      (item._id === id && (item.selectedColor || null) === targetColor)
+        ? { ...item, quantity: item.quantity - 1 }
+        : item
+    ));
   };
-  
-  
 
-    const removeFromCart = (id, color = null) => {
-      setCart(cart.filter(x => !(x._id === id && x.selectedColor === color)));
+  const removeFromCart = (id, color = null) => {
+    // 🟢 FIXED: Trigger Modal immediately
+    setItemToDelete({ id, color: color || null });
   };
-  
 
   const confirmDelete = () => {
-    const newCart = cart.filter(x => x._id !== deleteId);
+    if (!itemToDelete) return;
+    
+    // 🟢 FIXED: Filter by both ID and Color
+    const newCart = cart.filter(item => 
+      !(item._id === itemToDelete.id && (item.selectedColor || null) === itemToDelete.color)
+    );
+    
     setCart(newCart);
-    setDeleteId(null);
+    setItemToDelete(null);
 
-    // If cart becomes empty, go to Shop and SCROLL TO TOP
+    // If cart becomes empty, go to Shop
     if (newCart.length === 0) {
       setView('shop');
-      window.scrollTo(0, 0); // 🟢 FIXED: Forces top of page
+      window.scrollTo(0, 0);
     }
   };
+  
 
   const handleCheckout = async (e) => {
     e.preventDefault();
