@@ -171,7 +171,7 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
           <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>{product.title}</h1>
                     {/* 🟢 NEW: Price Display with Discount Logic (Large Size) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '26px', fontWeight: 'bold', color: '#333' }}>
+            <span style={{ fontSize: '26px', fontWeight: 'bold', color: 'var(--text-main)' }}>
               ₹{product.price}
             </span>
 
