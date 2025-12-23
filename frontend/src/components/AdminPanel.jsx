@@ -309,7 +309,7 @@ function AdminPanel({ token, setIsAdmin }) {
             stock: p.stock || 0,
             description: p.description,
             images: p.images && p.images.length > 0 ? p.images : [p.image || ''],
-            inStock: p.inStock !== undefined ? p.inStock : true
+            inStock: p.inStock !== undefined ? p.inStock : true,
             colors: p.colors || [] // 🟢 NEW: Load Colors
         });
         setEditingId(p._id);
