@@ -10,6 +10,9 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
     window.scrollTo(0, 0);
   }, []);
 
+    const [selectedColor, setSelectedColor] = useState(null); // 🟢 NEW
+  
+
   // 🟢 NEW: State for Modern Error Message (No Alerts)
   const [stockMessage, setStockMessage] = useState("");
 
@@ -20,21 +23,36 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
   const images = product?.images && product.images.length > 0 ? product.images : [product?.image];
 
   // Helper to handle adding with Stock Check
+    // 🟢 NEW: Logic to require Color Selection
   const handleSmartAdd = () => {
-    const cartItem = cart ? cart.find(item => item._id === product._id) : null;
-    const currentQty = cartItem ? cartItem.quantity : 0;
-
-    // Check Stock Limit
-    if (product.stock && currentQty >= product.stock) {
-      setStockMessage(`Max limit reached! Only ${product.stock} pcs available.`);
-      setTimeout(() => setStockMessage(""), 2500); // Auto-hide
-      return;
+    // 1. Check if product has colors but none selected
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+        setStockMessage("Please select a color");
+        setTimeout(() => setStockMessage(""), 2000);
+        return;
     }
 
-    setStockMessage("");
-    addToCart(product);
-  };
+    // 2. Cart Uniqueness Logic (Product ID + Color)
+    const uniqueId = selectedColor ? `${product._id}-${selectedColor}` : product._id;
+    
+    // 3. Find if this EXACT variation is in cart
+    const cartItem = cart ? cart.find(item => 
+       item._id === product._id && item.selectedColor === selectedColor
+    ) : null;
 
+    const currentQty = cartItem ? cartItem.quantity : 0;
+    
+    if (product.stock && currentQty >= product.stock) {
+        setStockMessage(`Max limit reached! Only ${product.stock} available.`);
+        setTimeout(() => setStockMessage(""), 2500);
+        return;
+    }
+    
+    setStockMessage(""); 
+    // Pass the color to the global adder
+    addToCart({ ...product, selectedColor: selectedColor });
+  };
+  
   const scrollToImage = (index) => {
     setActiveImgIndex(index);
     if (scrollRef.current) {
@@ -186,6 +204,50 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
               </>
             )}
           </div>
+
+                    {/* 🟢 NEW: Color Selector UI */}
+          {product.colors && product.colors.length > 0 && (
+            <div style={{ marginBottom: '25px' }}>
+              <h4 style={{ marginBottom: '10px', color: 'var(--text-muted)', fontSize: '14px' }}>Select Color</h4>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {product.colors.map((c, i) => {
+                  const isSelected = selectedColor === c.name;
+                  const isOut = !c.inStock;
+                  
+                  return (
+                    <button
+                      key={i}
+                      disabled={isOut}
+                      onClick={() => setSelectedColor(c.name)}
+                      style={{
+                        padding: '10px 20px',
+                        borderRadius: '30px',
+                        border: isSelected ? '2px solid var(--text-main)' : '1px solid var(--border)',
+                        background: isSelected ? 'var(--text-main)' : 'var(--bg-card)',
+                        color: isSelected ? 'var(--bg-card)' : (isOut ? '#aaa' : 'var(--text-main)'),
+                        cursor: isOut ? 'not-allowed' : 'pointer',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        fontWeight: '600',
+                        fontSize: '13px'
+                      }}
+                    >
+                      {c.name}
+                      
+                      {/* Diagonal Line for Out of Stock */}
+                      {isOut && (
+                         <div style={{
+                           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                           background: 'linear-gradient(to top right, transparent 48%, #999 49%, #999 51%, transparent 52%)'
+                         }}></div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          
           
 
           <div style={{ marginBottom: '30px' }}>
