@@ -190,7 +190,24 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
 
             <div>
               <h3 style={{ fontSize: '15px', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</h3>
-              <p style={{ fontSize: '15px', fontWeight: 'bold', color: '#512da8' }}>₹{p.price}</p>
+                            {/* 🟢 NEW: Price Display with Discount Logic */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px' }}>
+                <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
+                  ₹{p.price}
+                </span>
+                
+                {p.originalPrice && p.originalPrice > p.price && (
+                  <>
+                    <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '13px' }}>
+                      ₹{p.originalPrice}
+                    </span>
+                    <span style={{ color: '#ff3f6c', fontWeight: 'bold', fontSize: '12px' }}>
+                      ({Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)}% OFF)
+                    </span>
+                  </>
+                )}
+              </div>
+              
               {/* 🟢 ULTRA-MODERN CART CONTROLS */}
               {(() => {
                 const currentCart = cart || [];
