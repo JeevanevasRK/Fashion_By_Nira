@@ -11,6 +11,9 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
   }, []);
 
     const [selectedColor, setSelectedColor] = useState(null); // 🟢 NEW
+    // 🟢 NEW: State for validation error
+  const [error, setError] = useState("");
+  
   
 
   // 🟢 NEW: State for Modern Error Message (No Alerts)
