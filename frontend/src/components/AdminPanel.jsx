@@ -116,7 +116,11 @@ const downloadInvoice = async (order) => {
         <tbody>
           ${order.products.map(p => `
             <tr>
-              <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
+                            {/* 🟢 FIXED: Added Color to Invoice Item Name */}
+              <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                  ${p.productId?.title || 'Item'} ${p.selectedColor ? `(${p.selectedColor})` : ''}
+              </td>
+              
               <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
               
               <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.price || p.productId?.price || 0}</td>
