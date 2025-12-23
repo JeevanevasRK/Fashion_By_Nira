@@ -275,24 +275,33 @@ function App() {
     }));
   };
 
-    const decreaseQty = (id, color = null) => {
+      const decreaseQty = (id, color = null) => {
+    // 🟢 FIXED: Normalize color to ensure 'undefined' matches 'null'
+    const targetColor = color || null;
+
     setCart(prevCart => {
-      const existing = prevCart.find(item => item._id === id && item.selectedColor === color);
+      const existing = prevCart.find(item => 
+        item._id === id && (item.selectedColor || null) === targetColor
+      );
+
       if (!existing) return prevCart; // Safety check
 
       if (existing.quantity === 1) {
         // Remove specific variant
-        return prevCart.filter(item => !(item._id === id && item.selectedColor === color));
+        return prevCart.filter(item => 
+            !(item._id === id && (item.selectedColor || null) === targetColor)
+        );
       } else {
         // Decrease specific variant
         return prevCart.map(item =>
-          (item._id === id && item.selectedColor === color) 
-            ? { ...item, quantity: item.quantity - 1 } 
+          (item._id === id && (item.selectedColor || null) === targetColor)
+            ? { ...item, quantity: item.quantity - 1 }
             : item
         );
       }
     });
   };
+  
   
 
     const removeFromCart = (id, color = null) => {
