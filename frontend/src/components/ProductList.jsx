@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+
 // --- HELPER TO FORCE IMAGE REFRESH ---
 const getFreshImage = (url) => {
   if (!url) return 'https://via.placeholder.com/150';
@@ -263,7 +264,7 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                           boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
                         }}
                       >+</button>
-                      
+                    </div> {/* 🟢 ERROR FIXED: Closing Div added here */}
 
                     {/* 🟢 MODERN INLINE ERROR (No Cheap Popup) */}
                     <div style={{
