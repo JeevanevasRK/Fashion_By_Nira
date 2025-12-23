@@ -169,7 +169,24 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
         {/* INFO SECTION */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>{product.title}</h1>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)', marginBottom: '20px' }}>₹{product.price}</p>
+                    {/* 🟢 NEW: Price Display with Discount Logic (Large Size) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <span style={{ fontSize: '26px', fontWeight: 'bold', color: '#333' }}>
+              ₹{product.price}
+            </span>
+
+            {product.originalPrice && product.originalPrice > product.price && (
+              <>
+                <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '18px' }}>
+                  ₹{product.originalPrice}
+                </span>
+                <span style={{ color: '#ff3f6c', fontWeight: 'bold', fontSize: '18px' }}>
+                  ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)
+                </span>
+              </>
+            )}
+          </div>
+          
 
           <div style={{ marginBottom: '30px' }}>
             <h4 style={{ marginBottom: '10px', color: 'var(--text-muted)' }}>Description</h4>
