@@ -228,9 +228,13 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                       transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'
                     }}>
 
-                      {/* DECREASE */}
+                                            {/* DECREASE */}
                       <button
-                        onClick={(e) => { e.stopPropagation(); decreaseQty(p._id); }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          // 🟢 FIXED: Explicitly pass 'null' to target the base item
+                          decreaseQty(p._id, null); 
+                        }}
                         style={{
                           width: '32px', height: '32px', borderRadius: '50%', border: 'none',
                           background: 'var(--bg-card)', color: 'var(--text-main)',
@@ -246,11 +250,11 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                         onClick={(e) => {
                           e.stopPropagation();
                           if (p.stock && qty >= p.stock) {
-                            // 🟢 UPDATED ERROR TEXT
                             triggerError(p._id, `Only ${p.stock} pcs available`);
                             return;
                           }
-                          addToCart(p);
+                          // 🟢 FIXED: Explicitly set 'selectedColor' to null
+                          addToCart({ ...p, selectedColor: null });
                         }}
                         style={{
                           width: '32px', height: '32px', borderRadius: '50%', border: 'none',
@@ -259,7 +263,7 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                           boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
                         }}
                       >+</button>
-                    </div>
+                      
 
                     {/* 🟢 MODERN INLINE ERROR (No Cheap Popup) */}
                     <div style={{
