@@ -229,6 +229,7 @@ function AdminPanel({ token, setIsAdmin }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     // Data
+        const [colorInput, setColorInput] = useState(""); // 🟢 NEW
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
