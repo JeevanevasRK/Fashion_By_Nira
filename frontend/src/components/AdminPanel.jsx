@@ -623,8 +623,9 @@ function AdminPanel({ token, setIsAdmin }) {
                                             setProduct({ ...product, colors: newColors });
                                           }} style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer', fontSize: '16px', padding: '0 5px' }}>×</button>
                                         </div>
-                                        
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
+
+                                                                                  {/* 🟢 FIXED: Changed color to 'var(--text-main)' so it's white in Dark Mode */}
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-main)' }}>
                                           <input 
                                             type="checkbox" 
                                             checked={c.inStock} 
@@ -637,6 +638,8 @@ function AdminPanel({ token, setIsAdmin }) {
                                           />
                                           <span>{c.inStock ? "In Stock" : "Sold Out"}</span>
                                         </label>
+                                          
+                                        
                                       </div>
                                     ))}
                                   </div>
