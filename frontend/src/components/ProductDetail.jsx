@@ -319,19 +319,53 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
                   ✓ Item in your bag
                 </p>
               </div>
-            ) : (
-              // 🅱️ IF NOT IN CART: Show Standard Add Button
-              <button
-                onClick={handleSmartAdd}
-                className="btn"
-                style={{
-                  width: '100%', marginTop: '20px', padding: '18px', fontSize: '16px',
-                  background: 'var(--accent)', color: 'var(--accent-text)', cursor: 'pointer', border: 'none'
-                }}
-              >
-                Add to Cart
-              </button>
+                        ) : (
+              // 🟢 MODERN ADD TO CART (With Shake & Glass Error)
+              <div style={{ marginTop: '20px' }}>
+                
+                {/* GLASS ERROR MESSAGE (Slides Down) */}
+                <div style={{
+                  height: error ? 'auto' : '0', opacity: error ? 1 : 0, overflow: 'hidden',
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)', marginBottom: error ? '15px' : '0'
+                }}>
+                  <div style={{
+                    background: 'rgba(255, 77, 77, 0.1)', border: '1px solid rgba(255, 77, 77, 0.3)',
+                    color: '#ff4d4d', padding: '10px 15px', borderRadius: '12px', fontSize: '13px', fontWeight: '600',
+                    display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 15px rgba(255, 77, 77, 0.1)'
+                  }}>
+                    <span>⚠️</span> {error}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    // 1. VALIDATION: Check if colors exist but none selected
+                    if (product.colors && product.colors.length > 0 && !selectedColor) {
+                      setError("Please select a color");
+                      setTimeout(() => setError(""), 3000);
+                      if (navigator.vibrate) navigator.vibrate(50); // Tactile Feedback
+                      return;
+                    }
+                    // 2. SUCCESS: Call the standard adder
+                    setError(""); 
+                    addToCart({ ...product, selectedColor });
+                  }}
+                  className="btn"
+                  style={{
+                    width: '100%', padding: '18px', fontSize: '16px', borderRadius: '50px',
+                    background: error ? '#333' : 'var(--accent)', color: 'var(--accent-text)',
+                    cursor: 'pointer', border: 'none', transition: 'all 0.2s ease',
+                    animation: error ? 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both' : 'none'
+                  }}
+                >
+                  Add to Cart
+                </button>
+                
+                {/* INJECT ANIMATION STYLES */}
+                <style>{`@keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }`}</style>
+              </div>
             );
+      
           })()}
 
           {/* 🟢 MODERN BOTTOM BACK BUTTON */}
