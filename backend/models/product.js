@@ -20,6 +20,12 @@ const productSchema = new mongoose.Schema({
 
     // 🟢 NEW: Stock Quantity Logic
     stock: { type: Number, default: 0 }
+        // 🟢 NEW: Color Options Schema
+    colors: [{ 
+        name: String, 
+        inStock: { type: Boolean, default: true } 
+    }],
+    
 
 }, { timestamps: true });
 
