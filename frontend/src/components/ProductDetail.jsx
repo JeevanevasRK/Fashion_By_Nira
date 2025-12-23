@@ -281,8 +281,7 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
                   transition: 'border 0.3s ease'
                 }}>
                   {/* DECREASE BUTTON */}
-                  <button
-                    onClick={() => decreaseQty(product._id)}
+                  <button onClick={() => decreaseQty(product._id, selectedColor)}
                     style={{
                       flex: 1, background: 'none', border: 'none', padding: '12px',
                       cursor: 'pointer', fontSize: '24px', color: 'var(--text-main)',
