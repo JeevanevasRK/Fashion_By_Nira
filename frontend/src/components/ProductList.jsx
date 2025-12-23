@@ -192,7 +192,7 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
               <h3 style={{ fontSize: '15px', marginBottom: '5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</h3>
                             {/* 🟢 NEW: Price Display with Discount Logic */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px' }}>
-                <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
+                <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-main)' }}>
                   ₹{p.price}
                 </span>
                 
