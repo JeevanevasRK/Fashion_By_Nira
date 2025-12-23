@@ -809,7 +809,11 @@ function AdminPanel({ token, setIsAdmin }) {
                                                                 ERR
                                                             </div>
 
-                                                            {p.productId?.title || 'Unknown Item'} <span style={{ fontWeight: 'bold' }}>x{p.quantity}</span>
+                                                                                                                    {/* 🟢 FIXED: Display Color Name */}
+                                                        {p.productId?.title || 'Unknown Item'} 
+                                                        {p.selectedColor && <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginLeft: '5px' }}>({p.selectedColor})</span>}
+                                                        <span style={{ fontWeight: 'bold', marginLeft: '5px' }}>x{p.quantity}</span>
+                                                            
                                                         </div>
                                                     );
                                                 })}
