@@ -625,6 +625,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                         </div>
 
                                                                                   {/* 🟢 FIXED: Changed color to 'var(--text-main)' so it's white in Dark Mode */}
+                                                                                {/* 🟢 FIXED: Changed color to 'var(--text-main)' for Dark Mode visibility */}
                                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-main)' }}>
                                           <input 
                                             type="checkbox" 
@@ -638,6 +639,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                           />
                                           <span>{c.inStock ? "In Stock" : "Sold Out"}</span>
                                         </label>
+                                          
                                           
                                         
                                       </div>
