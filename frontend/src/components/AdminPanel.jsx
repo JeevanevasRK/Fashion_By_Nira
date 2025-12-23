@@ -569,14 +569,20 @@ function AdminPanel({ token, setIsAdmin }) {
             />
           </div>
                                     
-                                    <input
+                                                                        <input
                                         className="input"
                                         placeholder="Stock Qty"
                                         type="number"
                                         value={product.stock}
-                                        onChange={e => setProduct({ ...product, stock: e.target.value })}
+                                        // 🟢 FIXED: Auto-updates 'inStock' status based on quantity
+                                        onChange={e => setProduct({ 
+                                            ...product, 
+                                            stock: e.target.value, 
+                                            inStock: parseInt(e.target.value) > 0 
+                                        })}
                                         required
                                     />
+                                    
                                 </div>
                                 {/* 🟢 PASTE THIS NEW CODE HERE 🟢 */}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
