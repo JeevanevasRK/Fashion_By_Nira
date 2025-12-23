@@ -835,7 +835,9 @@ function App() {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>{p.productId?.title || 'Item (Unavailable)'}</span>
+                      <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>
+        {p.productId?.title || 'Item'} {p.selectedColor && `(${p.selectedColor})`}
+      </span>
                       <span style={{ fontSize: '12px' }}>Qty: {p.quantity}</span>
                     </div>
                   </div>
