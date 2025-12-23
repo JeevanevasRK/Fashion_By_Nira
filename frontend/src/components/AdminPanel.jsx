@@ -608,8 +608,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                        }}
                                      >Add</button>
                                   </div>
-
-                                  {/* List of Added Colors */}
+                                                                  {/* List of Added Colors */}
                                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                     {product.colors && product.colors.map((c, i) => (
                                       <div key={i} style={{ 
@@ -623,9 +622,8 @@ function AdminPanel({ token, setIsAdmin }) {
                                             setProduct({ ...product, colors: newColors });
                                           }} style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer', fontSize: '16px', padding: '0 5px' }}>×</button>
                                         </div>
-
-                                                                                  {/* 🟢 FIXED: Changed color to 'var(--text-main)' so it's white in Dark Mode */}
-                                                                                {/* 🟢 FIXED: Changed color to 'var(--text-main)' for Dark Mode visibility */}
+                                        
+                                        {/* 🟢 FIXED: Removed 'accentColor' so it adapts properly (Blue like the bottom checkbox) */}
                                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-main)' }}>
                                           <input 
                                             type="checkbox" 
@@ -635,16 +633,15 @@ function AdminPanel({ token, setIsAdmin }) {
                                                newColors[i].inStock = !newColors[i].inStock;
                                                setProduct({ ...product, colors: newColors });
                                             }}
-                                            style={{ accentColor: 'var(--accent)', width:'14px', height:'14px' }}
+                                            style={{ width:'14px', height:'14px' }} 
                                           />
                                           <span>{c.inStock ? "In Stock" : "Sold Out"}</span>
                                         </label>
-                                          
-                                          
-                                        
                                       </div>
                                     ))}
                                   </div>
+                                    
+                                    
                                 </div>
                             
                                 {/* 🟢 PASTE THIS NEW CODE HERE 🟢 */}
