@@ -512,13 +512,13 @@ function App() {
           {cart.length === 0 ? <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '50px' }}>Your bag is empty.</p> : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {cart.map(item => (
-                  <div key={item._id} className="card" style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '15px' }}>
-                    {/* CART IMAGE FIX: Checks array first, uses proxy for speed */}
+                                {cart.map(item => (
+                  <div key={`${item._id}-${item.selectedColor || ''}`} className="card" style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '15px' }}>
+                    
+                    {/* 🟢 FIXED: Image tag is clean (no span inside) */}
                     <img
                       src={`https://wsrv.nl/?url=${encodeURIComponent((item.images && item.images.length > 0) ? item.images[0] : item.image)}&w=150&q=70&output=webp`}
-                      alt={item.title} {item.selectedColor && <span style={{fontSize:'12px', color:'var(--text-muted)'}}>({item.selectedColor})</span>}
-                      
+                      alt={item.title}
                       style={{
                         width: '70px',
                         height: '70px',
@@ -530,63 +530,27 @@ function App() {
                     />
 
                     <div style={{ flex: 1 }}>
-                      <h4 style={{ fontSize: '16px' }}>{item.title}</h4>
+                      <h4 style={{ fontSize: '16px' }}>
+                        {item.title}
+                        {/* 🟢 MOVED HERE: Color name displays correctly next to title */}
+                        {item.selectedColor && <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginLeft: '5px' }}>({item.selectedColor})</span>}
+                      </h4>
                       <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>₹{item.price}</p>
                     </div>
-                    {/* 🟢 MODERN CART CONTROLS (With Stock Logic) */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '100px' }}>
-                      <div style={{
-                        display: 'flex', alignItems: 'center',
-                        background: 'var(--bg-body)',
-                        border: cartErrors[item._id] ? '1px solid var(--danger)' : '1px solid var(--border)',
-                        borderRadius: '50px', // Pill Shape
-                        padding: '4px',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-                        transition: 'border 0.3s ease'
-                      }}>
-                        <button
-                          onClick={() => decreaseQty(item._id)}
-                          style={{
-                            width: '28px', height: '28px', borderRadius: '50%', border: 'none',
-                            background: 'var(--bg-card)', color: 'var(--text-main)', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '16px'
-                          }}
-                        >−</button>
 
-                        <span style={{ margin: '0 12px', fontSize: '14px', fontWeight: 'bold', color: 'var(--text-main)' }}>{item.quantity}</span>
-
-                        <button
-                          onClick={() => {
-                            // 🟢 STOCK CHECK LOGIC
-                            if (item.stock && item.quantity >= item.stock) {
-                              triggerCartError(item._id, `Only ${item.stock} pcs available`);
-                              return;
-                            }
-                            updateQty(item._id, 1);
-                          }}
-                          style={{
-                            width: '28px', height: '28px', borderRadius: '50%', border: 'none',
-                            background: 'var(--accent)', color: 'var(--accent-text)', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '16px'
-                          }}
-                        >+</button>
-                      </div>
-
-                      {/* 🟢 INLINE ERROR MESSAGE */}
-                      <div style={{
-                        height: '14px', marginTop: '4px', textAlign: 'center',
-                        opacity: cartErrors[item._id] ? 1 : 0, transition: 'opacity 0.3s'
-                      }}>
-                        <span style={{ fontSize: '9px', color: 'var(--danger)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          {cartErrors[item._id]}
-                        </span>
-                      </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-body)', borderRadius: '20px', padding: '5px 10px' }}>
+                      <button onClick={() => decreaseQty(item._id, item.selectedColor)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>-</button>
+                      <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
+                      <button onClick={() => {
+                         if (item.stock && item.quantity >= item.stock) { alert(`Only ${item.stock} available`); return; }
+                         addToCart(item); 
+                      }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
                     </div>
-                    <button onClick={() => removeFromCart(item._id)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
+
+                    <button onClick={() => removeFromCart(item._id, item.selectedColor)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
                   </div>
                 ))}
+                
               </div>
               <div className="card" style={{ height: 'fit-content' }}>
                 <h3>Total: ₹{cart.reduce((a, c) => a + (c.price * c.quantity), 0)}</h3>
