@@ -300,11 +300,12 @@ function AdminPanel({ token, setIsAdmin }) {
 
 
     // NEW: Handle Edit Click (Populate form including stock status)
-    const handleEdit = (p) => {
+        const handleEdit = (p) => {
         setProduct({
             title: p.title,
             price: p.price,
-            stock: p.stock || 0, // <--- Load existing stock
+            originalPrice: p.originalPrice || '', // 🟢 NEW: Loads the saved MRP
+            stock: p.stock || 0,
             description: p.description,
             images: p.images && p.images.length > 0 ? p.images : [p.image || ''],
             inStock: p.inStock !== undefined ? p.inStock : true
