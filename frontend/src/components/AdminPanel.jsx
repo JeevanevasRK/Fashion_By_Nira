@@ -641,11 +641,7 @@ function AdminPanel({ token, setIsAdmin }) {
                                     ))}
                                   </div>
                                 </div>
-                                
-                                    
-                                    
-                                    
-                                </div>
+                            
                                 {/* 🟢 PASTE THIS NEW CODE HERE 🟢 */}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Product Images</label>
