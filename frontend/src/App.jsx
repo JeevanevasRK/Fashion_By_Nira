@@ -318,26 +318,26 @@ function App() {
   };
   
 
-  const handleCheckout = async (e) => {
+    const handleCheckout = async (e) => {
     e.preventDefault();
     if (cart.length === 0) return alert("Cart empty");
     try {
-            await axios.post(`${API}/orders`, {
-        // 🟢 FIXED: Now includes 'selectedColor' so it saves to the database
+      await axios.post(`${API}/orders`, {
+        // 🟢 FIXED: Now we explicitly save 'selectedColor' to the database
         products: cart.map(i => ({ 
             productId: i._id, 
             quantity: i.quantity, 
-            price: i.price, 
-            selectedColor: i.selectedColor || null 
+            price: i.price,
+            selectedColor: i.selectedColor || null  // <--- THIS WAS MISSING
         })),
         totalAmount: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0),
-              
         shippingAddress: guestDetails.address, customerName: guestDetails.name, customerPhone: guestDetails.phone
       });
       setOrderSuccess(true); setCart([]); setGuestDetails({ name: '', phone: '', address: '' });
       setTimeout(() => { setOrderSuccess(false); setView('shop'); }, 3000);
     } catch (err) { alert("Failed to place order"); }
   };
+  
 
   const handleTrackOrder = async (e) => {
     e.preventDefault();
