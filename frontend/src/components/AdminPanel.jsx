@@ -551,98 +551,97 @@ function AdminPanel({ token, setIsAdmin }) {
                             <h2 style={{ marginBottom: '20px' }}>{editingId ? 'Edit Product' : 'Add New Product'}</h2>
                             <form onSubmit={handleProductSubmit} className="card" style={{ display: 'grid', gap: '15px' }}>
                                 <input className="input" placeholder="Title" value={product.title} onChange={e => setProduct({ ...product, title: e.target.value })} required />
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                                              {/* 🟢 NEW: Price & MRP Inputs */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <input
-              type="number"
-              placeholder="Selling Price (e.g. 400)"
-              value={product.price}
-              onChange={e => setProduct({ ...product, price: e.target.value })}
-              className="input"
-              required
-            />
-            <input
-              type="number"
-              placeholder="MRP / Original Price (e.g. 800)"
-              value={product.originalPrice || ''}
-              onChange={e => setProduct({ ...product, originalPrice: e.target.value })}
-              className="input"
-            />
-          </div>
-                                    
-                                                                        <input
-                                        className="input"
-                                        placeholder="Stock Qty"
+                                
+                                                                    {/* 🟢 ROW 1: Price, MRP, Stock (Clean 3-column grid) */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
+                                    <input
                                         type="number"
+                                        placeholder="Price"
+                                        value={product.price}
+                                        onChange={e => setProduct({ ...product, price: e.target.value })}
+                                        className="input"
+                                        required
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="MRP"
+                                        value={product.originalPrice || ''}
+                                        onChange={e => setProduct({ ...product, originalPrice: e.target.value })}
+                                        className="input"
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Stock"
                                         value={product.stock}
-                                        // 🟢 FIXED: Auto-updates 'inStock' status based on quantity
+                                        // Auto-updates 'inStock' based on quantity
                                         onChange={e => setProduct({ 
                                             ...product, 
                                             stock: e.target.value, 
                                             inStock: parseInt(e.target.value) > 0 
                                         })}
+                                        className="input"
                                         required
                                     />
+                                </div>
 
-                                                              {/* 🟢 NEW: Color Management Section (Dark Mode Fixed) */}
-            <div style={{ marginTop: '20px', padding: '15px', border: '1px solid var(--border)', borderRadius: '12px', background: 'rgba(255,255,255,0.03)' }}>
-              <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Color Options (Optional)</label>
-              
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                 <input 
-                   className="input" 
-                   placeholder="Type Color (e.g. Red)" 
-                   value={colorInput} 
-                   onChange={(e) => setColorInput(e.target.value)} 
-                   style={{ flex: 1 }} // 🟢 FIX: Input takes full width
-                 />
-                 <button 
-                   type="button" 
-                   className="btn btn-primary"
-                   style={{ padding: '0 25px' }}
-                   onClick={() => {
-                     if(!colorInput.trim()) return;
-                     const newColors = [...(product.colors || []), { name: colorInput, inStock: true }];
-                     setProduct({ ...product, colors: newColors });
-                     setColorInput("");
-                   }}
-                 >Add</button>
-              </div>
+                                {/* 🟢 ROW 2: Color Section (Full Width & Dark Mode Ready) */}
+                                <div style={{ marginTop: '20px', padding: '15px', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--bg-card)' }}>
+                                  <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Color Options (Optional)</label>
+                                  
+                                  <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                                     <input 
+                                       className="input" 
+                                       placeholder="Type Color (e.g. Red)" 
+                                       value={colorInput} 
+                                       onChange={(e) => setColorInput(e.target.value)} 
+                                       style={{ flex: 1 }} 
+                                     />
+                                     <button 
+                                       type="button" 
+                                       className="btn btn-primary"
+                                       style={{ padding: '0 25px' }}
+                                       onClick={() => {
+                                         if(!colorInput.trim()) return;
+                                         const newColors = [...(product.colors || []), { name: colorInput, inStock: true }];
+                                         setProduct({ ...product, colors: newColors });
+                                         setColorInput("");
+                                       }}
+                                     >Add</button>
+                                  </div>
 
-              {/* List of Added Colors (Dark Mode Styled) */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                {product.colors && product.colors.map((c, i) => (
-                  <div key={i} style={{ 
-                    background: 'var(--bg-body)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px', 
-                    display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '110px'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-main)' }}>
-                      <span>{c.name}</span>
-                      <button type="button" onClick={() => {
-                        const newColors = product.colors.filter((_, idx) => idx !== i);
-                        setProduct({ ...product, colors: newColors });
-                      }} style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer', fontSize: '16px', padding: '0 5px' }}>×</button>
-                    </div>
-                    
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={c.inStock} 
-                        onChange={() => {
-                           const newColors = [...product.colors];
-                           newColors[i].inStock = !newColors[i].inStock;
-                           setProduct({ ...product, colors: newColors });
-                        }}
-                        style={{ accentColor: 'var(--accent)', width:'14px', height:'14px' }}
-                      />
-                      <span>{c.inStock ? "In Stock" : "Sold Out"}</span>
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-                                    
+                                  {/* List of Added Colors */}
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                    {product.colors && product.colors.map((c, i) => (
+                                      <div key={i} style={{ 
+                                        background: 'var(--bg-body)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px', 
+                                        display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '110px'
+                                      }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-main)' }}>
+                                          <span>{c.name}</span>
+                                          <button type="button" onClick={() => {
+                                            const newColors = product.colors.filter((_, idx) => idx !== i);
+                                            setProduct({ ...product, colors: newColors });
+                                          }} style={{ color: 'var(--danger)', border: 'none', background: 'none', cursor: 'pointer', fontSize: '16px', padding: '0 5px' }}>×</button>
+                                        </div>
+                                        
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>
+                                          <input 
+                                            type="checkbox" 
+                                            checked={c.inStock} 
+                                            onChange={() => {
+                                               const newColors = [...product.colors];
+                                               newColors[i].inStock = !newColors[i].inStock;
+                                               setProduct({ ...product, colors: newColors });
+                                            }}
+                                            style={{ accentColor: 'var(--accent)', width:'14px', height:'14px' }}
+                                          />
+                                          <span>{c.inStock ? "In Stock" : "Sold Out"}</span>
+                                        </label>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                
                                     
                                     
                                     
