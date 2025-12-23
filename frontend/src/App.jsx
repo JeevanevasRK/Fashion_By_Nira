@@ -20,89 +20,7 @@ const getStatusColor = (status) => {
   }
 };
 
-// --- INVOICE GENERATOR (FIXED PRICE DISPLAY) ---
-const downloadInvoice = async (order) => {
-  const element = document.createElement('div');
-
-  // CONFIGURATION: Force A4 dimensions
-  const A4_WIDTH_PX = 794;
-  const A4_HEIGHT_PX = 1123;
-
-  // Position off-screen
-  Object.assign(element.style, {
-    position: 'fixed',
-    left: '-10000px',
-    top: '0',
-    width: `${A4_WIDTH_PX}px`,
-    minHeight: `${A4_HEIGHT_PX}px`,
-    zIndex: '-1000',
-    backgroundColor: '#ffffff',
-    color: '#333',
-    padding: '40px',
-    fontFamily: 'Arial, sans-serif',
-    boxSizing: 'border-box'
-  });
-
-  element.innerHTML = `
-    <div style="width: 100%; height: 100%; background: white;">
-      <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
-        <div>
-          <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase;">FASHION BY NIRA</h1>
-          <p style="margin: 5px 0 0; font-size: 12px; color: #666;">Premium Fashion & Accessories</p>
-        </div>
-        <div style="text-align: right;">
-          <h2 style="margin: 0; color: #512da8;">INVOICE</h2>
-          <p style="font-weight: bold; margin: 5px 0;">#${order._id.slice(-6).toUpperCase()}</p>
-          <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date().toLocaleDateString()}</p>
-        </div>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
-        <div style="width: 45%;">
-          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed By</h4>
-          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
-            <strong>Fashion By Nira</strong><br>
-            Tiruchengode Namakkal,<br>
-            Tamil Nadu - 637211<br>
-            +91 9585026838
-          </p>
-        </div>
-        
-        <div style="width: 45%;">
-          <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #555;">Billed To</h4>
-          <p style="font-size: 13px; line-height: 1.6; margin: 0;">
-            <strong>${order.customerName}</strong><br>
-            ${order.shippingAddress}<br>
-            ${order.customerPhone}
-          </p>
-        </div>
-      </div>
-
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-        <thead>
-          <tr style="background: #f4f4f4;">
-            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Item</th>
-            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
-            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
-            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${order.products.map(p => `
-            <tr>
-              <td style="padding: 12px; border-bottom: 1px solid #eee;">${p.productId?.title || 'Item'}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${p.quantity}</td>
-              
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">₹${p.price || p.productId?.price || 0}</td>
-              
-              <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">₹${(p.price || p.productId?.price || 0) * p.quantity}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-
-      <div style="display: flex; justify-content: flex-end;">
-        <div style="width: 250px; border-top: 2px solid #000; padding-top: 10px;">
+; border-top: 2px solid #000; padding-top: 10px;">
           <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold;">
             <span>Total:</span>
             <span>₹${order.totalAmount}</span>
@@ -243,11 +161,28 @@ function App() {
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
 
+    // 🟢 NEW: Add to Cart (Handles Color Variations)
   const addToCart = (p) => {
-    const exist = cart.find(x => x._id === p._id);
-    if (exist) setCart(cart.map(x => x._id === p._id ? { ...x, quantity: x.quantity + 1 } : x));
-    else setCart([...cart, { ...p, quantity: 1 }]);
+    const targetColor = p.selectedColor || null;
+    
+    setCart(prevCart => {
+      // Check if item exists with SAME ID and SAME COLOR
+      const existingItem = prevCart.find(item => 
+        item._id === p._id && item.selectedColor === targetColor
+      );
+
+      if (existingItem) {
+        return prevCart.map(item => 
+          (item._id === p._id && item.selectedColor === targetColor)
+            ? { ...item, quantity: item.quantity + 1 } 
+            : item
+        );
+      } else {
+        return [...prevCart, { ...p, quantity: 1, selectedColor: targetColor }];
+      }
+    });
   };
+  
 
   const updateQty = (id, delta) => {
     setCart(cart.map(item => {
@@ -258,16 +193,30 @@ function App() {
     }));
   };
 
-  const decreaseQty = (id) => {
-    const item = cart.find(x => x._id === id);
-    if (item.quantity === 1) {
-      setDeleteId(id);
-    } else {
-      setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
-    }
-  };
+    const decreaseQty = (id, color = null) => {
+    setCart(prevCart => {
+      const existing = prevCart.find(item => item._id === id && item.selectedColor === color);
+      if (!existing) return prevCart; // Safety check
 
-  const removeFromCart = (id) => setDeleteId(id);
+      if (existing.quantity === 1) {
+        // Remove specific variant
+        return prevCart.filter(item => !(item._id === id && item.selectedColor === color));
+      } else {
+        // Decrease specific variant
+        return prevCart.map(item =>
+          (item._id === id && item.selectedColor === color) 
+            ? { ...item, quantity: item.quantity - 1 } 
+            : item
+        );
+      }
+    });
+  };
+  
+
+    const removeFromCart = (id, color = null) => {
+      setCart(cart.filter(x => !(x._id === id && x.selectedColor === color)));
+  };
+  
 
   const confirmDelete = () => {
     const newCart = cart.filter(x => x._id !== deleteId);
@@ -486,7 +435,8 @@ function App() {
                     {/* CART IMAGE FIX: Checks array first, uses proxy for speed */}
                     <img
                       src={`https://wsrv.nl/?url=${encodeURIComponent((item.images && item.images.length > 0) ? item.images[0] : item.image)}&w=150&q=70&output=webp`}
-                      alt={item.title}
+                      alt={item.title} {item.selectedColor && <span style={{fontSize:'12px', color:'var(--text-muted)'}}>({item.selectedColor})</span>}
+                      
                       style={{
                         width: '70px',
                         height: '70px',
