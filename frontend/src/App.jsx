@@ -275,16 +275,30 @@ function App() {
     }));
   };
 
-  const decreaseQty = (id) => {
-    const item = cart.find(x => x._id === id);
-    if (item.quantity === 1) {
-      setDeleteId(id);
-    } else {
-      setCart(cart.map(x => x._id === id ? { ...x, quantity: x.quantity - 1 } : x));
-    }
-  };
+    const decreaseQty = (id, color = null) => {
+    setCart(prevCart => {
+      const existing = prevCart.find(item => item._id === id && item.selectedColor === color);
+      if (!existing) return prevCart; // Safety check
 
-  const removeFromCart = (id) => setDeleteId(id);
+      if (existing.quantity === 1) {
+        // Remove specific variant
+        return prevCart.filter(item => !(item._id === id && item.selectedColor === color));
+      } else {
+        // Decrease specific variant
+        return prevCart.map(item =>
+          (item._id === id && item.selectedColor === color) 
+            ? { ...item, quantity: item.quantity - 1 } 
+            : item
+        );
+      }
+    });
+  };
+  
+
+    const removeFromCart = (id, color = null) => {
+      setCart(cart.filter(x => !(x._id === id && x.selectedColor === color)));
+  };
+  
 
   const confirmDelete = () => {
     const newCart = cart.filter(x => x._id !== deleteId);
