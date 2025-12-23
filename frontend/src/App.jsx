@@ -486,12 +486,13 @@ function App() {
       {showLogin && <Auth onLoginSuccess={handleLogin} closeAuth={() => setShowLogin(false)} />}
       {orderSuccess && <OrderSuccessModal />}
 
-      {deleteId && (
+            {itemToDelete && (
         <DeleteConfirmModal
           onConfirm={confirmDelete}
-          onCancel={() => setDeleteId(null)}
+          onCancel={() => setItemToDelete(null)}
         />
       )}
+      
 
       {token && view === 'admin' && <AdminPanel token={token} setIsAdmin={() => { setToken(null); setView('shop') }} />}
 
