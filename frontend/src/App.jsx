@@ -517,7 +517,8 @@ function App() {
                     {/* CART IMAGE FIX: Checks array first, uses proxy for speed */}
                     <img
                       src={`https://wsrv.nl/?url=${encodeURIComponent((item.images && item.images.length > 0) ? item.images[0] : item.image)}&w=150&q=70&output=webp`}
-                      alt={item.title}
+                      alt={item.title} {item.selectedColor && <span style={{fontSize:'12px', color:'var(--text-muted)'}}>({item.selectedColor})</span>}
+                      
                       style={{
                         width: '70px',
                         height: '70px',
