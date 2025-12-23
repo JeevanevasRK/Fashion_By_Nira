@@ -214,7 +214,8 @@ function App() {
   const [trackedOrders, setTrackedOrders] = useState(null);
 
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
-  const [deleteId, setDeleteId] = useState(null);
+    const [itemToDelete, setItemToDelete] = useState(null); // Stores { id, color }
+  
   // 🟢 NEW: Cart Error State (For Stock Validation)
   const [cartErrors, setCartErrors] = useState({});
 
