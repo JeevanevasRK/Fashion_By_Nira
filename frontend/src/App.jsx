@@ -243,11 +243,28 @@ function App() {
 
   const handleLogin = (t, r) => { setToken(t); setRole(r); setShowLogin(false); if (r === 'admin') setView('admin'); };
 
+    // 🟢 NEW: Add to Cart (Handles Color Variations)
   const addToCart = (p) => {
-    const exist = cart.find(x => x._id === p._id);
-    if (exist) setCart(cart.map(x => x._id === p._id ? { ...x, quantity: x.quantity + 1 } : x));
-    else setCart([...cart, { ...p, quantity: 1 }]);
+    const targetColor = p.selectedColor || null;
+    
+    setCart(prevCart => {
+      // Check if item exists with SAME ID and SAME COLOR
+      const existingItem = prevCart.find(item => 
+        item._id === p._id && item.selectedColor === targetColor
+      );
+
+      if (existingItem) {
+        return prevCart.map(item => 
+          (item._id === p._id && item.selectedColor === targetColor)
+            ? { ...item, quantity: item.quantity + 1 } 
+            : item
+        );
+      } else {
+        return [...prevCart, { ...p, quantity: 1, selectedColor: targetColor }];
+      }
+    });
   };
+  
 
   const updateQty = (id, delta) => {
     setCart(cart.map(item => {
