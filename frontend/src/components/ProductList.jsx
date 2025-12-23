@@ -209,32 +209,37 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                 )}
               </div>
               
-              {/* 🟢 ULTRA-MODERN CART CONTROLS */}
+                            {/* 🟢 ULTRA-MODERN CART CONTROLS (FIXED FOR COLOR REMOVAL) */}
               {(() => {
                 const currentCart = cart || [];
+                
+                // 1. FIND EXISTING ITEM: Grabs the first variant found (Red, Blue, or Null)
                 const cartItem = currentCart.find(item => item._id === p._id);
+                
+                // 2. GET QUANTITY: Shows total quantity for this specific variant found
                 const qty = cartItem ? cartItem.quantity : 0;
-                const errorMsg = stockErrors[p._id]; // Get error for THIS product
+                const errorMsg = stockErrors[p._id]; 
 
                 return cartItem ? (
                   // 🅰️ IN CART: Modern Control Pill
                   <div style={{ marginTop: '15px' }}>
+                    
+                    {/* PILL CONTAINER */}
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       background: 'var(--bg-body)',
                       border: errorMsg ? '1px solid var(--danger)' : '1px solid var(--border)',
-                      borderRadius: '50px', // Fully rounded pill
+                      borderRadius: '50px',
                       padding: '4px',
                       boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
                       transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'
                     }}>
 
-                                            {/* DECREASE */}
+                      {/* 🟢 FIXED DECREASE: Passes the ACTUAL color found (e.g. "Red") instead of null */}
                       <button
                         onClick={(e) => { 
                           e.stopPropagation(); 
-                          // 🟢 FIXED: Explicitly pass 'null' to target the base item
-                          decreaseQty(p._id, null); 
+                          decreaseQty(p._id, cartItem.selectedColor || null); 
                         }}
                         style={{
                           width: '32px', height: '32px', borderRadius: '50%', border: 'none',
@@ -246,7 +251,7 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
 
                       <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)' }}>{qty}</span>
 
-                      {/* INCREASE BUTTON */}
+                      {/* 🟢 FIXED INCREASE: Adds to the SAME color variant found */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -254,8 +259,7 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                             triggerError(p._id, `Only ${p.stock} pcs available`);
                             return;
                           }
-                          // 🟢 FIXED: Explicitly set 'selectedColor' to null
-                          addToCart({ ...p, selectedColor: null });
+                          addToCart({ ...p, selectedColor: cartItem.selectedColor || null });
                         }}
                         style={{
                           width: '32px', height: '32px', borderRadius: '50%', border: 'none',
@@ -264,9 +268,9 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                           boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
                         }}
                       >+</button>
-                    </div> {/* 🟢 ERROR FIXED: Closing Div added here */}
+                    </div>
 
-                    {/* 🟢 MODERN INLINE ERROR (No Cheap Popup) */}
+                    {/* INLINE ERROR */}
                     <div style={{
                       height: '16px', marginTop: '6px', textAlign: 'center',
                       opacity: errorMsg ? 1 : 0, transition: 'opacity 0.3s ease',
@@ -278,18 +282,18 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                     </div>
                   </div>
                 ) : (
-                  // 🅱️ NOT IN CART: Modern Minimalist Button
+                  // 🅱️ NOT IN CART: Add Default (No Color)
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (p.inStock) addToCart(p);
+                      if (p.inStock) addToCart({ ...p, selectedColor: null });
                     }}
                     disabled={!p.inStock}
                     style={{
                       width: '100%',
                       marginTop: '15px',
                       padding: '12px',
-                      background: p.inStock ? 'var(--text-main)' : '#e0e0e0', // Adaptive Black/White
+                      background: p.inStock ? 'var(--text-main)' : '#e0e0e0',
                       color: p.inStock ? 'var(--bg-card)' : '#999',
                       border: 'none',
                       borderRadius: '8px',
@@ -308,6 +312,9 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
                   </button>
                 );
               })()}
+              
+
+                                            
             </div>
           </div>
         ))}
