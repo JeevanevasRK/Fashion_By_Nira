@@ -62,7 +62,8 @@ router.post('/', async (req, res) => {
                 quantity: item.quantity,
                 price: dbProduct.price,    // Frozen Price
                 title: dbProduct.title,    // Frozen Title
-                image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || ""
+                image: dbProduct.image || (dbProduct.images && dbProduct.images[0]) || "",
+                selectedColor: item.selectedColor || null // 🟢 ADD THIS LINE
             });
         }
 
