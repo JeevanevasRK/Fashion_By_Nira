@@ -549,14 +549,25 @@ function AdminPanel({ token, setIsAdmin }) {
                             <form onSubmit={handleProductSubmit} className="card" style={{ display: 'grid', gap: '15px' }}>
                                 <input className="input" placeholder="Title" value={product.title} onChange={e => setProduct({ ...product, title: e.target.value })} required />
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                                    <input
-                                        className="input"
-                                        placeholder="Price (₹)"
-                                        type="number"
-                                        value={product.price}
-                                        onChange={e => setProduct({ ...product, price: e.target.value })}
-                                        required
-                                    />
+                                              {/* 🟢 NEW: Price & MRP Inputs */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <input
+              type="number"
+              placeholder="Selling Price (e.g. 400)"
+              value={product.price}
+              onChange={e => setProduct({ ...product, price: e.target.value })}
+              className="input"
+              required
+            />
+            <input
+              type="number"
+              placeholder="MRP / Original Price (e.g. 800)"
+              value={product.originalPrice || ''}
+              onChange={e => setProduct({ ...product, originalPrice: e.target.value })}
+              className="input"
+            />
+          </div>
+                                    
                                     <input
                                         className="input"
                                         placeholder="Stock Qty"
