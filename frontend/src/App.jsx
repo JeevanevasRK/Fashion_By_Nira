@@ -574,16 +574,18 @@ function App() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-body)', borderRadius: '20px', padding: '5px 10px' }}>
                       <button onClick={() => decreaseQty(item._id, item.selectedColor)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>-</button>
                       <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
-                                            <button onClick={() => {
-                        // 🟢 FIXED: Check TOTAL quantity of this product (Sum of all colors)
+                                                                  <button onClick={() => {
                         const totalQty = cart.reduce((sum, i) => i._id === item._id ? sum + i.quantity : sum, 0);
                         
+                        // 🟢 MODERN FIX: Use setWarningMsg instead of alert
                         if (item.stock && totalQty >= item.stock) { 
-                            alert(`Max limit reached! Only ${item.stock} available.`); 
+                            setWarningMsg(`Stock limit reached! Only ${item.stock} available.`); 
+                            setTimeout(() => setWarningMsg(""), 3000); // Disappear after 3s
                             return; 
                         }
                         addToCart(item);
                       }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
+                      
                       
                     </div>
 
