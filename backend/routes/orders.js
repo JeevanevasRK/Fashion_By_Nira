@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Order = require('../models/order'); // Fixed: Capital 'O' to match filename
 const Product = require('../models/product'); // <--- ADD THIS LINE
 const jwt = require('jsonwebtoken');
+const axios = require('axios'); // 🟢 ADD THIS LINE HERE
 
 // Middleware for Admin Checks
 const verifyToken = (req, res, next) => {
@@ -78,6 +79,31 @@ router.post('/', async (req, res) => {
         });
 
         await newOrder.save();
+
+        // 🔵 TELEGRAM NOTIFICATION START
+        try {
+            const telegramToken = "8153224318:AAHkRdlKT-CpvzkxHcqVp1GjNQRw44-3ecU"; // 🔴 PASTE YOUR TOKEN
+            const chatId = "908509331";         // 🔴 PASTE YOUR CHAT ID
+
+            const text = `📦 *NEW ORDER RECEIVED!* \n\n` +
+                         `🆔 Order ID: #${newOrder._id.toString().slice(-6).toUpperCase()}\n` +
+                         `👤 Customer: ${customerName}\n` +
+                         `💰 Amount: ₹${finalTotal}\n` +
+                         `📱 Phone: ${customerPhone}\n` +
+                         `📍 Location: ${shippingAddress.substring(0, 20)}...`;
+
+            await axios.post(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+                chat_id: chatId,
+                text: text,
+                parse_mode: 'Markdown'
+            });
+        } catch (error) {
+            console.error("Telegram Notification Failed:", error.message);
+        }
+        // 🔵 TELEGRAM NOTIFICATION END
+
+        res.json({ message: "Order placed successfully!", orderId: newOrder._id });
+        
         res.json({ message: "Order placed successfully!", orderId: newOrder._id });
 
     } catch (err) {
