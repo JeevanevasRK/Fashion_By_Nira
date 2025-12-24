@@ -554,10 +554,17 @@ function App() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-body)', borderRadius: '20px', padding: '5px 10px' }}>
                       <button onClick={() => decreaseQty(item._id, item.selectedColor)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>-</button>
                       <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.quantity}</span>
-                      <button onClick={() => {
-                         if (item.stock && item.quantity >= item.stock) { alert(`Only ${item.stock} available`); return; }
-                         addToCart(item); 
+                                            <button onClick={() => {
+                        // 🟢 FIXED: Check TOTAL quantity of this product (Sum of all colors)
+                        const totalQty = cart.reduce((sum, i) => i._id === item._id ? sum + i.quantity : sum, 0);
+                        
+                        if (item.stock && totalQty >= item.stock) { 
+                            alert(`Max limit reached! Only ${item.stock} available.`); 
+                            return; 
+                        }
+                        addToCart(item);
                       }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
+                      
                     </div>
 
                     <button onClick={() => removeFromCart(item._id, item.selectedColor)} style={{ border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '20px' }}>×</button>
