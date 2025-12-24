@@ -102,7 +102,6 @@ router.post('/', async (req, res) => {
         }
         // 🔵 TELEGRAM NOTIFICATION END
 
-        res.json({ message: "Order placed successfully!", orderId: newOrder._id });
         
         res.json({ message: "Order placed successfully!", orderId: newOrder._id });
 
