@@ -83,14 +83,14 @@ router.post('/', async (req, res) => {
         // 🔵 TELEGRAM NOTIFICATION START
         try {
             const telegramToken = "8153224318:AAHkRdlKT-CpvzkxHcqVp1GjNQRw44-3ecU"; // 🔴 PASTE YOUR TOKEN
-            const chatId = "908509331";         // 🔴 PASTE YOUR CHAT ID
+            const chatIds = ["908509331","915719209"];         // 🔴 PASTE YOUR CHAT ID
 
             const text = `📦 *NEW ORDER RECEIVED!* \n\n` +
                          `🆔 Order ID: #${newOrder._id.toString().slice(-6).toUpperCase()}\n` +
                          `👤 Customer: ${customerName}\n` +
                          `💰 Amount: ₹${finalTotal}\n` +
                          `📱 Phone: ${customerPhone}\n` +
-                         `📍 Location: ${shippingAddress.substring(0, 20)}...`;
+                         `📍 Location: ${shippingAddress}`;
 
             await axios.post(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
                 chat_id: chatId,
