@@ -30,10 +30,11 @@ mongoose.connect(process.env.MONGO_URI)
         console.log("⚠️ Server is running in Offline Mode (Login via Master Key only)");
     });
 
-// 🟢 LOADER.IO VERIFICATION
-app.get('/loaderio-66c64c6a1e1b651ca6759ce761dc31cf/', (req, res) => {
-    res.send('loaderio-66c64c6a1e1b651ca6759ce761dc31cf');
+// 🟢 LOADER.IO VERIFICATION (New Token)
+app.get(['/loaderio-52d205ddb9f8216c72a36a64645652ba', '/loaderio-52d205ddb9f8216c72a36a64645652ba/'], (req, res) => {
+    res.send('loaderio-52d205ddb9f8216c72a36a64645652ba');
 });
+
 
 
 // --- 3. ROUTES ---
