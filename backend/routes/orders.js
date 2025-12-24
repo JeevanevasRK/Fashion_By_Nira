@@ -93,7 +93,7 @@ router.post('/', async (req, res) => {
                          `📍 Location: ${shippingAddress}`;
 
             await axios.post(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
-                chat_id: chatId,
+                chat_id: id,
                 text: text,
                 parse_mode: 'Markdown'
             });
