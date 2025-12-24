@@ -353,6 +353,23 @@ function App() {
   return (
     <div className="wrapper">
 
+            {/* 🟢 MODERN FLOATING TOAST (Always Visible) */}
+      <div style={{
+        position: 'fixed', top: '20px', left: '50%', 
+        transform: warningMsg ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-100px)',
+        background: 'rgba(20, 20, 20, 0.95)', color: '#fff', 
+        padding: '12px 28px', borderRadius: '50px',
+        backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.15)',
+        zIndex: 99999, display: 'flex', alignItems: 'center', gap: '12px',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.4)', opacity: warningMsg ? 1 : 0, 
+        pointerEvents: 'none', width: 'max-content',
+        transition: 'all 0.5s cubic-bezier(0.19, 1, 0.22, 1)'
+      }}>
+        <span style={{ fontSize: '20px' }}>⚠️</span>
+        <span style={{ fontWeight: '600', fontSize: '14px', letterSpacing: '0.5px' }}>{warningMsg}</span>
+      </div>
+      
+
       {/* PREMIUM HEADER */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', margin: 0 }} onClick={() => setView('shop')}>FASHION BY NIRA</h1>
