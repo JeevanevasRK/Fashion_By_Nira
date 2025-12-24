@@ -39,13 +39,12 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
     const uniqueId = selectedColor ? `${product._id}-${selectedColor}` : product._id;
     
     // 3. Find if this EXACT variation is in cart
-    const cartItem = cart ? cart.find(item => 
-       item._id === product._id && item.selectedColor === selectedColor
-    ) : null;
-
-    const currentQty = cartItem ? cartItem.quantity : 0;
     
-    if (product.stock && currentQty >= product.stock) {
+        // 🟢 FIXED: Calculate TOTAL quantity of this product (all colors combined)
+    const totalQtyInCart = cart.reduce((acc, item) => item._id === product._id ? acc + item.quantity : acc, 0);
+
+    // 🟢 FIXED: Check Global Stock (Sum of all colors vs Total Stock)
+    if (product.stock && totalQtyInCart >= product.stock) {
         setStockMessage(`Max limit reached! Only ${product.stock} available.`);
         setTimeout(() => setStockMessage(""), 2500);
         return;
