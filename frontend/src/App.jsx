@@ -208,6 +208,9 @@ function App() {
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("+91");
+    // 🟢 NEW: State for Modern Warning Toast
+  const [warningMsg, setWarningMsg] = useState("");
+  
 
   const [searchQuery, setSearchQuery] = useState("");
   const [trackPhone, setTrackPhone] = useState('');
