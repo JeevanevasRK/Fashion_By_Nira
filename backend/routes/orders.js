@@ -80,10 +80,10 @@ router.post('/', async (req, res) => {
 
         await newOrder.save();
 
-        // 🔵 TELEGRAM NOTIFICATION START
+                // 🔵 TELEGRAM NOTIFICATION START
         try {
-            const telegramToken = "8153224318:AAHkRdlKT-CpvzkxHcqVp1GjNQRw44-3ecU"; // 🔴 PASTE YOUR TOKEN
-            const chatIds = ["908509331","915719209"];         // 🔴 PASTE YOUR CHAT ID
+            const telegramToken = "8153224318:AAHkRdlKT-CpvzkxHcqVp1GjNQRw44-3ecU"; 
+            const chatIds = ["908509331", "915719209"]; // Your 2 IDs
 
             const text = `📦 *NEW ORDER RECEIVED!* \n\n` +
                          `🆔 Order ID: #${newOrder._id.toString().slice(-6).toUpperCase()}\n` +
@@ -92,15 +92,25 @@ router.post('/', async (req, res) => {
                          `📱 Phone: ${customerPhone}\n` +
                          `📍 Location: ${shippingAddress}`;
 
-            await axios.post(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
-                chat_id: id,
-                text: text,
-                parse_mode: 'Markdown'
-            });
+            // 🟢 CRITICAL FIX: Loop through the list!
+            // We use 'map' with Promise.all to ensure all requests are sent
+            await Promise.all(chatIds.map(async (id) => {
+                try {
+                    await axios.post(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+                        chat_id: id,   // ✅ Now 'id' comes from the loop
+                        text: text,
+                        parse_mode: 'Markdown'
+                    });
+                } catch (innerErr) {
+                    console.error(`Failed to send to ${id}:`, innerErr.message);
+                }
+            }));
+
         } catch (error) {
             console.error("Telegram Notification Failed:", error.message);
         }
         // 🔵 TELEGRAM NOTIFICATION END
+        
 
         
         res.json({ message: "Order placed successfully!", orderId: newOrder._id });
