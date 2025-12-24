@@ -247,6 +247,14 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
                   );
                 })}
               </div>
+                            {/* 🟢 NEW: Modern Availability Message */}
+              <div style={{ 
+                marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px', 
+                fontSize: '11px', color: 'var(--text-muted)', opacity: 0.8, fontStyle: 'italic' 
+              }}>
+                <span>✨</span> Colors are subject to availability
+              </div>
+              
             </div>
           )}
           
