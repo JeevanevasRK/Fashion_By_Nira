@@ -31,7 +31,7 @@ mongoose.connect(process.env.MONGO_URI)
     });
 
 // 🟢 LOADER.IO VERIFICATION
-app.get('/loaderio-66c64c6a1e1b651ca6759ce761dc31cf', (req, res) => {
+app.get('/loaderio-66c64c6a1e1b651ca6759ce761dc31cf/', (req, res) => {
     res.send('loaderio-66c64c6a1e1b651ca6759ce761dc31cf');
 });
 
