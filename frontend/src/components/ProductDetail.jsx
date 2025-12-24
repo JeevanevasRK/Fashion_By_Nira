@@ -262,7 +262,11 @@ const ProductDetail = ({ product, addToCart, decreaseQty, cart, onBack }) => {
 
           {/* 🟢 SMART CART LOGIC (Aligned & Modern) */}
           {(() => {
-            const cartItem = cart ? cart.find(item => item._id === product._id) : null;
+                        // 🟢 FIXED: Now matches both ID and the specific Color selected
+            const cartItem = cart ? cart.find(item => 
+              item._id === product._id && (item.selectedColor || null) === (selectedColor || null)
+            ) : null;
+      
             const currentQty = cartItem ? cartItem.quantity : 0;
 
             if (!product.inStock) {
