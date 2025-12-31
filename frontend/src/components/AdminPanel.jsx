@@ -79,7 +79,7 @@ const downloadInvoice = async (order) => {
         <div style="text-align: right;">
           <h2 style="margin: 0; color: #512da8;">INVOICE</h2>
           <p style="font-weight: bold; margin: 5px 0;">#${order._id.slice(-6).toUpperCase()}</p>
-          <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date().toLocaleDateString()}</p>
+          <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
         </div>
       </div>
 
