@@ -64,7 +64,7 @@ const downloadInvoice = async (order) => {
             <strong>Fashion By Nira</strong><br>
             Tiruchengode Namakkal,<br>
             Tamil Nadu - 637211<br>
-            +91 9585026838
+            +91 9003866090
           </p>
         </div>
         
@@ -111,7 +111,7 @@ const downloadInvoice = async (order) => {
       </div>
 
       <div style="margin-top: 60px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 20px;">
-        <p>Thank you for your business! | support@fashionbynira.com</p>
+        <p>Thank you for your business! | query.fashionbynira@gmail.com</p>
       </div>
     </div>
   `;
