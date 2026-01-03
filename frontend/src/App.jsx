@@ -896,8 +896,8 @@ function App() {
         <div style={{ maxWidth: '600px', margin: '0 auto' }} className="animate">
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Contact Us</h2>
           <div className="card" style={{ padding: '30px' }}>
-            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9585026838</p>
-            <p style={{ marginBottom: '15px' }}><strong>📧 Email:</strong> support@fashionbynira.com</p>
+            <p style={{ marginBottom: '15px' }}><strong>📞 Phone:</strong> +91 9003866090</p>
+            <p style={{ marginBottom: '15px' }}><strong>📧 Email:</strong> query.fashionbynira@gmail.com</p>
             <p style={{ marginBottom: '25px' }}><strong>📍 Address:</strong> Tiruchengode, Namakkal, Tamil Nadu - 637211</p>
 
             <div style={{ display: 'grid', gap: '10px' }}>
@@ -906,7 +906,7 @@ function App() {
                   📸 Visit Instagram
                 </button>
               </a>
-              <a href="https://wa.me/919585026838?text=Hi Nira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://wa.me/919003866090?text=Hi Nira" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-primary" style={{ width: '100%', background: '#25D366', border: 'none' }}>
                   💬 Chat on WhatsApp
                 </button>
