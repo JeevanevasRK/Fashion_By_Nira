@@ -754,7 +754,28 @@ function AdminPanel({ token, setIsAdmin }) {
                                                     <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{o.customerName}</div>
                                                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{o.customerPhone}</div>
                                                 </div>
-                                                <span style={{ fontWeight: 'bold', fontSize: '18px' }}>₹{o.totalAmount}</span>
+                                                                                            {/* 🟢 NEW: Total + Transaction ID Display */}
+                                            <div style={{ textAlign: 'right' }}>
+                                                <div style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--accent)' }}>₹{o.totalAmount}</div>
+                                                
+                                                {/* Payment Badge */}
+                                                <div style={{ fontSize: '11px', fontWeight: 'bold', marginTop: '4px', color: '#555' }}>
+                                                    {o.paymentMethod || 'UPI'}
+                                                </div>
+
+                                                {/* UTR Number (Highlighted) */}
+                                                {o.transactionId && (
+                                                    <div style={{ 
+                                                        fontSize: '11px', fontFamily: 'monospace', 
+                                                        background: '#e3f2fd', color: '#1565c0', 
+                                                        padding: '2px 6px', borderRadius: '4px', marginTop: '4px',
+                                                        border: '1px solid #90caf9'
+                                                    }}>
+                                                        UTR: {o.transactionId}
+                                                    </div>
+                                                )}
+                                            </div>
+                                                
                                             </div>
                                             <div style={{ background: 'var(--bg-body)', padding: '10px', borderRadius: '10px', marginBottom: '15px' }}>
                                                 {o.products.map((p, i) => {
