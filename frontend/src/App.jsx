@@ -105,22 +105,30 @@ const downloadInvoice = async (order) => {
         <div style="width: 250px; border-top: 2px solid #000; padding-top: 10px;">
           
           
-          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #555;">
-            <span>Subtotal:</span>
-            <span>₹${order.products.reduce((acc, p) => acc + ((p.price || p.productId?.price || 0) * p.quantity), 0)}</span>
-          </div>
+                    
+          ${(() => {
+            const subtotal = order.products.reduce((acc, p) => acc + ((p.price || p.productId?.price || 0) * p.quantity), 0);
+            const shipping = 60;
+            const finalTotal = subtotal + shipping;
 
-          
-          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #555;">
-            <span>Shipping:</span>
-            <span>₹60</span>
-          </div>
+            return `
+              <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #555;">
+                <span>Subtotal:</span>
+                <span>₹${subtotal}</span>
+              </div>
 
+              <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #555;">
+                <span>Shipping:</span>
+                <span>₹${shipping}</span>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; border-top: 1px solid #eee; padding-top: 10px;">
+                <span>Total:</span>
+                <span>₹${finalTotal}</span>
+              </div>
+            `;
+          })()}
           
-          <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; border-top: 1px solid #eee; padding-top: 10px;">
-            <span>Total:</span>
-            <span>₹${order.totalAmount}</span>
-          </div>
 
         </div>
       </div>
