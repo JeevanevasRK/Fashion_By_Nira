@@ -827,8 +827,41 @@ function App() {
 
 
                   <textarea className="input" placeholder="Full Address" required onChange={e => setGuestDetails({ ...guestDetails, address: e.target.value })} />
-                  <button className="btn btn-primary" style={{ width: '100%' }}>Confirm Order (COD)</button>
-                </form>
+                   {/* 🟢 NEW: QR Code Section (Always Visible) */}
+  <div className="animate" style={{ 
+    marginTop: '20px', padding: '20px', borderRadius: '12px', 
+    background: 'var(--bg-body)', border: '1px solid var(--border)', textAlign: 'center' 
+  }}>
+    <p style={{ fontSize: '16px', marginBottom: '15px', fontWeight: 'bold', color: 'var(--accent)' }}>
+      Scan to Pay (Prepaid Only)
+    </p>
+    
+    {/* ⚠️ REPLACE THIS LINK WITH YOUR ACTUAL QR CODE IMAGE */}
+    <img 
+      src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" 
+      alt="Pay via UPI"
+      style={{ width: '180px', height: '180px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #ddd' }}
+    />
+
+    <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '15px', lineHeight: '1.6' }}>
+      Total Amount: <b style={{ fontSize: '18px', color: 'var(--text-main)' }}>₹{cart.reduce((a,c)=>a+(c.price*c.quantity),0) + 60}</b><br/>
+      <span style={{ fontSize: '12px' }}>Please enter the 12-digit UPI Reference / UTR Number below after payment.</span>
+    </div>
+
+    <input 
+      className="input" 
+      placeholder="Enter 12-digit Transaction ID / UTR" 
+      required 
+      value={utr}
+      onChange={(e) => setUtr(e.target.value)}
+      style={{ textAlign: 'center', letterSpacing: '1px', fontWeight: 'bold' }}
+    />
+  </div>
+
+  <button className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>
+    Verify & Place Order
+  </button>
+</form>
               </div>
             </div>
           )}
