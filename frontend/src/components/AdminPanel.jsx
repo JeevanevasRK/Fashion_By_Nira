@@ -82,10 +82,14 @@ const downloadInvoice = async (order) => {
           <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
           
           
-          <div style="margin-top: 5px; padding: 5px; border: 1px dashed #ccc; background: #f9f9f9; display: inline-block;">
-             <p style="margin: 0; font-size: 11px; font-weight: bold;">Method: ${order.paymentMethod || 'UPI'}</p>
-             <p style="margin: 2px 0 0; font-size: 11px; font-family: monospace;">UTR: ${order.transactionId || 'N/A'}</p>
+                    <div style="margin-top: 5px; padding: 6px; border: 1px solid #ddd; background: #f0f0f0; display: inline-block; border-radius: 4px;">
+             <p style="margin: 0; font-size: 10px; color: #555; text-transform: uppercase; font-weight: bold;">Payment Mode</p>
+             <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #000;">${order.paymentMethod || 'UPI'}</p>
+
+             <p style="margin: 0; font-size: 10px; color: #555; text-transform: uppercase; font-weight: bold;">UTR / Ref No</p>
+             <p style="margin: 0; font-size: 12px; font-weight: bold; color: #000; font-family: monospace;">${order.transactionId}</p>
           </div>
+          
         </div>
         </div>
 
