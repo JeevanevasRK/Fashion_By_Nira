@@ -241,6 +241,9 @@ function App() {
   const [trackedOrders, setTrackedOrders] = useState(null);
 
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('myShopCart')) || []);
+    // 🟢 NEW: Store the UPI Transaction ID
+  const [utr, setUtr] = useState('');
+  
     const [itemToDelete, setItemToDelete] = useState(null); // Stores { id, color }
   
   // 🟢 NEW: Cart Error State (For Stock Validation)
