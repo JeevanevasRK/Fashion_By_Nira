@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
 // 1. PLACE ORDER (Public) - [INVOICE FIX + STOCK MANAGEMENT]
 router.post('/', async (req, res) => {
     try {
-        const { products, shippingAddress, customerName, customerPhone } = req.body;
+        const { products, shippingAddress, customerName, customerPhone, paymentMethod, transactionId } = req.body;
 
         let finalTotal = 0;
         const frozenProducts = [];
@@ -75,6 +75,8 @@ router.post('/', async (req, res) => {
             shippingAddress,
             customerName,
             customerPhone,
+            paymentMethod: paymentMethod || 'UPI',
+            transactionld: transactionld || ",
             status: 'Pending'
         });
 
