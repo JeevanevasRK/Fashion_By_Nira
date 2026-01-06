@@ -348,27 +348,46 @@ function App() {
   };
   
 
-    const handleCheckout = async (e) => {
+      const handleCheckout = async (e) => {
     e.preventDefault();
     if (cart.length === 0) return alert("Cart empty");
+
+    // 🟢 VALIDATION: UTR is Mandatory for UPI
+    if (!utr.trim()) {
+      setWarningMsg("⚠️ Please scan QR & enter Transaction ID");
+      setTimeout(() => setWarningMsg(""), 3000);
+      return;
+    }
+
     try {
       await axios.post(`${API}/orders`, {
-        // 🟢 FIXED: Now we explicitly save 'selectedColor' to the database
         products: cart.map(i => ({ 
             productId: i._id, 
             quantity: i.quantity, 
             price: i.price,
-            selectedColor: i.selectedColor || null  // <--- THIS WAS MISSING
+            selectedColor: i.selectedColor || null
         })),
-                // 🟢 FIXED: Include Shipping in Final Order Amount
+        // 🟢 Calculation: Subtotal + 60 Shipping
         totalAmount: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0) + 60,
+        shippingAddress: guestDetails.address, 
+        customerName: guestDetails.name, 
+        customerPhone: guestDetails.phone,
         
-        shippingAddress: guestDetails.address, customerName: guestDetails.name, customerPhone: guestDetails.phone
+        // 🟢 PAYMENT DETAILS (Strict UPI)
+        paymentMethod: 'UPI', 
+        transactionId: utr
       });
-      setOrderSuccess(true); setCart([]); setGuestDetails({ name: '', phone: '', address: '' });
+
+      setOrderSuccess(true); 
+      setCart([]); 
+      setGuestDetails({ name: '', phone: '', address: '' });
+      setUtr(''); // Clear UTR
       setTimeout(() => { setOrderSuccess(false); setView('shop'); }, 3000);
-    } catch (err) { alert("Failed to place order"); }
+    } catch (err) { 
+      alert("Failed to place order"); 
+    }
   };
+  
   
 
   const handleTrackOrder = async (e) => {
