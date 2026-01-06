@@ -24,6 +24,9 @@ const orderSchema = new mongoose.Schema({
 
     totalAmount: Number,
     shippingAddress: String,
+     // 🟢 NEW: REQUIRED FOR UPI PAYMENTS
+    paymentMethod: { type: String, default: 'UPI' },
+    transactionId: { type: String, default: '' },   // <--- This saves the UTR number
     status: { type: String, default: 'Pending' },
     createdAt: { type: Date, default: Date.now }
 });
