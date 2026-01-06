@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
             customerName,
             customerPhone,
             paymentMethod: paymentMethod || 'UPI',
-            transactionId: transactionId || ",
+            transactionId: transactionId || '',
             status: 'Pending'
         });
 
