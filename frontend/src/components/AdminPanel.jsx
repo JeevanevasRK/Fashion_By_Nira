@@ -82,13 +82,18 @@ const downloadInvoice = async (order) => {
           <p style="margin: 0; font-size: 12px; color: #888;">Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
           
           
-                    <div style="margin-top: 5px; padding: 6px; border: 1px solid #ddd; background: #f0f0f0; display: inline-block; border-radius: 4px;">
-             <p style="margin: 0; font-size: 10px; color: #555; text-transform: uppercase; font-weight: bold;">Payment Mode</p>
-             <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #000;">${order.paymentMethod || 'UPI'}</p>
-
-             <p style="margin: 0; font-size: 10px; color: #555; text-transform: uppercase; font-weight: bold;">UTR / Ref No</p>
-             <p style="margin: 0; font-size: 12px; font-weight: bold; color: #000; font-family: monospace;">${order.transactionId}</p>
-          </div>
+                              
+          <table style="margin-top: 10px; border: 1px solid #000; width: 200px; float: right; background: #ffffff; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 5px; border-bottom: 1px solid #ccc; font-size: 10px; font-weight: bold; color: #555; background: #f4f4f4;">MODE</td>
+              <td style="padding: 5px; border-bottom: 1px solid #ccc; font-size: 12px; font-weight: bold; color: #000; text-align: right;">${order.paymentMethod || 'UPI'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px; font-size: 10px; font-weight: bold; color: #555; background: #f4f4f4;">UTR</td>
+              <td style="padding: 5px; font-size: 12px; font-weight: bold; color: #000; font-family: monospace; text-align: right;">${order.transactionId || '-'}</td>
+            </tr>
+          </table>
+          
           
         </div>
         </div>
