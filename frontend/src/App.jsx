@@ -333,7 +333,9 @@ function App() {
             price: i.price,
             selectedColor: i.selectedColor || null  // <--- THIS WAS MISSING
         })),
-        totalAmount: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0),
+                // 🟢 FIXED: Include Shipping in Final Order Amount
+        totalAmount: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0) + 60,
+        
         shippingAddress: guestDetails.address, customerName: guestDetails.name, customerPhone: guestDetails.phone
       });
       setOrderSuccess(true); setCart([]); setGuestDetails({ name: '', phone: '', address: '' });
