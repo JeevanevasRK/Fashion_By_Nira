@@ -99,16 +99,32 @@ const downloadInvoice = async (order) => {
             </tr>
           `).join('')}
         </tbody>
-      </table>
+            </table>
 
       <div style="display: flex; justify-content: flex-end;">
         <div style="width: 250px; border-top: 2px solid #000; padding-top: 10px;">
-          <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold;">
+          
+          {/* 🟢 NEW: Subtotal Calculation */}
+          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #555;">
+            <span>Subtotal:</span>
+            <span>₹${order.products.reduce((acc, p) => acc + ((p.price || p.productId?.price || 0) * p.quantity), 0)}</span>
+          </div>
+
+          {/* 🟢 NEW: Shipping Field */}
+          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #555;">
+            <span>Shipping:</span>
+            <span>₹60</span>
+          </div>
+
+          {/* 🟢 NEW: Final Total */}
+          <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; border-top: 1px solid #eee; padding-top: 10px;">
             <span>Total:</span>
             <span>₹${order.totalAmount}</span>
           </div>
+
         </div>
       </div>
+      
 
       <div style="margin-top: 60px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 20px;">
         <p>Thank you for your business! | query.fashionbynira@gmail.com</p>
