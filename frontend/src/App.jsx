@@ -595,7 +595,39 @@ function App() {
                 
               </div>
               <div className="card" style={{ height: 'fit-content' }}>
-                <h3>Total: ₹{cart.reduce((a, c) => a + (c.price * c.quantity), 0)}</h3>
+                              {/* 🟢 NEW: Shipping Breakdown (Dark Mode Compatible) */}
+              {(() => {
+                const subtotal = cart.reduce((a, c) => a + (c.price * c.quantity), 0);
+                const shipping = 60; 
+                const total = subtotal + shipping;
+
+                return (
+                  <div style={{ marginBottom: '20px' }}>
+                    {/* Subtotal */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '14px' }}>
+                      <span>Subtotal</span>
+                      <span>₹{subtotal}</span>
+                    </div>
+
+                    {/* Shipping */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', color: 'var(--text-muted)', fontSize: '14px' }}>
+                      <span>Shipping</span>
+                      <span>₹{shipping}</span>
+                    </div>
+
+                    {/* Final Total */}
+                    <div style={{ 
+                      display: 'flex', justifyContent: 'space-between', 
+                      borderTop: '1px solid var(--border)', paddingTop: '15px', 
+                      fontSize: '20px', fontWeight: 'bold', color: 'var(--text-main)' 
+                    }}>
+                      <span>Total</span>
+                      <span>₹{total}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+                
                 <form onSubmit={handleCheckout} style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
                   <input className="input" placeholder="Full Name" required onChange={e => setGuestDetails({ ...guestDetails, name: e.target.value })} />
 
