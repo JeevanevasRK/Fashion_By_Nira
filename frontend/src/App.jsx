@@ -838,7 +838,7 @@ function App() {
     
     {/* ⚠️ REPLACE THIS LINK WITH YOUR ACTUAL QR CODE IMAGE */}
     <img 
-      src="https://raw.githubusercontent.com/JeevanevasRK/Fashion_By_Nira/main/frontend/public/Payment-qr.png" 
+      src="https://raw.githubusercontent.com/JeevanevasRK/Fashion_By_Nira/ec34a83238fb406b9fee30d61e5feeaf0bf1239e/frontend/public/Payment-qr.PNG" 
       alt="Pay via UPI"
       style={{ width: '180px', height: '180px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #ddd' }}
     />
