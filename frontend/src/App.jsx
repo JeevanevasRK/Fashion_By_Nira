@@ -398,6 +398,38 @@ function App() {
     } catch (err) { alert("No orders found"); }
   };
 
+
+    // 🟢 NEW: Handle Order via WhatsApp
+  const handleWhatsAppOrder = () => {
+    // Basic validation before redirecting to WhatsApp
+    if (!guestDetails.name || !guestDetails.phone || !guestDetails.address) {
+      setWarningMsg("⚠️ Please fill name, phone, and address first");
+      setTimeout(() => setWarningMsg(""), 3000);
+      return;
+    }
+
+    let message = `*NEW ORDER FROM WEBSITE*\n\n`;
+    message += `*Customer Details:*\n`;
+    message += `Name: ${guestDetails.name}\n`;
+    message += `Phone: ${selectedCountry}${guestDetails.phone}\n`;
+    message += `Address: ${guestDetails.address}\n\n`;
+    
+    message += `*Order Summary:*\n`;
+    cart.forEach((item, index) => {
+      message += `${index + 1}. ${item.title} ${item.selectedColor ? `(${item.selectedColor})` : ''} - Qty: ${item.quantity} - ₹${item.price * item.quantity}\n`;
+    });
+    
+    const subtotal = cart.reduce((a,c) => a + (c.price * c.quantity), 0);
+    message += `\nSubtotal: ₹${subtotal}\n`;
+    message += `Shipping: ₹60\n`;
+    message += `*Total Amount: ₹${subtotal + 60}*\n`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    // Opens WhatsApp with the pre-filled message sent to your business number
+    window.open(`https://wa.me/919003866090?text=${encodedMessage}`, '_blank');
+  };
+  
+
   return (
     <div className="wrapper">
 
@@ -857,6 +889,27 @@ function App() {
       style={{ textAlign: 'center', letterSpacing: '1px', fontWeight: 'bold' }}
     />
   </div>
+
+    {/* 🟢 MODIFIED: Dual Button Actions */}
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
+    <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+      Verify & Place Order
+    </button>
+    
+    <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px', margin: '5px 0' }}>
+      — OR —
+    </div>
+    
+    <button 
+      type="button" 
+      onClick={handleWhatsAppOrder}
+      className="btn" 
+      style={{ width: '100%', background: '#25D366', color: '#fff', border: 'none', fontWeight: 'bold' }}
+    >
+      💬 Confirm through WhatsApp
+    </button>
+  </div>
+                  
 
   <button className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>
     Verify & Place Order
