@@ -910,10 +910,6 @@ function App() {
     </button>
   </div>
                   
-
-  <button className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>
-    Verify & Place Order
-  </button>
 </form>
               </div>
             </div>
