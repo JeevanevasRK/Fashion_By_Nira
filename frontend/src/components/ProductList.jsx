@@ -97,9 +97,10 @@ const AddToCartBtn = ({ product, addToCart }) => {
 };
 
 // 🟢 UPDATED: Added 'decreaseQty' and 'cart' to the list of props
-function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery, apiUrl }) {
+function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery, sortOrder, apiUrl }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   // 🟢 NEW: State to track stock errors per product ID
   const [stockErrors, setStockErrors] = useState({});
@@ -127,7 +128,14 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
   }, []);
 
 
-  const filtered = products.filter(p => p.title.toLowerCase().includes((searchQuery || "").toLowerCase()));
+    const filteredAndSorted = products
+    .filter(p => p.title.toLowerCase().includes((searchQuery || "").toLowerCase()))
+    .sort((a, b) => {
+      if (sortOrder === "lowToHigh") return a.price - b.price;
+      if (sortOrder === "highToLow") return b.price - a.price;
+      return 0; 
+    });
+  
 
   if (loading) return <FashionLoader />;
 
@@ -141,7 +149,7 @@ function ProductList({ addToCart, decreaseQty, cart, onProductClick, searchQuery
         gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
         gap: '15px'
       }}>
-        {filtered.map(p => (
+        {filteredAndSorted.map(p => (
           <div key={p._id} className="card" onClick={() => onProductClick(p)} style={{ padding: '10px', cursor: 'pointer', opacity: p.inStock ? 1 : 0.7 }}>
 
             {/* 3:4 RATIO IMAGE CONTAINER */}
