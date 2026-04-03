@@ -507,84 +507,65 @@ function App() {
         </div>
       </header>
 
-
-      {/* MODERN SEARCH BAR (DARK MODE ADAPTIVE) */}
+            {/* MODERN SEARCH BAR & FILTER (DARK MODE ADAPTIVE) */}
       {view === 'shop' && (
         <div style={{
-          position: 'relative',
-          maxWidth: '500px',
+          display: 'flex',
+          gap: '10px',
+          maxWidth: '650px', 
           margin: '0 auto 30px auto',
           transition: 'all 0.3s ease'
         }}>
 
-          {/* SEARCH ICON */}
-          <span style={{
-            position: 'absolute',
-            left: '20px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            fontSize: '18px',
-            color: 'var(--text-muted)', // Adapted color
-            pointerEvents: 'none',
-            zIndex: 10
-          }}>
-            🔍
-          </span>
+          {/* SEARCH BAR (Wrapped inside its own relative div) */}
+          <div style={{ position: 'relative', flex: 1 }}>
+            <span style={{
+              position: 'absolute', left: '20px', top: '50%',
+              transform: 'translateY(-50%)', fontSize: '18px',
+              color: 'var(--text-muted)', pointerEvents: 'none', zIndex: 10
+            }}>
+              🔍
+            </span>
 
-          {/* THE INPUT FIELD */}
-          <input
-            type="text"
-            placeholder="Search Collection..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '16px 50px 16px 55px',
-              borderRadius: '50px',
-              // CHANGE: Used variables instead of fixed colors
-              border: '1px solid var(--border)',
-              background: 'var(--bg-card)',
-              color: 'var(--text-main)',
-              fontSize: '16px',
-              outline: 'none',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-              transition: 'box-shadow 0.3s ease'
-            }}
-            onFocus={(e) => e.target.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'}
-            onBlur={(e) => e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.05)'}
-          />
+            <input
+              type="text"
+              placeholder="Search Collection..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                padding: '16px 50px 16px 55px',
+                borderRadius: '50px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-card)',
+                color: 'var(--text-main)',
+                fontSize: '16px',
+                outline: 'none',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                transition: 'box-shadow 0.3s ease'
+              }}
+              onFocus={(e) => e.target.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'}
+              onBlur={(e) => e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.05)'}
+            />
 
-          {/* THE "X" CLEAR BUTTON */}
-          <button
-            onClick={() => setSearchQuery('')}
-            style={{
-              position: 'absolute',
-              right: '15px',
-              top: '50%',
-              transform: searchQuery ? 'translateY(-50%) scale(1)' : 'translateY(-50%) scale(0)',
-              opacity: searchQuery ? 1 : 0,
-              transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              // CHANGE: Adapts to dark mode background
-              background: 'var(--bg-body)',
-              border: '1px solid var(--border)',
-              borderRadius: '50%',
-              width: '28px',
-              height: '28px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: 'var(--text-main)', // Adapts text color
-              fontSize: '14px',
-            }}
-            // Hover effect (Manual check for theme not possible inline, so we use opacity)
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-          >
-            ✕
-          </button>
-        </div>
-      {/* 🟢 NEW: SORT FILTER DROPDOWN */}
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                position: 'absolute', right: '15px', top: '50%',
+                transform: searchQuery ? 'translateY(-50%) scale(1)' : 'translateY(-50%) scale(0)',
+                opacity: searchQuery ? 1 : 0, transition: 'all 0.2s ease',
+                background: 'var(--bg-body)', border: '1px solid var(--border)',
+                borderRadius: '50%', width: '28px', height: '28px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'var(--text-main)', fontSize: '14px',
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* 🟢 NEW: SORT FILTER DROPDOWN */}
           <select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
@@ -610,9 +591,10 @@ function App() {
             <option value="lowToHigh">Price: Low to High</option>
             <option value="highToLow">Price: High to Low</option>
           </select>
+
         </div>
       )}
-
+      
 
       {/* COMPONENTS */}
       <SideMenu isOpen={menuOpen} close={() => setMenuOpen(false)} view={view} setView={setView} cartCount={cart.reduce((a, c) => a + c.quantity, 0)} isAdmin={token && role === 'admin'} onLogin={() => setShowLogin(true)} onLogout={() => { setToken(null); setRole(null); setView('shop') }} />
