@@ -567,33 +567,92 @@ function App() {
             </button>
           </div>
 
-          {/* 🟢 NEW: SORT FILTER DROPDOWN */}
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            style={{
-              padding: '0 20px',
-              borderRadius: '50px',
-              border: '1px solid var(--border)',
-              background: 'var(--bg-card)',
-              color: 'var(--text-main)',
-              fontSize: '14px',
-              fontWeight: '600',
-              outline: 'none',
-              cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-              transition: 'box-shadow 0.3s ease',
-              WebkitAppearance: 'none',
-              MozAppearance: 'none',
-              appearance: 'none',
-              textAlign: 'center'
-            }}
-          >
-            <option value="">Sort: Default</option>
-            <option value="lowToHigh">Price: Low to High</option>
-            <option value="highToLow">Price: High to Low</option>
-          </select>
+                    {/* 🟢 MODERN SORT ICON & POPUP */}
+          <div style={{ position: 'relative' }}>
+            
+            {/* Invisible Overlay to close menu when clicking outside */}
+            {isSortOpen && (
+              <div
+                onClick={() => setIsSortOpen(false)}
+                style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+              ></div>
+            )}
 
+            {/* Premium Icon Button */}
+            <button
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              style={{
+                height: '54px', width: '54px', borderRadius: '50%',
+                border: '1px solid var(--border)', background: 'var(--bg-card)',
+                color: 'var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s ease', position: 'relative', zIndex: 100
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {/* Slider Settings SVG Icon */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="1" y1="14" x2="7" y2="14"></line>
+                <line x1="9" y1="8" x2="15" y2="8"></line>
+                <line x1="17" y1="16" x2="23" y2="16"></line>
+              </svg>
+
+              {/* Little colored dot that shows if a filter is active */}
+              {sortOrder !== "" && (
+                <span style={{
+                  position: 'absolute', top: '12px', right: '12px',
+                  width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)'
+                }}></span>
+              )}
+            </button>
+
+            {/* The Modern Popup Menu */}
+            <div style={{
+              position: 'absolute', top: '65px', right: '0', zIndex: 101,
+              background: 'var(--bg-card)', 
+              border: '1px solid var(--border)', borderRadius: '16px', padding: '8px', minWidth: '220px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+              opacity: isSortOpen ? 1 : 0,
+              transform: isSortOpen ? 'translateY(0) scale(1)' : 'translateY(-10px) scale(0.95)',
+              pointerEvents: isSortOpen ? 'auto' : 'none',
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              transformOrigin: 'top right'
+            }}>
+               {[
+                 { label: 'Default Order', value: '' },
+                 { label: 'Price: Low to High', value: 'lowToHigh' },
+                 { label: 'Price: High to Low', value: 'highToLow' }
+               ].map((opt, i) => (
+                 <div
+                   key={i}
+                   onClick={() => { setSortOrder(opt.value); setIsSortOpen(false); }}
+                   style={{
+                     padding: '12px 16px', borderRadius: '10px', cursor: 'pointer',
+                     fontSize: '14px', fontWeight: sortOrder === opt.value ? '700' : '500',
+                     color: sortOrder === opt.value ? 'var(--accent-text)' : 'var(--text-main)',
+                     background: sortOrder === opt.value ? 'var(--accent)' : 'transparent',
+                     transition: 'all 0.2s', marginBottom: i === 2 ? '0' : '4px',
+                     display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                   }}
+                   onMouseEnter={(e) => { if (sortOrder !== opt.value) e.currentTarget.style.background = 'var(--bg-body)'; }}
+                   onMouseLeave={(e) => { if (sortOrder !== opt.value) e.currentTarget.style.background = 'transparent'; }}
+                 >
+                   {opt.label}
+                   {sortOrder === opt.value && <span>✓</span>}
+                 </div>
+               ))}
+            </div>
+          </div>
+          
+
+          
         </div>
       )}
       
