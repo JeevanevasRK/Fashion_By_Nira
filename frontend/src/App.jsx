@@ -237,7 +237,9 @@ function App() {
   
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState(""); // 🟢 NEW: State for Price Filter
+  const [sortOrder, setSortOrder] = useState("");
+  const [isSortOpen, setIsSortOpen] = useState(false); // 🟢 NEW: State for Modern Popup
+  
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
 
