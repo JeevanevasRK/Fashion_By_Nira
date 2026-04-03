@@ -237,6 +237,7 @@ function App() {
   
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState(""); // 🟢 NEW: State for Price Filter
   const [trackPhone, setTrackPhone] = useState('');
   const [trackedOrders, setTrackedOrders] = useState(null);
 
@@ -583,6 +584,33 @@ function App() {
             ✕
           </button>
         </div>
+      {/* 🟢 NEW: SORT FILTER DROPDOWN */}
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            style={{
+              padding: '0 20px',
+              borderRadius: '50px',
+              border: '1px solid var(--border)',
+              background: 'var(--bg-card)',
+              color: 'var(--text-main)',
+              fontSize: '14px',
+              fontWeight: '600',
+              outline: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+              transition: 'box-shadow 0.3s ease',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              appearance: 'none',
+              textAlign: 'center'
+            }}
+          >
+            <option value="">Sort: Default</option>
+            <option value="lowToHigh">Price: Low to High</option>
+            <option value="highToLow">Price: High to Low</option>
+          </select>
+        </div>
       )}
 
 
@@ -607,6 +635,7 @@ function App() {
         decreaseQty={decreaseQty} // <--- Pass this function
         cart={cart}               // <--- Pass the cart state
         searchQuery={searchQuery}
+        sortOrder={sortOrder} // 🟢 NEW: Pass sort order to ProductList
         onProductClick={(p) => { setSelectedProduct(p); setView('details') }}
         apiUrl={API}
       />}
